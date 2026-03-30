@@ -13,6 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- ExcludeAssets=runtime：コンパイル時のみ参照、実行時の DLL はシェルが提供 -->
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2">
       <ExcludeAssets>runtime</ExcludeAssets>
     </PackageReference>

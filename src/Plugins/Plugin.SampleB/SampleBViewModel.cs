@@ -32,8 +32,8 @@ public partial class SampleBViewModel : ObservableObject
         var dlg = new OpenFileDialog
         {
             Filter =
-                "图片 (*.png;*.jpg;*.jpeg;*.bmp;*.gif)|*.png;*.jpg;*.jpeg;*.bmp;*.gif|所有文件 (*.*)|*.*",
-            Title = "选择图片"
+                "画像 (*.png;*.jpg;*.jpeg;*.bmp;*.gif)|*.png;*.jpg;*.jpeg;*.bmp;*.gif|すべてのファイル (*.*)|*.*",
+            Title = "画像の選択"
         };
         if (dlg.ShowDialog() != true)
             return;
@@ -49,7 +49,7 @@ public partial class SampleBViewModel : ObservableObject
         {
             if (!File.Exists(path))
             {
-                StatusMessage = "文件不存在。";
+                StatusMessage = "ファイルが存在しません。";
                 ImagePath = string.Empty;
                 return;
             }
@@ -67,7 +67,7 @@ public partial class SampleBViewModel : ObservableObject
         catch (Exception ex)
         {
             ImagePath = string.Empty;
-            StatusMessage = $"无法加载图片：{ex.Message}";
+            StatusMessage = $"画像を読み込めません：{ex.Message}";
         }
     }
 }

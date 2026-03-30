@@ -6,8 +6,8 @@ namespace Plugin.SampleB;
 public sealed class SampleBPlugin : IPluginModule
 {
     public string Id => "sampleB";
-    public string Title => "Sample B";
-    public string Description => "Preview visual gallery components";
+    public string Title => "サンプル B";
+    public string Description => "画像を選択してプレビューするサンプルです。";
     public string IconKey => "🧩";
     public int Order => 20;
 
