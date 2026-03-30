@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -33,6 +34,21 @@ public partial class SampleAViewModel : ObservableObject
     public bool HasStatusMessage => !string.IsNullOrEmpty(StatusMessage);
 
     partial void OnStatusMessageChanged(string value) => OnPropertyChanged(nameof(HasStatusMessage));
+
+    [RelayCommand]
+    private void SelectExcelFallback()
+    {
+        if (IsProcessing) return;
+        var dlg = new OpenFileDialog
+        {
+            Filter = "Excel (*.xlsx;*.xls)|*.xlsx;*.xls|所有文件 (*.*)|*.*",
+            Title = "手动选择 Excel 文件"
+        };
+        if (dlg.ShowDialog() == true)
+        {
+            HandleDroppedPathsAsync(new[] { dlg.FileName });
+        }
+    }
 
     public async void HandleDroppedPathsAsync(string[] paths)
     {
