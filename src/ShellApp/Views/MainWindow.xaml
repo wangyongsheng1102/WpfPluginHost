@@ -54,21 +54,18 @@
                                    Foreground="{DynamicResource PrimaryTextBrush}" />
                     </Button>
 
-                    <StackPanel Grid.Row="1"
-                                Margin="12,0,12,8">
-                        <Button HorizontalAlignment="Stretch"
-                                MinHeight="36"
-                                Padding="12,8"
-                                Content="ホーム"
-                                Style="{StaticResource ActionButtonStyle}"
-                                Command="{Binding ShowHomeCommand}" />
-                        <TextBlock Margin="2,10,0,0"
-                                   Style="{StaticResource SecondaryTextStyle}"
-                                   Text="{Binding PluginCountText}" />
-                    </StackPanel>
+                    <Button Grid.Row="1"
+                            Margin="10,0,10,8"
+                            HorizontalAlignment="Stretch"
+                            MinHeight="36"
+                            Padding="10,8"
+                            Content="{Binding HomeNavCaption}"
+                            ToolTip="ホーム"
+                            Style="{StaticResource ActionButtonStyle}"
+                            Command="{Binding ShowHomeCommand}" />
 
                     <ListBox Grid.Row="2"
-                             Margin="0,4,0,10"
+                             Margin="0,0,0,0"
                              Style="{StaticResource NavListBoxStyle}"
                              ItemContainerStyle="{StaticResource NavListBoxItemStyle}"
                              ItemsSource="{Binding MenuItems}"
@@ -121,13 +118,13 @@
                     </ListBox>
 
                     <StackPanel Grid.Row="3"
-                                Margin="18,0,0,12"
+                                Margin="6,8,6,12"
                                 Orientation="Vertical"
-                                HorizontalAlignment="Left"
+                                HorizontalAlignment="Stretch"
                                 VerticalAlignment="Bottom">
-                        
-                        <Button Width="40" Height="40"
-                                Margin="0,0,0,10"
+                        <Button Width="40"
+                                Height="40"
+                                HorizontalAlignment="Center"
                                 Style="{StaticResource ActionButtonStyle}"
                                 Command="{Binding ReloadPluginsCommand}"
                                 ToolTip="プラグインを再読み込み">
@@ -138,8 +135,19 @@
                                        Foreground="{DynamicResource PrimaryTextBrush}" />
                         </Button>
 
-                        <ToggleButton IsChecked="{Binding IsDarkTheme, Mode=TwoWay}"
+                        <ToggleButton Margin="0,8,0,0"
+                                      HorizontalAlignment="Center"
+                                      IsChecked="{Binding IsDarkTheme, Mode=TwoWay}"
                                       Style="{StaticResource ThemeIconToggleStyle}" />
+
+                        <TextBlock Margin="0,12,0,0"
+                                   HorizontalAlignment="Center"
+                                   MaxWidth="248"
+                                   Text="{Binding PluginCountNavDisplay}"
+                                   ToolTip="{Binding PluginCountText}"
+                                   TextAlignment="Center"
+                                   TextWrapping="Wrap"
+                                   Style="{StaticResource SecondaryTextStyle}" />
                     </StackPanel>
                 </Grid>
             </Grid>
