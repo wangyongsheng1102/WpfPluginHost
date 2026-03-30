@@ -108,22 +108,25 @@
                     </ListBox>
 
                     <StackPanel Grid.Row="3"
-                                Margin="12,0,12,12"
-                                Orientation="Horizontal"
+                                Margin="18,0,0,12"
+                                Orientation="Vertical"
                                 HorizontalAlignment="Left"
                                 VerticalAlignment="Bottom">
-                        <ToggleButton IsChecked="{Binding IsDarkTheme, Mode=TwoWay}"
-                                      Style="{StaticResource ThemeIconToggleStyle}" />
-
-                        <Button Margin="8,0,0,0"
-                                Width="34" Height="34"
+                        
+                        <Button Width="40" Height="40"
+                                Margin="0,0,0,10"
                                 Style="{StaticResource ActionButtonStyle}"
                                 Command="{Binding ReloadPluginsCommand}"
                                 ToolTip="Reload Plugins">
                             <TextBlock Text="🔄"
-                                       FontSize="16"
+                                       FontSize="18"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
                                        Foreground="{DynamicResource PrimaryTextBrush}" />
                         </Button>
+
+                        <ToggleButton IsChecked="{Binding IsDarkTheme, Mode=TwoWay}"
+                                      Style="{StaticResource ThemeIconToggleStyle}" />
                     </StackPanel>
                 </Grid>
             </Grid>
