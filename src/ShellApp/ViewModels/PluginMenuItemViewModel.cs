@@ -16,6 +16,7 @@ public sealed class PluginMenuItemViewModel
     public string SourcePath { get; }
     public string Id => Module.Id;
     public string Title => Module.Title;
+    public string Description => string.IsNullOrWhiteSpace(Module.Description) ? Title : Module.Description;
     public string IconGlyph =>
         LooksLikeImagePath(Module.IconKey) || string.IsNullOrWhiteSpace(Module.IconKey)
             ? "◻"
