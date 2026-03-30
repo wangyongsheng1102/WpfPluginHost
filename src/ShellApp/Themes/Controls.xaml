@@ -208,6 +208,13 @@
         </Setter>
     </Style>
 
+    <!-- DataGridTextColumn のセル内 TextBlock はアプリの暗黙スタイルが効かないため、ElementStyle 用 -->
+    <Style x:Key="DataGridTextColumnElementStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+    </Style>
+
     <Style x:Key="NavListBoxStyle" TargetType="ListBox">
         <Setter Property="Background" Value="Transparent" />
         <Setter Property="BorderThickness" Value="0" />
