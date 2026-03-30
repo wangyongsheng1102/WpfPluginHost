@@ -8,6 +8,12 @@
                 <ResourceDictionary Source="Themes/Theme.Dark.xaml" />
                 <ResourceDictionary Source="Themes/Controls.xaml" />
             </ResourceDictionary.MergedDictionaries>
+            <Style TargetType="Window">
+                <Setter Property="TextElement.FontFamily" Value="Segoe UI Variable Display, Segoe UI, sans-serif" />
+            </Style>
+            <Style TargetType="UserControl">
+                <Setter Property="TextElement.FontFamily" Value="Segoe UI Variable Display, Segoe UI, sans-serif" />
+            </Style>
         </ResourceDictionary>
     </Application.Resources>
 </Application>
