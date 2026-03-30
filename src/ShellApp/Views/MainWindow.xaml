@@ -276,11 +276,42 @@
                                 Style="{StaticResource ThemeIconActionButtonStyle}"
                                 Command="{Binding ReloadPluginsCommand}"
                                 ToolTip="プラグインを再読み込み">
-                            <TextBlock Text="🔄"
+                            <Button.Triggers>
+                                <EventTrigger RoutedEvent="MouseEnter">
+                                    <BeginStoryboard Name="RefreshSpinStoryboard">
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="RefreshRotate"
+                                                             Storyboard.TargetProperty="Angle"
+                                                             From="0"
+                                                             To="360"
+                                                             Duration="0:0:0.9"
+                                                             RepeatBehavior="Forever" />
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </EventTrigger>
+                                <EventTrigger RoutedEvent="MouseLeave">
+                                    <StopStoryboard BeginStoryboardName="RefreshSpinStoryboard" />
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="RefreshRotate"
+                                                             Storyboard.TargetProperty="Angle"
+                                                             To="0"
+                                                             Duration="0:0:0.12" />
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </EventTrigger>
+                            </Button.Triggers>
+
+                            <TextBlock x:Name="RefreshIcon"
+                                       Text="🔄"
                                        FontSize="18"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center"
-                                       Foreground="{DynamicResource PrimaryTextBrush}" />
+                                       Foreground="{DynamicResource PrimaryTextBrush}">
+                                <TextBlock.RenderTransform>
+                                    <RotateTransform x:Name="RefreshRotate" Angle="0" />
+                                </TextBlock.RenderTransform>
+                            </TextBlock>
                         </Button>
 
                         <ToggleButton Margin="0,8,0,0"
