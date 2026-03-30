@@ -46,13 +46,61 @@
                     </Grid.RowDefinitions>
 
                     <Button Margin="10,10,10,4"
-                            Style="{StaticResource ThemeIconActionButtonStyle}"
                             Width="40"
                             Height="40"
                             HorizontalAlignment="Center"
                             Command="{Binding ToggleMenuCommand}"
                             WindowChrome.IsHitTestVisibleInChrome="True"
-                            Padding="0">
+                            Padding="0"
+                            Style="{StaticResource ThemeIconActionButtonStyle}">
+                        <Button.Triggers>
+                            <EventTrigger RoutedEvent="MouseEnter">
+                                <BeginStoryboard Name="MenuToggleWiggleStoryboard">
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="HamburgerLineTopTranslate"
+                                                         Storyboard.TargetProperty="X"
+                                                         From="-2"
+                                                         To="2"
+                                                         Duration="0:0:0.18"
+                                                         AutoReverse="True"
+                                                         RepeatBehavior="Forever" />
+                                        <DoubleAnimation Storyboard.TargetName="HamburgerLineMidTranslate"
+                                                         Storyboard.TargetProperty="X"
+                                                         From="-1"
+                                                         To="1"
+                                                         Duration="0:0:0.18"
+                                                         AutoReverse="True"
+                                                         RepeatBehavior="Forever" />
+                                        <DoubleAnimation Storyboard.TargetName="HamburgerLineBottomTranslate"
+                                                         Storyboard.TargetProperty="X"
+                                                         From="-2"
+                                                         To="2"
+                                                         Duration="0:0:0.18"
+                                                         AutoReverse="True"
+                                                         RepeatBehavior="Forever" />
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </EventTrigger>
+                            <EventTrigger RoutedEvent="MouseLeave">
+                                <StopStoryboard BeginStoryboardName="MenuToggleWiggleStoryboard" />
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="HamburgerLineTopTranslate"
+                                                         Storyboard.TargetProperty="X"
+                                                         To="0"
+                                                         Duration="0:0:0.05" />
+                                        <DoubleAnimation Storyboard.TargetName="HamburgerLineMidTranslate"
+                                                         Storyboard.TargetProperty="X"
+                                                         To="0"
+                                                         Duration="0:0:0.05" />
+                                        <DoubleAnimation Storyboard.TargetName="HamburgerLineBottomTranslate"
+                                                         Storyboard.TargetProperty="X"
+                                                         To="0"
+                                                         Duration="0:0:0.05" />
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </EventTrigger>
+                        </Button.Triggers>
                         <!-- 矢量三横（フォント glyph 依存を排除） -->
                         <Grid Width="22"
                               Height="22">
@@ -68,7 +116,11 @@
                                        RadiusY="1"
                                        Fill="{DynamicResource PrimaryTextBrush}"
                                        HorizontalAlignment="Center"
-                                       VerticalAlignment="Center" />
+                                       VerticalAlignment="Center">
+                                <Rectangle.RenderTransform>
+                                    <TranslateTransform x:Name="HamburgerLineTopTranslate" X="0" Y="0" />
+                                </Rectangle.RenderTransform>
+                            </Rectangle>
                             <Rectangle Grid.Row="1"
                                        Width="16"
                                        Height="2"
@@ -76,7 +128,11 @@
                                        RadiusY="1"
                                        Fill="{DynamicResource PrimaryTextBrush}"
                                        HorizontalAlignment="Center"
-                                       VerticalAlignment="Center" />
+                                       VerticalAlignment="Center">
+                                <Rectangle.RenderTransform>
+                                    <TranslateTransform x:Name="HamburgerLineMidTranslate" X="0" Y="0" />
+                                </Rectangle.RenderTransform>
+                            </Rectangle>
                             <Rectangle Grid.Row="2"
                                        Width="16"
                                        Height="2"
@@ -84,7 +140,11 @@
                                        RadiusY="1"
                                        Fill="{DynamicResource PrimaryTextBrush}"
                                        HorizontalAlignment="Center"
-                                       VerticalAlignment="Center" />
+                                       VerticalAlignment="Center">
+                                <Rectangle.RenderTransform>
+                                    <TranslateTransform x:Name="HamburgerLineBottomTranslate" X="0" Y="0" />
+                                </Rectangle.RenderTransform>
+                            </Rectangle>
                         </Grid>
                     </Button>
 
