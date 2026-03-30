@@ -16,18 +16,23 @@
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
-            <TextBox Grid.Column="0"
-                     MinHeight="36"
-                     Margin="0,0,12,0"
-                     Padding="10,8"
-                     VerticalContentAlignment="Center"
-                     IsReadOnly="True"
-                     Text="{Binding ExcelPath, Mode=OneWay}"
-                     ToolTip="所选 Excel 文件的绝对路径"
-                     Background="{DynamicResource NavBackgroundBrush}"
-                     BorderBrush="{DynamicResource HoverBrush}"
-                     Foreground="{DynamicResource PrimaryTextBrush}"
-                     CaretBrush="{DynamicResource PrimaryTextBrush}" />
+            <Border Grid.Column="0"
+                    Margin="0,0,12,0"
+                    Background="{DynamicResource NavBackgroundBrush}"
+                    BorderBrush="{DynamicResource HoverBrush}"
+                    BorderThickness="1"
+                    CornerRadius="4">
+                <TextBox MinHeight="34"
+                         Padding="10,8"
+                         VerticalContentAlignment="Center"
+                         IsReadOnly="True"
+                         Text="{Binding ExcelPath, Mode=OneWay}"
+                         ToolTip="所选 Excel 文件的绝对路径"
+                         Background="Transparent"
+                         BorderThickness="0"
+                         Foreground="{DynamicResource PrimaryTextBrush}"
+                         CaretBrush="{DynamicResource PrimaryTextBrush}" />
+            </Border>
             <Button Grid.Column="1"
                     MinWidth="120"
                     MinHeight="36"
@@ -58,17 +63,17 @@
                   AutoGenerateColumns="True"
                   CanUserAddRows="False"
                   CanUserDeleteRows="False"
-                  GridLinesVisibility="Horizontal"
+                  GridLinesVisibility="None"
                   HeadersVisibility="Column"
                   IsReadOnly="True"
                   ItemsSource="{Binding ExcelTable}"
-                  RowHeight="32"
+                  RowHeight="36"
                   SelectionUnit="CellOrRowHeader"
                   AlternationCount="2"
+                  BorderThickness="1"
+                  BorderBrush="{DynamicResource HoverBrush}"
                   Background="{DynamicResource ContentBackgroundBrush}"
                   Foreground="{DynamicResource PrimaryTextBrush}"
-                  BorderBrush="{DynamicResource HoverBrush}"
-                  HorizontalGridLinesBrush="{DynamicResource HoverBrush}"
                   RowBackground="{DynamicResource ContentBackgroundBrush}"
                   AlternatingRowBackground="{DynamicResource NavBackgroundBrush}">
             <DataGrid.ColumnHeaderStyle>
