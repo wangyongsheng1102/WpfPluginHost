@@ -52,7 +52,15 @@ public partial class MainWindowViewModel : ObservableObject
     private bool isDarkTheme;
 
     public double MenuWidth => IsMenuCollapsed ? 84 : 260;
+
     public string PluginCountText => $"プラグイン数: {MenuItems.Count}";
+
+    /// <summary>ナビ下部の件数表示。折りたたみ時は数字のみで幅を抑える。</summary>
+    public string PluginCountNavDisplay =>
+        IsMenuCollapsed ? MenuItems.Count.ToString() : $"プラグイン数: {MenuItems.Count}";
+
+    /// <summary>折りたたみ時はアイコンのみで「ホーム」を収める。</summary>
+    public string HomeNavCaption => IsMenuCollapsed ? "🏠" : "ホーム";
 
     public IRelayCommand ToggleMenuCommand { get; }
     public IRelayCommand ReloadPluginsCommand { get; }
@@ -65,6 +73,8 @@ public partial class MainWindowViewModel : ObservableObject
     partial void OnIsMenuCollapsedChanged(bool value)
     {
         OnPropertyChanged(nameof(MenuWidth));
+        OnPropertyChanged(nameof(PluginCountNavDisplay));
+        OnPropertyChanged(nameof(HomeNavCaption));
     }
 
     partial void OnIsDarkThemeChanged(bool value)
@@ -163,6 +173,7 @@ public partial class MainWindowViewModel : ObservableObject
         }
 
         OnPropertyChanged(nameof(PluginCountText));
+        OnPropertyChanged(nameof(PluginCountNavDisplay));
 
         if (MenuItems.Count == 0)
         {
