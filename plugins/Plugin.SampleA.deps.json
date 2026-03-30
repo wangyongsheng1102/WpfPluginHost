@@ -1,0 +1,57 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v8.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v8.0": {
+      "Plugin.SampleA/1.0.0": {
+        "dependencies": {
+          "CommunityToolkit.Mvvm": "8.4.2",
+          "Microsoft.Office.Interop.Excel": "16.0.18925.20022",
+          "Plugin.Abstractions": "1.0.0"
+        },
+        "runtime": {
+          "Plugin.SampleA.dll": {}
+        }
+      },
+      "CommunityToolkit.Mvvm/8.4.2": {},
+      "Microsoft.Office.Interop.Excel/16.0.18925.20022": {},
+      "Plugin.Abstractions/1.0.0": {
+        "runtime": {
+          "Plugin.Abstractions.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      }
+    }
+  },
+  "libraries": {
+    "Plugin.SampleA/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "CommunityToolkit.Mvvm/8.4.2": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-WadCzGEc2U+3e20avRLng4qNtt4zoOGWrdUISqJWrHe3/FSnrYjuM5Sb4yQb09LhkBXrrI4Zt3dLKgRMbItsrg==",
+      "path": "communitytoolkit.mvvm/8.4.2",
+      "hashPath": "communitytoolkit.mvvm.8.4.2.nupkg.sha512"
+    },
+    "Microsoft.Office.Interop.Excel/16.0.18925.20022": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-Wlhtqu3QfLnDRHc77bJewv5k27VASgcINA3eDAljfZQX9iTuM+12Mt7EJYZpxn+2gBw9dlK7q6riUxuXd4cviw==",
+      "path": "microsoft.office.interop.excel/16.0.18925.20022",
+      "hashPath": "microsoft.office.interop.excel.16.0.18925.20022.nupkg.sha512"
+    },
+    "Plugin.Abstractions/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}
