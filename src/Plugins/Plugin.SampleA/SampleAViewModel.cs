@@ -1,9 +1,11 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Microsoft.Win32;
-using System.Data;
+using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using Excel = Microsoft.Office.Interop.Excel;
 
 namespace Plugin.SampleA;
@@ -11,55 +13,123 @@ namespace Plugin.SampleA;
 public partial class SampleAViewModel : ObservableObject
 {
     [ObservableProperty]
-    private string _excelPath = string.Empty;
-
-    [ObservableProperty]
-    private DataTable? _excelTable;
-
-    [ObservableProperty]
     private string _statusMessage = string.Empty;
+
+    [ObservableProperty]
+    private bool _enableZoomFormat = true;
+
+    [ObservableProperty]
+    private int _zoomLevel = 100;
+
+    [ObservableProperty]
+    private bool _formatFocusA1 = true;
+
+    [ObservableProperty]
+    private bool _formatActiveFirstSheet = true;
+
+    [ObservableProperty]
+    private bool _isProcessing = false;
 
     public bool HasStatusMessage => !string.IsNullOrEmpty(StatusMessage);
 
     partial void OnStatusMessageChanged(string value) => OnPropertyChanged(nameof(HasStatusMessage));
 
-    [RelayCommand]
-    private void SelectExcel()
+    public async void HandleDroppedPathsAsync(string[] paths)
     {
-        var dlg = new OpenFileDialog
-        {
-            Filter = "Excel (*.xlsx;*.xls)|*.xlsx;*.xls|所有文件 (*.*)|*.*",
-            Title = "选择 Excel 文件"
-        };
-        if (dlg.ShowDialog() != true)
-            return;
+        if (IsProcessing) return;
+        IsProcessing = true;
+        StatusMessage = "扫描文件中...";
 
-        ExcelPath = dlg.FileName;
-        LoadExcel(dlg.FileName);
+        var excelFiles = new List<string>();
+        await Task.Run(() =>
+        {
+            foreach (var path in paths)
+            {
+                if (Directory.Exists(path))
+                {
+                    try
+                    {
+                        excelFiles.AddRange(Directory.GetFiles(path, "*.xls*", SearchOption.AllDirectories)
+                            .Where(f => !Path.GetFileName(f).StartsWith("~")));
+                    }
+                    catch { } // Ignore access exceptions
+                }
+                else if (File.Exists(path))
+                {
+                    if (path.EndsWith(".xls", StringComparison.OrdinalIgnoreCase) ||
+                        path.EndsWith(".xlsx", StringComparison.OrdinalIgnoreCase) ||
+                        path.EndsWith(".xlsm", StringComparison.OrdinalIgnoreCase))
+                    {
+                        excelFiles.Add(path);
+                    }
+                }
+            }
+        });
+
+        if (excelFiles.Count == 0)
+        {
+            StatusMessage = "未发现有效的 Excel 文件。";
+            IsProcessing = false;
+            return;
+        }
+
+        StatusMessage = $"找到 {excelFiles.Count} 个文件，即将开始处理...";
+        
+        await Task.Run(() => ProcessFiles(excelFiles));
+        IsProcessing = false;
     }
 
-    private void LoadExcel(string path)
+    private void ProcessFiles(List<string> files)
     {
-        StatusMessage = string.Empty;
         Excel.Application? app = null;
-        Excel.Workbook? wb = null;
-        Excel.Worksheet? ws = null;
-        Excel.Range? usedRange = null;
         try
         {
-            if (!File.Exists(path))
-            {
-                StatusMessage = "文件不存在。";
-                ExcelTable = null;
-                return;
-            }
-
             app = new Excel.Application();
             app.Visible = false;
             app.DisplayAlerts = false;
             app.ScreenUpdating = false;
 
-            // 允许读写，以便保存各个 Sheet 的缩放比例和光标位置
+            int count = 0;
+            foreach (var path in files)
+            {
+                count++;
+                System.Windows.Application.Current.Dispatcher.Invoke(() => 
+                {
+                    StatusMessage = $"处理中 ({count}/{files.Count}): {Path.GetFileName(path)}";
+                });
+
+                FormatSingleExcel(app, path);
+            }
+
+            System.Windows.Application.Current.Dispatcher.Invoke(() => 
+            {
+                StatusMessage = $"格式化完成！共处理了 {files.Count} 个文件。";
+            });
+        }
+        catch (Exception ex)
+        {
+            System.Windows.Application.Current.Dispatcher.Invoke(() => 
+            {
+                StatusMessage = $"自动化异常：{ex.Message}";
+            });
+        }
+        finally
+        {
+            if (app != null)
+            {
+                app.Quit();
+                Marshal.ReleaseComObject(app);
+            }
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+        }
+    }
+
+    private void FormatSingleExcel(Excel.Application app, string path)
+    {
+        Excel.Workbook? wb = null;
+        try
+        {
             wb = app.Workbooks.Open(
                 Filename: path,
                 UpdateLinks: Type.Missing,
@@ -68,118 +138,47 @@ public partial class SampleAViewModel : ObservableObject
             for (int i = 1; i <= wb.Worksheets.Count; i++)
             {
                 var currentSheet = (Excel.Worksheet)wb.Worksheets[i];
-                currentSheet.Activate();
-
-                if (app.ActiveWindow != null)
+                
+                if (EnableZoomFormat || FormatFocusA1)
                 {
-                    app.ActiveWindow.Zoom = 100;
-                }
+                    currentSheet.Activate();
+                    
+                    if (EnableZoomFormat && app.ActiveWindow != null)
+                    {
+                        int safeZoom = Math.Max(10, Math.Min(400, ZoomLevel));
+                        app.ActiveWindow.Zoom = safeZoom;
+                    }
 
-                var a1 = currentSheet.Range["A1"];
-                a1.Select();
-                Marshal.ReleaseComObject(a1);
+                    if (FormatFocusA1)
+                    {
+                        var a1 = currentSheet.Range["A1"];
+                        a1.Select();
+                        Marshal.ReleaseComObject(a1);
+                    }
+                }
                 Marshal.ReleaseComObject(currentSheet);
             }
 
-            // 默认激活第一个工作表
-            ws = (Excel.Worksheet)wb.Sheets[1];
-            ws.Activate();
+            if (FormatActiveFirstSheet && wb.Sheets.Count > 0)
+            {
+                var firstSheet = (Excel.Worksheet)wb.Sheets[1];
+                firstSheet.Activate();
+                Marshal.ReleaseComObject(firstSheet);
+            }
 
-            // 保存更改
             wb.Save();
-
-            usedRange = ws.UsedRange;
-            if (usedRange == null)
-            {
-                ExcelTable = new DataTable();
-                return;
-            }
-
-            int rowCount = usedRange.Rows.Count;
-            int colCount = usedRange.Columns.Count;
-            if (rowCount == 0 || colCount == 0)
-            {
-                ExcelTable = new DataTable();
-                return;
-            }
-
-            var table = new DataTable();
-
-            for (int c = 1; c <= colCount; c++)
-            {
-                var headerCell = (Excel.Range)usedRange.Cells[1, c];
-                string header;
-                try
-                {
-                    header = headerCell.Text?.ToString()?.Trim() ?? string.Empty;
-                }
-                finally
-                {
-                    Marshal.ReleaseComObject(headerCell);
-                }
-
-                if (string.IsNullOrEmpty(header))
-                    header = $"列{c}";
-                var columnName = header;
-                var baseName = header;
-                int n = 1;
-                while (table.Columns.Contains(columnName))
-                {
-                    columnName = $"{baseName}_{n}";
-                    n++;
-                }
-                table.Columns.Add(columnName, typeof(string));
-            }
-
-            for (int r = 2; r <= rowCount; r++)
-            {
-                var row = table.NewRow();
-                for (int c = 1; c <= colCount; c++)
-                {
-                    var cell = (Excel.Range)usedRange.Cells[r, c];
-                    try
-                    {
-                        row[c - 1] = cell.Text?.ToString() ?? string.Empty;
-                    }
-                    finally
-                    {
-                        Marshal.ReleaseComObject(cell);
-                    }
-                }
-                table.Rows.Add(row);
-            }
-
-            ExcelTable = table;
         }
-        catch (COMException ex)
+        catch (Exception)
         {
-            ExcelTable = null;
-            StatusMessage =
-                $"Excel 自动化失败（{ex.Message}）。请确认本机已安装 Microsoft Excel，且未被策略禁用 COM 自动化。";
-        }
-        catch (Exception ex)
-        {
-            ExcelTable = null;
-            StatusMessage = $"无法读取 Excel：{ex.Message}";
+            // Silently ignore individual file errors to continue batch processing
         }
         finally
         {
-            if (usedRange != null)
-                Marshal.ReleaseComObject(usedRange);
-            if (ws != null)
-                Marshal.ReleaseComObject(ws);
             if (wb != null)
             {
                 wb.Close(SaveChanges: false);
                 Marshal.ReleaseComObject(wb);
             }
-            if (app != null)
-            {
-                app.Quit();
-                Marshal.ReleaseComObject(app);
-            }
-            GC.Collect();
-            GC.WaitForPendingFinalizers();
         }
     }
 }

@@ -2,49 +2,81 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              Background="{DynamicResource ContentBackgroundBrush}">
-    <Grid Margin="20"
+    <Grid Margin="30"
           Background="{DynamicResource ContentBackgroundBrush}">
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <!-- 路径 + 选择 -->
-        <Grid Grid.Row="0">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="Auto" />
-            </Grid.ColumnDefinitions>
-            <Border Grid.Column="0"
-                    Margin="0,0,12,0"
-                    Background="{DynamicResource NavBackgroundBrush}"
-                    BorderBrush="{DynamicResource HoverBrush}"
-                    BorderThickness="1"
-                    CornerRadius="4">
-                <TextBox MinHeight="34"
-                         Padding="10,8"
-                         VerticalContentAlignment="Center"
-                         IsReadOnly="True"
-                         Text="{Binding ExcelPath, Mode=OneWay}"
-                         ToolTip="所选 Excel 文件的绝对路径"
-                         Background="Transparent"
-                         BorderThickness="0"
-                         Foreground="{DynamicResource PrimaryTextBrush}"
-                         CaretBrush="{DynamicResource PrimaryTextBrush}" />
-            </Border>
-            <Button Grid.Column="1"
-                    MinWidth="120"
-                    MinHeight="36"
-                    Padding="16,8"
-                    Content="选择 Excel…"
-                    Command="{Binding SelectExcelCommand}"
-                    Style="{DynamicResource ActionButtonStyle}" />
-        </Grid>
+        <!-- Configuration Options -->
+        <Border Grid.Row="0" Margin="0,0,0,24" Padding="20"
+                Background="{DynamicResource NavBackgroundBrush}"
+                CornerRadius="8" BorderThickness="1" BorderBrush="{DynamicResource HoverBrush}">
+            <StackPanel>
+                <TextBlock Text="格式化选项" FontSize="18" FontWeight="SemiBold" 
+                           Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,16"/>
+                
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                    <CheckBox Content="重置所有工作表缩放比例：" 
+                              IsChecked="{Binding EnableZoomFormat}"
+                              Foreground="{DynamicResource PrimaryTextBrush}"
+                              VerticalAlignment="Center" FontSize="14" />
+                    <Border Background="{DynamicResource NavBackgroundBrush}"
+                            BorderBrush="{DynamicResource HoverBrush}"
+                            BorderThickness="1" CornerRadius="4"
+                            Margin="8,0,0,0" Width="60" Height="28">
+                        <TextBox Text="{Binding ZoomLevel, UpdateSourceTrigger=PropertyChanged}"
+                                 IsEnabled="{Binding EnableZoomFormat}"
+                                 Foreground="{DynamicResource PrimaryTextBrush}"
+                                 CaretBrush="{DynamicResource PrimaryTextBrush}"
+                                 Background="Transparent" BorderThickness="0"
+                                 Padding="0,0" VerticalContentAlignment="Center"
+                                 HorizontalContentAlignment="Center"/>
+                    </Border>
+                    <TextBlock Text="%" Foreground="{DynamicResource PrimaryTextBrush}" 
+                               VerticalAlignment="Center" Margin="6,0,0,0" FontSize="14"/>
+                </StackPanel>
+                          
+                <CheckBox Content="所有工作表光标焦点归位到 A1 单元格" 
+                          IsChecked="{Binding FormatFocusA1}"
+                          Foreground="{DynamicResource PrimaryTextBrush}"
+                          Margin="0,0,0,12" FontSize="14" />
+                          
+                <CheckBox Content="处理完成后默认只激活第一页工作表" 
+                          IsChecked="{Binding FormatActiveFirstSheet}"
+                          Foreground="{DynamicResource PrimaryTextBrush}"
+                          FontSize="14" />
+            </StackPanel>
+        </Border>
 
-        <TextBlock Grid.Row="1"
-                   Margin="0,8,0,12"
-                   Foreground="#E57373"
+        <!-- Drop Zone -->
+        <Border Grid.Row="1" Margin="0,0,0,16" MinHeight="220"
+                Background="{DynamicResource NavBackgroundBrush}"
+                BorderBrush="{DynamicResource HoverBrush}"
+                BorderThickness="2" CornerRadius="8"
+                AllowDrop="True" Drop="OnDrop" DragEnter="OnDragEnter" DragOver="OnDragOver">
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" IsHitTestVisible="False">
+                <TextBlock Text="📥" FontSize="56" HorizontalAlignment="Center" Margin="0,0,0,16"/>
+                <TextBlock Text="将 Excel 文件或文件夹拖放到此区域进行批量处理" 
+                           FontSize="16" FontWeight="SemiBold"
+                           Foreground="{DynamicResource SecondaryTextBrush}"
+                           HorizontalAlignment="Center" />
+                <TextBlock Text="若拖入文件夹，将自动扫描其中的所有 Excel 文件" 
+                           FontSize="13" Foreground="{DynamicResource SecondaryTextBrush}"
+                           Margin="0,8,0,0" Opacity="0.7"
+                           HorizontalAlignment="Center" />
+            </StackPanel>
+        </Border>
+
+        <!-- 状态栏提示 -->
+        <TextBlock Grid.Row="2"
+                   Margin="0,16,0,0"
+                   Foreground="{DynamicResource PrimaryTextBrush}"
+                   FontSize="14"
+                   FontWeight="SemiBold"
                    Text="{Binding StatusMessage}"
                    TextWrapping="Wrap">
             <TextBlock.Style>
@@ -58,44 +90,5 @@
                 </Style>
             </TextBlock.Style>
         </TextBlock>
-
-        <DataGrid Grid.Row="2"
-                  AutoGenerateColumns="True"
-                  CanUserAddRows="False"
-                  CanUserDeleteRows="False"
-                  GridLinesVisibility="None"
-                  HeadersVisibility="Column"
-                  IsReadOnly="True"
-                  ItemsSource="{Binding ExcelTable}"
-                  RowHeight="36"
-                  SelectionUnit="CellOrRowHeader"
-                  AlternationCount="2"
-                  BorderThickness="1"
-                  BorderBrush="{DynamicResource HoverBrush}"
-                  Background="{DynamicResource ContentBackgroundBrush}"
-                  Foreground="{DynamicResource PrimaryTextBrush}"
-                  RowBackground="{DynamicResource ContentBackgroundBrush}"
-                  AlternatingRowBackground="{DynamicResource NavBackgroundBrush}">
-            <DataGrid.ColumnHeaderStyle>
-                <Style TargetType="DataGridColumnHeader">
-                    <Setter Property="Background" Value="{DynamicResource NavBackgroundBrush}" />
-                    <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
-                    <Setter Property="BorderBrush" Value="{DynamicResource HoverBrush}" />
-                    <Setter Property="Padding" Value="10,8" />
-                </Style>
-            </DataGrid.ColumnHeaderStyle>
-            <DataGrid.CellStyle>
-                <Style TargetType="DataGridCell">
-                    <Setter Property="BorderBrush" Value="{DynamicResource HoverBrush}" />
-                    <Setter Property="Padding" Value="10,6" />
-                    <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
-                    <Style.Triggers>
-                        <Trigger Property="IsSelected" Value="True">
-                            <Setter Property="Background" Value="{DynamicResource SelectedBrush}" />
-                        </Trigger>
-                    </Style.Triggers>
-                </Style>
-            </DataGrid.CellStyle>
-        </DataGrid>
     </Grid>
 </UserControl>
