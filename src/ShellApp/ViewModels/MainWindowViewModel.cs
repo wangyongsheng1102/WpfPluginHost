@@ -6,6 +6,7 @@ using System.Windows.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ShellApp.Services;
+using ShellApp.Views;
 
 namespace ShellApp.ViewModels;
 
@@ -16,6 +17,7 @@ public partial class MainWindowViewModel : ObservableObject
     private readonly GlobalStatusService _globalStatus;
     /// <summary>プラグイン Id ごとにビューを再利用し、メニュー切り替え時に各ページの状態を保持する。プラグイン再読み込み後は必ず Clear する。</summary>
     private readonly Dictionary<string, UserControl> _pluginViewCache = new(StringComparer.OrdinalIgnoreCase);
+    private UserControl? _homeView;
 
     public MainWindowViewModel(PluginManager pluginManager, ThemeService themeService, GlobalStatusService globalStatusService)
     {
@@ -57,19 +59,7 @@ public partial class MainWindowViewModel : ObservableObject
 
     partial void OnSelectedMenuItemChanged(PluginMenuItemViewModel? value)
     {
-        if (value is null)
-        {
-            CurrentView = null;
-            return;
-        }
-
-        if (!_pluginViewCache.TryGetValue(value.Id, out var view))
-        {
-            view = value.Module.CreateView();
-            _pluginViewCache[value.Id] = view;
-        }
-
-        CurrentView = view;
+        ApplyCurrentView();
     }
 
     partial void OnIsMenuCollapsedChanged(bool value)
@@ -81,11 +71,32 @@ public partial class MainWindowViewModel : ObservableObject
     {
         _themeService.ApplyTheme(value);
         _globalStatus.RefreshTextBrushAfterThemeChange();
-        // プラグインビューは作り直さず編集状態を保持。一旦外して戻し、スタイル／ブラシを無効化して Application テーマの DynamicResource を反映
-        RefreshCurrentPluginViewAfterThemeChange();
+        RefreshCurrentViewAfterThemeChange();
     }
 
-    private void RefreshCurrentPluginViewAfterThemeChange()
+    private void ApplyCurrentView()
+    {
+        if (SelectedMenuItem is null)
+        {
+            CurrentView = GetOrCreateHomeView();
+            return;
+        }
+
+        if (!_pluginViewCache.TryGetValue(SelectedMenuItem.Id, out var view))
+        {
+            view = SelectedMenuItem.Module.CreateView();
+            _pluginViewCache[SelectedMenuItem.Id] = view;
+        }
+
+        CurrentView = view;
+    }
+
+    private UserControl GetOrCreateHomeView()
+    {
+        return _homeView ??= new HomeView();
+    }
+
+    private void RefreshCurrentViewAfterThemeChange()
     {
         var view = CurrentView;
         if (view is null)
@@ -107,11 +118,28 @@ public partial class MainWindowViewModel : ObservableObject
     [RelayCommand]
     private void ShowAuthor()
     {
-        var authorWindow = new ShellApp.Views.AuthorWindow
+        var authorWindow = new AuthorWindow
         {
             Owner = System.Windows.Application.Current.MainWindow
         };
         authorWindow.ShowDialog();
+    }
+
+    [RelayCommand]
+    private void ShowHome()
+    {
+        SelectedMenuItem = null;
+    }
+
+    [RelayCommand]
+    private void NavigateToPlugin(PluginMenuItemViewModel? item)
+    {
+        if (item is null)
+        {
+            return;
+        }
+
+        SelectedMenuItem = item;
     }
 
     private void ReloadPlugins()
@@ -127,6 +155,7 @@ public partial class MainWindowViewModel : ObservableObject
     private void ReloadMenuItems()
     {
         _pluginViewCache.Clear();
+        _homeView = null;
         MenuItems.Clear();
         foreach (var plugin in _pluginManager.GetModules().OrderBy(x => x.Module.Order))
         {
@@ -138,11 +167,11 @@ public partial class MainWindowViewModel : ObservableObject
         if (MenuItems.Count == 0)
         {
             SelectedMenuItem = null;
-            CurrentView = null;
+            ApplyCurrentView();
             return;
         }
 
-        // 常に新しい MenuItems から項目を選び、Clear 後も古い VM を参照しないようにし、新しいアセンブリに合わせてビューを再構築する
+        var wasHome = SelectedMenuItem is null;
         var previousId = SelectedMenuItem?.Id;
         PluginMenuItemViewModel? match = null;
         if (!string.IsNullOrEmpty(previousId))
@@ -151,6 +180,15 @@ public partial class MainWindowViewModel : ObservableObject
                 string.Equals(x.Id, previousId, StringComparison.OrdinalIgnoreCase));
         }
 
-        SelectedMenuItem = match ?? MenuItems[0];
+        if (wasHome)
+        {
+            SelectedMenuItem = null;
+        }
+        else
+        {
+            SelectedMenuItem = match ?? MenuItems[0];
+        }
+
+        ApplyCurrentView();
     }
 }
