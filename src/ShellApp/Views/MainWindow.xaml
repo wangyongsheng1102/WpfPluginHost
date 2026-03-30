@@ -152,6 +152,10 @@
             </Grid>
         </Grid>
 
+        <Button Style="{StaticResource AboutAppStyle}"
+                Command="{Binding ShowAuthorCommand}"
+                WindowChrome.IsHitTestVisibleInChrome="True" />
+
         <Button Style="{StaticResource ExitAppStyle}"
                 Click="CloseButton_Click"
                 ToolTip="閉じる"
