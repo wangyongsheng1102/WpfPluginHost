@@ -59,13 +59,35 @@ public partial class SampleAViewModel : ObservableObject
             app.DisplayAlerts = false;
             app.ScreenUpdating = false;
 
-            // 只读打开，避免误写；需本机安装 Excel 并允许 COM 自动化
+            // 允许读写，以便保存各个 Sheet 的缩放比例和光标位置
             wb = app.Workbooks.Open(
                 Filename: path,
                 UpdateLinks: Type.Missing,
-                ReadOnly: true);
+                ReadOnly: false);
 
+            for (int i = 1; i <= wb.Worksheets.Count; i++)
+            {
+                var currentSheet = (Excel.Worksheet)wb.Worksheets[i];
+                currentSheet.Activate();
+
+                if (app.ActiveWindow != null)
+                {
+                    app.ActiveWindow.Zoom = 100;
+                }
+
+                var a1 = currentSheet.Range["A1"];
+                a1.Select();
+                Marshal.ReleaseComObject(a1);
+                Marshal.ReleaseComObject(currentSheet);
+            }
+
+            // 默认激活第一个工作表
             ws = (Excel.Worksheet)wb.Sheets[1];
+            ws.Activate();
+
+            // 保存更改
+            wb.Save();
+
             usedRange = ws.UsedRange;
             if (usedRange == null)
             {
