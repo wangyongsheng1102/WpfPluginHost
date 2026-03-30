@@ -11,8 +11,15 @@ public sealed class SampleAPlugin : IPluginModule
     public string IconKey => "📄";
     public int Order => 10;
 
+    private IPluginContext? _context;
+    
+    public void Initialize(IPluginContext context)
+    {
+        _context = context;
+    }
+
     public UserControl CreateView()
     {
-        return new SampleAView();
+        return new SampleAView(_context);
     }
 }

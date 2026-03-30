@@ -4,10 +4,10 @@ namespace Plugin.SampleA;
 
 public partial class SampleAView : UserControl
 {
-    public SampleAView()
+    public SampleAView(Plugin.Abstractions.IPluginContext? context = null)
     {
         InitializeComponent();
-        DataContext = new SampleAViewModel();
+        DataContext = new SampleAViewModel(context);
     }
 
     private void OnDragEnter(object sender, System.Windows.DragEventArgs e)

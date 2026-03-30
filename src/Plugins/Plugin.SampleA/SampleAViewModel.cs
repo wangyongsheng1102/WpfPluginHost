@@ -25,8 +25,12 @@ public partial class ExcelFileItem : ObservableObject
 
 public partial class SampleAViewModel : ObservableObject
 {
-    [ObservableProperty]
-    private string _statusMessage = string.Empty;
+    private readonly IPluginContext? _context;
+
+    public SampleAViewModel(IPluginContext? context = null)
+    {
+        _context = context;
+    }
 
     [ObservableProperty]
     private bool _enableZoomFormat = true;
@@ -52,10 +56,6 @@ public partial class SampleAViewModel : ObservableObject
 
     public bool HasPendingFiles => PendingFiles.Count > 0;
 
-    public bool HasStatusMessage => !string.IsNullOrEmpty(StatusMessage);
-
-    partial void OnStatusMessageChanged(string value) => OnPropertyChanged(nameof(HasStatusMessage));
-
     [RelayCommand]
     private void SelectExcelFallback()
     {
@@ -78,7 +78,7 @@ public partial class SampleAViewModel : ObservableObject
         if (IsProcessing) return;
         PendingFiles.Clear();
         OnPropertyChanged(nameof(HasPendingFiles));
-        StatusMessage = string.Empty;
+        _context?.ClearStatus();
     }
 
     [RelayCommand]
@@ -87,7 +87,7 @@ public partial class SampleAViewModel : ObservableObject
         if (IsProcessing || !HasPendingFiles) return;
 
         IsProcessing = true;
-        StatusMessage = "一括フォーマットを開始します...";
+        _context?.ReportProgress("一括フォーマットを開始します...", 0, true);
         
         await Task.Run(() => ProcessFiles(PendingFiles.ToList()));
         IsProcessing = false;
@@ -97,7 +97,7 @@ public partial class SampleAViewModel : ObservableObject
     {
         if (IsProcessing) return;
         IsProcessing = true;
-        StatusMessage = "ファイルをスキャン中...";
+        _context?.ReportProgress("ファイルをスキャン中...", 0, true);
 
         var excelFiles = new List<string>();
         await Task.Run(() =>
@@ -139,11 +139,11 @@ public partial class SampleAViewModel : ObservableObject
 
         if (newCount == 0)
         {
-            StatusMessage = "有効な新しい Excel ファイルは追加されませんでした。";
+            _context?.ReportError("有効な新しい Excel ファイルは追加されませんでした。");
         }
         else
         {
-            StatusMessage = $"{newCount} 個の新しいファイルをスキャンし、キューに追加しました。";
+            _context?.ReportSuccess($"{newCount} 個の新しいファイルをスキャンし、キューに追加しました。");
         }
         IsProcessing = false;
     }
@@ -166,7 +166,7 @@ public partial class SampleAViewModel : ObservableObject
                 System.Windows.Application.Current.Dispatcher.Invoke(() => 
                 {
                     item.Status = "処理中...";
-                    StatusMessage = $"処理の進捗: {count}/{files.Count} - {item.FileName}";
+                    _context?.ReportProgress($"処理の進捗: {count}/{files.Count} - {item.FileName}", (double)count / files.Count * 100);
                 });
 
                 bool success = FormatSingleExcel(app, item.FilePath);
@@ -179,14 +179,14 @@ public partial class SampleAViewModel : ObservableObject
 
             System.Windows.Application.Current.Dispatcher.Invoke(() => 
             {
-                StatusMessage = $"すべてのキューの実行が完了しました！合計 {files.Count} 個のファイルを処理しました。";
+                _context?.ReportSuccess($"すべてのキューの実行が完了しました！合計 {files.Count} 個のファイルを処理しました。");
             });
         }
         catch (Exception ex)
         {
             System.Windows.Application.Current.Dispatcher.Invoke(() => 
             {
-                StatusMessage = $"自動化の重大なエラー：{ex.Message}";
+                _context?.ReportError($"自動化の重大なエラー：{ex.Message}");
             });
         }
         finally
