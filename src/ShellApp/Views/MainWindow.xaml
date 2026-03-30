@@ -16,6 +16,11 @@
     <WindowChrome.WindowChrome>
         <WindowChrome GlassFrameThickness="0,0,0,1" CornerRadius="0" CaptionHeight="52" ResizeBorderThickness="8" UseAeroCaptionButtons="False" />
     </WindowChrome.WindowChrome>
+
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+    </Window.Resources>
+
     <Grid>
         <Grid>
             <Grid.ColumnDefinitions>
@@ -135,19 +140,47 @@
                 <Grid.RowDefinitions>
                     <RowDefinition Height="52" />
                     <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
                 <!-- タイトルバー領域 -->
                 <Border Grid.Row="0"
                         Background="Transparent" />
                 <!-- 上マージン：閉じるボタン・タイトルバーと子ページの間を空ける -->
                 <Border Grid.Row="1"
-                        Margin="0,14,12,12"
+                        Margin="0,14,12,6"
                         Background="{DynamicResource ContentBackgroundBrush}"
                         CornerRadius="8">
                     <!-- 背景を明示：未設定時のシステム既定の明色が透けるのを防ぐ（ダーク時の子ページの白浮き対策） -->
                     <ContentControl Margin="8"
                                     Background="{DynamicResource ContentBackgroundBrush}"
                                     Content="{Binding CurrentView}" />
+                </Border>
+
+                <!-- Global Status Bar -->
+                <Border Grid.Row="2"
+                        Margin="0,0,12,12"
+                        Height="40"
+                        Background="{DynamicResource NavBackgroundBrush}"
+                        CornerRadius="8"
+                        BorderBrush="{DynamicResource HoverBrush}"
+                        BorderThickness="1">
+                    <Grid>
+                        <!-- Status Icon & Text -->
+                        <TextBlock Text="{Binding GlobalStatus.Message}" 
+                                   VerticalAlignment="Center" Margin="16,0,0,0"
+                                   Foreground="{Binding GlobalStatus.TextColor}" 
+                                   FontSize="13" FontWeight="SemiBold" />
+                        
+                        <!-- Progress Bar -->
+                        <ProgressBar Value="{Binding GlobalStatus.ProgressValue}" 
+                                     IsIndeterminate="{Binding GlobalStatus.IsIndeterminate}"
+                                     Visibility="{Binding GlobalStatus.ShowProgress, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                     VerticalAlignment="Center" HorizontalAlignment="Right" 
+                                     Margin="0,0,16,0" Width="180" Height="6"
+                                     Foreground="{DynamicResource IndicatorBrush}" 
+                                     Background="{DynamicResource ShellBackgroundBrush}" 
+                                     BorderThickness="0" />
+                    </Grid>
                 </Border>
             </Grid>
         </Grid>

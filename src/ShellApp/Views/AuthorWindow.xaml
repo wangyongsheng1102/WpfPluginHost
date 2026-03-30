@@ -1,0 +1,110 @@
+<Window x:Class="ShellApp.Views.AuthorWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="開発者情報 &amp; アップデート履歴"
+        Height="620" Width="520"
+        WindowStartupLocation="CenterOwner"
+        AllowsTransparency="False"
+        WindowStyle="SingleBorderWindow"
+        Background="{DynamicResource ShellBackgroundBrush}">
+    <WindowChrome.WindowChrome>
+        <WindowChrome GlassFrameThickness="0,0,0,1" CornerRadius="0" CaptionHeight="52" ResizeBorderThickness="8" UseAeroCaptionButtons="False" />
+    </WindowChrome.WindowChrome>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="52" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- Title Bar -->
+        <TextBlock Text="開発者情報" 
+                   VerticalAlignment="Center" Margin="24,0,0,0"
+                   FontSize="16" FontWeight="SemiBold"
+                   Foreground="{DynamicResource PrimaryTextBrush}"
+                   IsHitTestVisible="False" />
+
+        <!-- Close Button -->
+        <Button Style="{StaticResource ExitAppStyle}"
+                Click="CloseButton_Click"
+                WindowChrome.IsHitTestVisibleInChrome="True" />
+
+        <!-- Content Area -->
+        <ScrollViewer Grid.Row="1" Margin="24,0,24,24"
+                      VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled">
+            <StackPanel>
+                <!-- Profile / Hero Section -->
+                <Border Background="{DynamicResource ContentBackgroundBrush}"
+                        BorderBrush="{DynamicResource HoverBrush}"
+                        BorderThickness="1" CornerRadius="8"
+                        Padding="24" Margin="0,0,0,24">
+                    <StackPanel>
+                        <TextBlock Text="WPF Plugin Shell" FontSize="26" FontWeight="Bold" Foreground="{DynamicResource PrimaryTextBrush}" />
+                        <TextBlock Text="Version 1.2.0" FontSize="14" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,4,0,20" />
+                        
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="👤" FontSize="28" VerticalAlignment="Center" Margin="0,0,16,0"/>
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock Text="Antigravity AI" FontSize="18" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryTextBrush}" />
+                                <TextBlock Text="Google DeepMind Team" FontSize="14" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,2,0,0"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <TextBlock Text="アップデート履歴 (Release Notes)" FontSize="18" FontWeight="SemiBold" 
+                           Foreground="{DynamicResource PrimaryTextBrush}" Margin="4,0,0,16"/>
+
+                <!-- Version Card 1.2.0 -->
+                <Border Background="{DynamicResource NavBackgroundBrush}"
+                        BorderBrush="{DynamicResource HoverBrush}"
+                        BorderThickness="2" CornerRadius="8"
+                        Padding="20" Margin="0,0,0,16">
+                    <StackPanel>
+                        <Grid Margin="0,0,0,12">
+                            <TextBlock Text="v1.2.0 - プレシジョン・アップデート" FontWeight="Bold" FontSize="15" Foreground="{DynamicResource PrimaryTextBrush}" HorizontalAlignment="Left"/>
+                            <TextBlock Text="2026/03" FontSize="13" Foreground="{DynamicResource SecondaryTextBrush}" HorizontalAlignment="Right"/>
+                        </Grid>
+                        <TextBlock Text="• Windows 11 Fluent Design（アクリル背景・角丸・シャドウ）を全体設計に導入&#x0a;• SampleA: ドラッグ＆ドロップ対応のバッチ処理キューシステムへ完全にアップグレード&#x0a;• SampleA: 操作性を向上させる独立ステータスバーを実装&#x0a;• SampleA: 「外部リンクの自動切断」安全機能を追加&#x0a;• ダーク／ライトモードのシームレスなホットリロードを最適化"
+                                   Foreground="{DynamicResource PrimaryTextBrush}" FontSize="13" LineHeight="22" TextWrapping="Wrap" />
+                    </StackPanel>
+                </Border>
+
+                <!-- Version Card 1.1.0 -->
+                <Border Background="{DynamicResource NavBackgroundBrush}"
+                        BorderBrush="{DynamicResource HoverBrush}"
+                        BorderThickness="1" CornerRadius="8"
+                        Padding="20" Margin="0,0,0,16">
+                    <StackPanel>
+                        <Grid Margin="0,0,0,12">
+                            <TextBlock Text="v1.1.0 - アーキテクチャ強化" FontWeight="Bold" FontSize="15" Foreground="{DynamicResource PrimaryTextBrush}" HorizontalAlignment="Left"/>
+                            <TextBlock Text="2026/02" FontSize="13" Foreground="{DynamicResource SecondaryTextBrush}" HorizontalAlignment="Right"/>
+                        </Grid>
+                        <TextBlock Text="• プラグインのダイナミック・ホットリロード機構（再起動不要）を実装&#x0a;• 共有依存関係（Excel COM等）のアセンブリ分離と安定性向上&#x0a;• MVVMアーキテクチャの標準化とCommunityToolkitの導入"
+                                   Foreground="{DynamicResource PrimaryTextBrush}" FontSize="13" LineHeight="22" TextWrapping="Wrap" />
+                    </StackPanel>
+                </Border>
+
+                <!-- Version Card 1.0.0 -->
+                <Border Background="{DynamicResource NavBackgroundBrush}"
+                        BorderBrush="{DynamicResource HoverBrush}"
+                        BorderThickness="1" CornerRadius="8"
+                        Padding="20">
+                    <StackPanel>
+                        <Grid Margin="0,0,0,12">
+                            <TextBlock Text="v1.0.0 - 初期リリース" FontWeight="Bold" FontSize="15" Foreground="{DynamicResource PrimaryTextBrush}" HorizontalAlignment="Left"/>
+                            <TextBlock Text="2026/01" FontSize="13" Foreground="{DynamicResource SecondaryTextBrush}" HorizontalAlignment="Right"/>
+                        </Grid>
+                        <TextBlock Text="• WPF Plugin ベースシェルの基本フレームワークを確立&#x0a;• SampleA / SampleB プラグインモジュールの基礎設計"
+                                   Foreground="{DynamicResource PrimaryTextBrush}" FontSize="13" LineHeight="22" TextWrapping="Wrap" />
+                    </StackPanel>
+                </Border>
+
+                <Button Content="閉じる" Width="140" Height="40" Margin="0,24,0,12"
+                        Style="{DynamicResource PrimaryButtonStyle}" 
+                        Click="CloseButton_Click" HorizontalAlignment="Center"/>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</Window>

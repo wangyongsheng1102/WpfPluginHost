@@ -22,8 +22,10 @@ public partial class App : Application
         _themeService = new ThemeService();
         _themeService.ApplyTheme(isDarkTheme: false);
 
-        _pluginManager = new PluginManager(pluginRoot);
-        var vm = new MainWindowViewModel(_pluginManager, _themeService);
+        var statusService = new GlobalStatusService();
+
+        _pluginManager = new PluginManager(pluginRoot, statusService);
+        var vm = new MainWindowViewModel(_pluginManager, _themeService, statusService);
         _watcherService = new PluginWatcherService(pluginRoot, _pluginManager);
         _watcherService.Start();
 

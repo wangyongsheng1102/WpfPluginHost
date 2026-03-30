@@ -8,12 +8,14 @@ public sealed class PluginManager : IDisposable
 {
     private readonly string _pluginsRoot;
     private readonly string _shadowRoot;
+    private readonly IPluginContext _pluginContext;
     private readonly object _sync = new();
     private readonly Dictionary<string, LoadedModule> _modulesByPath = new(StringComparer.OrdinalIgnoreCase);
 
-    public PluginManager(string pluginsRoot)
+    public PluginManager(string pluginsRoot, IPluginContext pluginContext)
     {
         _pluginsRoot = pluginsRoot;
+        _pluginContext = pluginContext;
         _shadowRoot = Path.Combine(Path.GetTempPath(), "WpfPluginShell", "shadow");
         Directory.CreateDirectory(_pluginsRoot);
         Directory.CreateDirectory(_shadowRoot);
@@ -79,6 +81,8 @@ public sealed class PluginManager : IDisposable
                 loadContext.Unload();
                 return;
             }
+            
+            module.Initialize(_pluginContext);
 
             _modulesByPath[sourceDll] = new LoadedModule(sourceDll, module, loadContext, shadowDir, assembly);
         }

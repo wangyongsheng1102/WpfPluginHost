@@ -1,0 +1,17 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!-- LXGWWenKai-Bold.ttf 内のファミリー名は「LXGW WenKai」。絵文字は Segoe UI Emoji にフォールバック -->
+    <FontFamily x:Key="AppFontFamily">pack://application:,,,/Assets/Fonts/LXGWWenKai-Bold.ttf#LXGW WenKai, Segoe UI Emoji</FontFamily>
+
+    <Style TargetType="Window">
+        <Setter Property="TextElement.FontFamily" Value="{StaticResource AppFontFamily}" />
+    </Style>
+
+    <Style TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}" />
+    </Style>
+
+    <Style TargetType="Control">
+        <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}" />
+    </Style>
+</ResourceDictionary>

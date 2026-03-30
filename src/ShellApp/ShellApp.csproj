@@ -24,6 +24,7 @@
     <Content Include="Assets\Images\**\*.*">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Resource Include="Assets\Fonts\**\*.ttf" />
   </ItemGroup>
 
   <!-- リポジトリ直下の plugins（プラグインプロジェクトの生成物）を Shell 出力に同期し、F5 時の bin\...\plugins をリポジトリと一致させる -->

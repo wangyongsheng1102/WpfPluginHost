@@ -16,10 +16,11 @@ public partial class MainWindowViewModel : ObservableObject
     /// <summary>プラグイン Id ごとにビューを再利用し、メニュー切り替え時に各ページの状態を保持する。プラグイン再読み込み後は必ず Clear する。</summary>
     private readonly Dictionary<string, UserControl> _pluginViewCache = new(StringComparer.OrdinalIgnoreCase);
 
-    public MainWindowViewModel(PluginManager pluginManager, ThemeService themeService)
+    public MainWindowViewModel(PluginManager pluginManager, ThemeService themeService, GlobalStatusService globalStatusService)
     {
         _pluginManager = pluginManager;
         _themeService = themeService;
+        GlobalStatus = globalStatusService;
         _pluginManager.PluginsChanged += OnPluginsChanged;
 
         ToggleMenuCommand = new RelayCommand(ToggleMenu);
@@ -31,6 +32,8 @@ public partial class MainWindowViewModel : ObservableObject
     }
 
     public ObservableCollection<PluginMenuItemViewModel> MenuItems { get; }
+
+    public GlobalStatusService GlobalStatus { get; }
 
     [ObservableProperty]
     private PluginMenuItemViewModel? selectedMenuItem;
@@ -101,18 +104,11 @@ public partial class MainWindowViewModel : ObservableObject
     [RelayCommand]
     private void ShowAuthor()
     {
-        System.Windows.MessageBox.Show(
-            "WPF Plugin Shell\n\n" +
-            "👤 開発者: Antigravity AI (Google DeepMind Team)\n" +
-            "💡 現在のバージョン: 1.2.0\n\n" +
-            "✨ 最新のアップデート内容:\n" +
-            "- Windows 11 Fluent Design（アクリル背景・角丸）を全体に導入しました\n" +
-            "- SampleA: ドラッグ＆ドロップ対応のバッチ処理キューシステムを再構築しました\n" +
-            "- SampleA: 独立したステータスパネルと「外部リンクの切断」の自動化判定を追加しました\n" +
-            "- コア体験：主要ボタンの視認性を向上させ、テーマのシームレスな切り替えを最適化しました",
-            "開発者情報 ＆ アップデート履歴",
-            System.Windows.MessageBoxButton.OK,
-            System.Windows.MessageBoxImage.Information);
+        var authorWindow = new ShellApp.Views.AuthorWindow
+        {
+            Owner = System.Windows.Application.Current.MainWindow
+        };
+        authorWindow.ShowDialog();
     }
 
     private void ReloadPlugins()
