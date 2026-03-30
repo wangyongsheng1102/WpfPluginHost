@@ -227,6 +227,7 @@
         <Setter Property="HorizontalContentAlignment" Value="Stretch" />
         <Setter Property="Margin" Value="8,2,8,2" />
         <Setter Property="Padding" Value="0" />
+        <Setter Property="ToolTip" Value="{Binding Description}" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="ListBoxItem">
@@ -281,11 +282,6 @@
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
-        <Style.Triggers>
-            <DataTrigger Binding="{Binding DataContext.IsMenuCollapsed, RelativeSource={RelativeSource AncestorType=Window}}" Value="True">
-                <Setter Property="ToolTip" Value="{Binding Description}" />
-            </DataTrigger>
-        </Style.Triggers>
     </Style>
 
     <Style x:Key="NavIconStyle" TargetType="TextBlock">
