@@ -95,6 +95,7 @@
                           Background="Transparent"
                           BorderThickness="0"
                           RowHeight="36"
+                          FontFamily="{DynamicResource AppFontFamily}"
                           Foreground="{DynamicResource PrimaryTextBrush}"
                           RowBackground="Transparent"
                           AlternatingRowBackground="{DynamicResource ContentBackgroundBrush}">
@@ -110,6 +111,7 @@
                     </DataGrid.Style>
                     <DataGrid.ColumnHeaderStyle>
                         <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="FontFamily" Value="{DynamicResource AppFontFamily}" />
                             <Setter Property="Background" Value="{DynamicResource NavBackgroundBrush}" />
                             <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
                             <Setter Property="BorderBrush" Value="{DynamicResource HoverBrush}" />
@@ -129,9 +131,21 @@
                         </Style>
                     </DataGrid.CellStyle>
                     <DataGrid.Columns>
-                        <DataGridTextColumn Header="ファイル名" Binding="{Binding FileName}" Width="250" IsReadOnly="True" />
-                        <DataGridTextColumn Header="ステータス" Binding="{Binding Status}" Width="120" IsReadOnly="True" />
-                        <DataGridTextColumn Header="パス" Binding="{Binding FilePath}" Width="*" IsReadOnly="True" />
+                        <DataGridTextColumn Header="ファイル名"
+                                            Binding="{Binding FileName}"
+                                            Width="250"
+                                            IsReadOnly="True"
+                                            ElementStyle="{DynamicResource DataGridTextColumnElementStyle}" />
+                        <DataGridTextColumn Header="ステータス"
+                                            Binding="{Binding Status}"
+                                            Width="120"
+                                            IsReadOnly="True"
+                                            ElementStyle="{DynamicResource DataGridTextColumnElementStyle}" />
+                        <DataGridTextColumn Header="パス"
+                                            Binding="{Binding FilePath}"
+                                            Width="*"
+                                            IsReadOnly="True"
+                                            ElementStyle="{DynamicResource DataGridTextColumnElementStyle}" />
                     </DataGrid.Columns>
                 </DataGrid>
             </Grid>
