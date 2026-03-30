@@ -1,86 +1,89 @@
-# WPF Plugin Shell (.NET 8)
+# WPF プラグインシェル（.NET 8）
 
-## 项目结构
+## プロジェクト構成
 
-- `src/ShellApp`：主程序壳（左侧折叠菜单 + 中央动态内容）
-- `src/Plugin.Abstractions`：插件契约 `IPluginModule`
-- `src/Plugins/Plugin.SampleA`：示例插件 A（空白页）
-- `src/Plugins/Plugin.SampleB`：示例插件 B（空白页）
-- `plugins`：运行时插件目录（热加载监控目录）
+- `src/ShellApp`：メインシェル（左側の折りたたみメニュー＋中央の動的コンテンツ）
+- `src/Plugin.Abstractions`：プラグイン契約 `IPluginModule`
+- `src/Plugins/Plugin.SampleA`：サンプルプラグイン A（Excel 書式設定）
+- `src/Plugins/Plugin.SampleB`：サンプルプラグイン B（画像プレビュー）
+- `plugins`：実行時プラグインディレクトリ（ホットリロードの監視対象）
 
-## 运行说明
+## 実行手順
 
-1. 在 Windows 环境使用 .NET 8 SDK 打开 `WpfPluginHost.sln`。
-2. 先编译插件项目，构建后会自动把插件 DLL 复制到根目录 `plugins`。
-3. 启动 `ShellApp` 后，左侧菜单将按插件数量自动显示对应入口。
-4. 运行时替换 `plugins` 目录下 DLL，会自动触发热加载刷新。
+1. Windows 環境で .NET 8 SDK を用意し、`WpfPluginHost.sln` を開く。
+2. プラグインプロジェクトをビルドする。ビルド後、プラグイン DLL はリポジトリ直下の `plugins` に自動コピーされる。
+3. `ShellApp` を起動すると、左メニューにプラグイン数に応じたエントリが表示される。
+4. 実行中に `plugins` 内の DLL を置き換えると、ホットリロードで一覧が更新される。
 
-## 添加 Plugin 手顺
+## プラグインの追加手順
 
-以下步骤用于新增一个可被主程序动态加载的插件 DLL。
+以下は、メインから動的に読み込めるプラグイン DLL を新規追加するための手順です。
 
-1. 在 `src/Plugins` 下创建新的 Class Library（WPF）项目，例如 `Plugin.SampleC`。
-2. 修改插件项目 `csproj`：
-   - 目标框架使用 `net8.0-windows`
-   - 开启 `<UseWPF>true</UseWPF>`
-   - 引用 `src/Plugin.Abstractions/Plugin.Abstractions.csproj`
-3. 在插件项目中实现 `IPluginModule`，至少包含：
-   - `Id`（唯一）
-   - `Title`（左侧菜单名称）
-   - `IconKey`（菜单图标字符）
-   - `Order`（菜单排序）
-   - `CreateView()`（返回插件 `UserControl`）
-4. 新建一个插件页面（`UserControl`），当前可先做空白页面用于展示挂载效果。
-5. 在插件项目 `csproj` 中增加构建后复制 DLL 到根目录 `plugins` 的 `Target`（可参考 `Plugin.SampleA` / `Plugin.SampleB`）。
-6. 将新插件项目加入解决方案：
+1. `src/Plugins` 配下に WPF 対応のクラスライブラリを作成する（例：`Plugin.SampleC`）。
+2. プラグインの `csproj` を編集する。
+   - ターゲットフレームワークは `net8.0-windows`
+   - `<UseWPF>true</UseWPF>` を有効にする
+   - `src/Plugin.Abstractions/Plugin.Abstractions.csproj` を参照する
+3. プラグイン内で `IPluginModule` を実装する。少なくとも次を定義する。
+   - `Id`（一意）
+   - `Title`（左メニュー表示名）
+   - `Description`（折りたたみ時ツールチップなど）
+   - `IconKey`（メニューアイコン文字または画像パス）
+   - `Order`（並び順）
+   - `CreateView()`（プラグインの `UserControl` を返す）
+4. プラグイン画面として `UserControl` を新規作成する（まずは空でも可）。
+5. プラグイン `csproj` に、ビルド後に DLL をリポジトリ直下 `plugins` へコピーする `Target` を追加する（`Plugin.SampleA` / `Plugin.SampleB` を参照）。
+6. ソリューションにプロジェクトを追加する。
    - `dotnet sln WpfPluginHost.sln add src/Plugins/Plugin.SampleC/Plugin.SampleC.csproj`
-7. 编译该插件后确认 `plugins` 目录出现对应 DLL，运行 `ShellApp` 可自动显示新的左侧菜单项。
+7. プラグインをビルドし、`plugins` に DLL が出力されることを確認してから `ShellApp` を起動し、左メニューに新項目が出ることを確認する。
 
-注意事项：
-- `Id` 必须全局唯一，避免菜单映射冲突。
-- 插件依赖建议与主程序保持一致版本，减少加载冲突风险。
-- 插件运行时替换 DLL 时，建议先确保构建完成再覆盖，避免半写入文件触发失败加载。
+注意事項：
 
-## 编译与部署手顺
+- `Id` は全体で一意にし、メニュー対応の衝突を避ける。
+- プラグインの依存バージョンはメインと揃えると読み込み衝突のリスクが下がる。
+- 実行中に DLL を差し替える場合は、ビルド完了後に上書きし、書きかけファイルによる読み込み失敗を避ける。
 
-### 本地开发编译（推荐）
+## ビルドとデプロイ手順
 
-1. 还原并编译全部项目：
+### ローカル開発ビルド（推奨）
+
+1. 復元と全体ビルド：
    - `dotnet restore WpfPluginHost.sln`
    - `dotnet build WpfPluginHost.sln -c Debug`
-2. 单独编译插件（可选）：
+2. プラグインのみビルド（任意）：
    - `dotnet build src/Plugins/Plugin.SampleA/Plugin.SampleA.csproj -c Debug`
    - `dotnet build src/Plugins/Plugin.SampleB/Plugin.SampleB.csproj -c Debug`
-3. 启动主程序：
+3. メインアプリの起動：
    - `dotnet run --project src/ShellApp/ShellApp.csproj -c Debug`
 
-### 发布构建（Release）
+### リリースビルド（Release）
 
-1. 发布主程序：
+1. メインアプリの発行：
    - `dotnet publish src/ShellApp/ShellApp.csproj -c Release -r win-x64 --self-contained false`
-2. 发布插件（按需发布多个）：
+2. プラグインのビルド（必要な分）：
    - `dotnet build src/Plugins/Plugin.SampleA/Plugin.SampleA.csproj -c Release`
    - `dotnet build src/Plugins/Plugin.SampleB/Plugin.SampleB.csproj -c Release`
-3. 部署目录建议结构：
-   - `ShellApp` 发布输出目录（包含 exe / dll）
-   - 同级 `plugins` 目录（放置所有插件 DLL）
+3. 推奨ディレクトリ構成：
+   - `ShellApp` の発行出力（exe / dll を含む）
+   - 同階層の `plugins`（すべてのプラグイン DLL を配置）
 
-示例：
+例：
+
 - `deploy/ShellApp/*`
 - `deploy/plugins/Plugin.SampleA.dll`
 - `deploy/plugins/Plugin.SampleB.dll`
 
-### 生产部署检查清单
+### 本番デプロイの確認項目
 
-- 主程序可启动，且不报缺失依赖。
-- `plugins` 目录存在且有读取权限。
-- 左侧菜单数量与插件 DLL 数量一致。
-- 替换某个插件 DLL 后，页面与菜单可自动刷新（热加载生效）。
-- 删除某个插件 DLL 后，菜单项自动消失且主程序保持稳定。
+- メインアプリが起動し、依存関係の欠如エラーが出ない。
+- `plugins` が存在し、読み取り権限がある。
+- 左メニュー数とプラグイン DLL の数が一致する。
+- 特定のプラグイン DLL を差し替えたあと、画面とメニューが自動更新される（ホットリロード）。
+- プラグイン DLL を削除したあと、メニュー項目が消え、メインは安定して動作する。
 
-## 新插件模板代码（可直接复制）
+## 新規プラグインのテンプレート（コピー用）
 
-下面给一个最小可用示例 `Plugin.SampleC`，用于快速新增插件。
+最小構成の例 `Plugin.SampleC` です。
 
 ### 1) `Plugin.SampleC.csproj`
 
@@ -110,7 +113,7 @@
 </Project>
 ```
 
-### 2) 插件入口类 `SampleCPlugin.cs`
+### 2) エントリクラス `SampleCPlugin.cs`
 
 ```csharp
 using Plugin.Abstractions;
@@ -121,7 +124,8 @@ namespace Plugin.SampleC;
 public sealed class SampleCPlugin : IPluginModule
 {
     public string Id => "sampleC";
-    public string Title => "Sample C";
+    public string Title => "サンプル C";
+    public string Description => "空白ページのサンプルプラグインです。";
     public string IconKey => "🧪";
     public int Order => 30;
 
@@ -132,7 +136,7 @@ public sealed class SampleCPlugin : IPluginModule
 }
 ```
 
-### 3) 空白页面 `SampleCView.xaml`
+### 3) 空白ページ `SampleCView.xaml`
 
 ```xml
 <UserControl x:Class="Plugin.SampleC.SampleCView"
@@ -143,12 +147,12 @@ public sealed class SampleCPlugin : IPluginModule
                    VerticalAlignment="Center"
                    FontSize="26"
                    FontWeight="SemiBold"
-                   Text="Plugin Sample C - Blank Page" />
+                   Text="プラグイン サンプル C — 空白ページ" />
     </Grid>
 </UserControl>
 ```
 
-### 4) 页面后台 `SampleCView.xaml.cs`
+### 4) コードビハインド `SampleCView.xaml.cs`
 
 ```csharp
 using System.Windows.Controls;
@@ -164,9 +168,9 @@ public partial class SampleCView : UserControl
 }
 ```
 
-### 5) 接入步骤
+### 5) 取り込み手順
 
-1. 在 `src/Plugins` 下创建 `Plugin.SampleC` 并放入上述文件。
-2. 执行：`dotnet sln WpfPluginHost.sln add src/Plugins/Plugin.SampleC/Plugin.SampleC.csproj`
-3. 编译：`dotnet build src/Plugins/Plugin.SampleC/Plugin.SampleC.csproj -c Debug`
-4. 启动 `ShellApp`，左侧菜单应自动出现 `Sample C`。
+1. `src/Plugins` に `Plugin.SampleC` を作成し、上記ファイルを配置する。
+2. `dotnet sln WpfPluginHost.sln add src/Plugins/Plugin.SampleC/Plugin.SampleC.csproj`
+3. `dotnet build src/Plugins/Plugin.SampleC/Plugin.SampleC.csproj -c Debug`
+4. `ShellApp` を起動し、左メニューに「サンプル C」が表示されることを確認する。
