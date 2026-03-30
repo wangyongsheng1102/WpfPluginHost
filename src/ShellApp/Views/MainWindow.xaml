@@ -59,10 +59,48 @@
                             HorizontalAlignment="Stretch"
                             MinHeight="36"
                             Padding="10,8"
-                            Content="{Binding HomeNavCaption}"
                             ToolTip="ホーム"
                             Style="{StaticResource ActionButtonStyle}"
-                            Command="{Binding ShowHomeCommand}" />
+                            Command="{Binding ShowHomeCommand}">
+                        <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <Image x:Name="HomeIcon"
+                                   Source="/Assets/Images/img_home.png"
+                                   Width="22"
+                                   Height="22"
+                                   Stretch="Uniform"
+                                   Visibility="Collapsed">
+                                <Image.Style>
+                                    <Style TargetType="Image">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding DataContext.IsMenuCollapsed, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                         Value="True">
+                                                <Setter Property="Visibility" Value="Visible" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Image.Style>
+                            </Image>
+
+                            <TextBlock x:Name="HomeText"
+                                       Text="ホーム"
+                                       FontWeight="SemiBold"
+                                       FontSize="16"
+                                       Foreground="{DynamicResource PrimaryTextBrush}">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Visibility" Value="Visible" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding DataContext.IsMenuCollapsed, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                         Value="True">
+                                                <Setter Property="Visibility" Value="Collapsed" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </Grid>
+                    </Button>
 
                     <ListBox Grid.Row="2"
                              Margin="0,0,0,0"
@@ -120,12 +158,12 @@
                     <StackPanel Grid.Row="3"
                                 Margin="6,8,6,12"
                                 Orientation="Vertical"
-                                HorizontalAlignment="Stretch"
+                                HorizontalAlignment="Center"
                                 VerticalAlignment="Bottom">
                         <Button Width="40"
                                 Height="40"
                                 HorizontalAlignment="Center"
-                                Style="{StaticResource ActionButtonStyle}"
+                                Style="{StaticResource ThemeIconActionButtonStyle}"
                                 Command="{Binding ReloadPluginsCommand}"
                                 ToolTip="プラグインを再読み込み">
                             <TextBlock Text="🔄"
