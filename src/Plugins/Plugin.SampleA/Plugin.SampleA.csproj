@@ -18,9 +18,11 @@
       <ExcludeAssets>runtime</ExcludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.Office.Interop.Excel" Version="16.0.18925.20022">
-      <ExcludeAssets>runtime</ExcludeAssets>
-      <EmbedInteropTypes>false</EmbedInteropTypes>
     </PackageReference>
+    <Reference Include="Microsoft.Office.Interop.Excel">
+      <EmbedInteropTypes>true</EmbedInteropTypes>
+      <Private>false</Private>
+    </Reference>
   </ItemGroup>
 
   <Target Name="CopyPluginToRuntimeFolder" AfterTargets="Build">
