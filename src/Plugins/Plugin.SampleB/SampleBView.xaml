@@ -15,18 +15,23 @@
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
-            <TextBox Grid.Column="0"
-                     MinHeight="36"
-                     Margin="0,0,12,0"
-                     Padding="10,8"
-                     VerticalContentAlignment="Center"
-                     IsReadOnly="True"
-                     Text="{Binding ImagePath, Mode=OneWay}"
-                     ToolTip="所选图片的绝对路径"
-                     Background="{DynamicResource NavBackgroundBrush}"
-                     BorderBrush="{DynamicResource HoverBrush}"
-                     Foreground="{DynamicResource PrimaryTextBrush}"
-                     CaretBrush="{DynamicResource PrimaryTextBrush}" />
+            <Border Grid.Column="0"
+                    Margin="0,0,12,0"
+                    Background="{DynamicResource NavBackgroundBrush}"
+                    BorderBrush="{DynamicResource HoverBrush}"
+                    BorderThickness="1"
+                    CornerRadius="4">
+                <TextBox MinHeight="34"
+                         Padding="10,8"
+                         VerticalContentAlignment="Center"
+                         IsReadOnly="True"
+                         Text="{Binding ImagePath, Mode=OneWay}"
+                         ToolTip="所选图片的绝对路径"
+                         Background="Transparent"
+                         BorderThickness="0"
+                         Foreground="{DynamicResource PrimaryTextBrush}"
+                         CaretBrush="{DynamicResource PrimaryTextBrush}" />
+            </Border>
             <Button Grid.Column="1"
                     MinWidth="120"
                     MinHeight="36"
@@ -57,7 +62,7 @@
                 BorderBrush="{DynamicResource HoverBrush}"
                 BorderThickness="1"
                 Background="{DynamicResource NavBackgroundBrush}"
-                CornerRadius="4">
+                CornerRadius="8">
             <ScrollViewer HorizontalScrollBarVisibility="Auto"
                           VerticalScrollBarVisibility="Auto"
                           Padding="12">
