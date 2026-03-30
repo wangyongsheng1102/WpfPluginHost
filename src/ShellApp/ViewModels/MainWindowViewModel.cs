@@ -13,6 +13,7 @@ public partial class MainWindowViewModel : ObservableObject
 {
     private readonly PluginManager _pluginManager;
     private readonly ThemeService _themeService;
+    private readonly GlobalStatusService _globalStatus;
     /// <summary>プラグイン Id ごとにビューを再利用し、メニュー切り替え時に各ページの状態を保持する。プラグイン再読み込み後は必ず Clear する。</summary>
     private readonly Dictionary<string, UserControl> _pluginViewCache = new(StringComparer.OrdinalIgnoreCase);
 
@@ -20,6 +21,7 @@ public partial class MainWindowViewModel : ObservableObject
     {
         _pluginManager = pluginManager;
         _themeService = themeService;
+        _globalStatus = globalStatusService;
         GlobalStatus = globalStatusService;
         _pluginManager.PluginsChanged += OnPluginsChanged;
 
@@ -78,6 +80,7 @@ public partial class MainWindowViewModel : ObservableObject
     partial void OnIsDarkThemeChanged(bool value)
     {
         _themeService.ApplyTheme(value);
+        _globalStatus.RefreshTextBrushAfterThemeChange();
         // プラグインビューは作り直さず編集状態を保持。一旦外して戻し、スタイル／ブラシを無効化して Application テーマの DynamicResource を反映
         RefreshCurrentPluginViewAfterThemeChange();
     }
