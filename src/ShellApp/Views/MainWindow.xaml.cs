@@ -2,6 +2,7 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media.Animation;
 using System.ComponentModel;
+using System.Windows.Controls.Primitives;
 using ShellApp.ViewModels;
 
 namespace ShellApp.Views;
@@ -94,5 +95,21 @@ public partial class MainWindow : Window
         };
 
         NavPanel.BeginAnimation(WidthProperty, animation, HandoffBehavior.SnapshotAndReplace);
+    }
+
+    private void ResizeThumb_DragDelta(object sender, DragDeltaEventArgs e)
+    {
+        double newWidth = this.Width + e.HorizontalChange;
+        double newHeight = this.Height + e.VerticalChange;
+
+        if (newWidth > this.MinWidth)
+        {
+            this.Width = newWidth;
+        }
+
+        if (newHeight > this.MinHeight)
+        {
+            this.Height = newHeight;
+        }
     }
 }

@@ -15,7 +15,7 @@
         Background="{DynamicResource WindowBackgroundBrush}">
     <Grid>
         <Border Background="{DynamicResource ShellBackgroundBrush}"
-                CornerRadius="20" />
+                CornerRadius="8" />
 
         <Grid>
             <Grid.ColumnDefinitions>
@@ -27,7 +27,7 @@
                   HorizontalAlignment="Left"
                   Width="260">
                 <Border Background="{DynamicResource NavBackgroundBrush}"
-                        CornerRadius="20,0,0,20" />
+                        CornerRadius="8,0,0,8" />
 
                 <Grid>
                     <Grid.RowDefinitions>
@@ -128,7 +128,7 @@
                 <Border Grid.Row="1"
                         Margin="0,14,12,12"
                         Background="{DynamicResource ContentBackgroundBrush}"
-                        CornerRadius="12">
+                        CornerRadius="8">
                     <!-- 显式背景：避免未设置时透出系统默认浅色块（深色模式下子页发白） -->
                     <ContentControl Margin="8"
                                     Background="{DynamicResource ContentBackgroundBrush}"
@@ -140,5 +140,18 @@
         <Button Style="{StaticResource ExitAppStyle}"
                 Click="CloseButton_Click"
                 ToolTip="Close" />
+
+        <Thumb Width="12"
+               Height="12"
+               HorizontalAlignment="Right"
+               VerticalAlignment="Bottom"
+               Cursor="SizeNWSE"
+               DragDelta="ResizeThumb_DragDelta">
+            <Thumb.Template>
+                <ControlTemplate TargetType="Thumb">
+                    <Border Background="Transparent" />
+                </ControlTemplate>
+            </Thumb.Template>
+        </Thumb>
     </Grid>
 </Window>
