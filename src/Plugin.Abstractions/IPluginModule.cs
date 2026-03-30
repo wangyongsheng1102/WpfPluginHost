@@ -6,6 +6,7 @@ public interface IPluginModule
 {
     string Id { get; }
     string Title { get; }
+    string Description { get; }
     string IconKey { get; }
     int Order { get; }
     UserControl CreateView();
