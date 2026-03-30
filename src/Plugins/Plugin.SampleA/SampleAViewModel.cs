@@ -20,7 +20,7 @@ public partial class ExcelFileItem : ObservableObject
     public string FileName => System.IO.Path.GetFileName(FilePath);
 
     [ObservableProperty]
-    private string _status = "処理待ち";
+    private string _status = "待機中";
 }
 
 public partial class SampleAViewModel : ObservableObject
@@ -62,8 +62,8 @@ public partial class SampleAViewModel : ObservableObject
         if (IsProcessing) return;
         var dlg = new OpenFileDialog
         {
-            Filter = "Excel (*.xlsx;*.xls)|*.xlsx;*.xls|すべてのファイル (*.*)|*.*",
-            Title = "Excel ファイルの選択",
+            Filter = "Excel ファイル (*.xlsx;*.xls)|*.xlsx;*.xls|すべてのファイル (*.*)|*.*",
+            Title = "Excel ファイルを手動で選択",
             Multiselect = true
         };
         if (dlg.ShowDialog() == true)
@@ -87,7 +87,7 @@ public partial class SampleAViewModel : ObservableObject
         if (IsProcessing || !HasPendingFiles) return;
 
         IsProcessing = true;
-        StatusMessage = "一括書式設定を開始しています…";
+        StatusMessage = "一括フォーマットを開始します...";
         
         await Task.Run(() => ProcessFiles(PendingFiles.ToList()));
         IsProcessing = false;
@@ -97,7 +97,7 @@ public partial class SampleAViewModel : ObservableObject
     {
         if (IsProcessing) return;
         IsProcessing = true;
-        StatusMessage = "ファイルをスキャンしています…";
+        StatusMessage = "ファイルをスキャン中...";
 
         var excelFiles = new List<string>();
         await Task.Run(() =>
@@ -139,11 +139,11 @@ public partial class SampleAViewModel : ObservableObject
 
         if (newCount == 0)
         {
-            StatusMessage = "有効な新規 Excel ファイルは追加されませんでした。";
+            StatusMessage = "有効な新しい Excel ファイルは追加されませんでした。";
         }
         else
         {
-            StatusMessage = $"キューに {newCount} 件の新規ファイルを追加しました。";
+            StatusMessage = $"{newCount} 個の新しいファイルをスキャンし、キューに追加しました。";
         }
         IsProcessing = false;
     }
@@ -165,28 +165,28 @@ public partial class SampleAViewModel : ObservableObject
                 
                 System.Windows.Application.Current.Dispatcher.Invoke(() => 
                 {
-                    item.Status = "処理中…";
-                    StatusMessage = $"処理状況：{count}/{files.Count} — {item.FileName}";
+                    item.Status = "処理中...";
+                    StatusMessage = $"処理の進捗: {count}/{files.Count} - {item.FileName}";
                 });
 
                 bool success = FormatSingleExcel(app, item.FilePath);
 
                 System.Windows.Application.Current.Dispatcher.Invoke(() => 
                 {
-                    item.Status = success ? "✅ 成功" : "❌ 失敗";
+                    item.Status = success ? "✅ 完了" : "❌ 失敗";
                 });
             }
 
             System.Windows.Application.Current.Dispatcher.Invoke(() => 
             {
-                StatusMessage = $"キューの処理が完了しました。全 {files.Count} 件を処理しました。";
+                StatusMessage = $"すべてのキューの実行が完了しました！合計 {files.Count} 個のファイルを処理しました。";
             });
         }
         catch (Exception ex)
         {
             System.Windows.Application.Current.Dispatcher.Invoke(() => 
             {
-                StatusMessage = $"オートメーションで重大なエラーが発生しました：{ex.Message}";
+                StatusMessage = $"自動化の重大なエラー：{ex.Message}";
             });
         }
         finally

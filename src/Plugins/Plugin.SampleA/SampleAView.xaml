@@ -20,7 +20,7 @@
                            Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,16"/>
                 
                 <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
-                    <CheckBox Content="すべてのワークシートの表示倍率をリセット：" 
+                    <CheckBox Content="すべてのシートのズーム倍率をリセットする：" 
                               IsChecked="{Binding EnableZoomFormat}"
                               Foreground="{DynamicResource PrimaryTextBrush}"
                               VerticalAlignment="Center" FontSize="14" />
@@ -40,17 +40,17 @@
                                VerticalAlignment="Center" Margin="6,0,0,0" FontSize="14"/>
                 </StackPanel>
                           
-                <CheckBox Content="すべてのワークシートのアクティブセルを A1 に合わせる" 
+                <CheckBox Content="すべてのシートのカーソルを A1 セルに移動する" 
                           IsChecked="{Binding FormatFocusA1}"
                           Foreground="{DynamicResource PrimaryTextBrush}"
                           Margin="0,0,0,12" FontSize="14" />
                           
-                <CheckBox Content="処理後は先頭のワークシートのみをアクティブにする" 
+                <CheckBox Content="処理完了後、デフォルトで最初のシートをアクティブにする" 
                           IsChecked="{Binding FormatActiveFirstSheet}"
                           Foreground="{DynamicResource PrimaryTextBrush}"
                           Margin="0,0,0,12" FontSize="14" />
 
-                <CheckBox Content="外部ブックへのリンクをすべて切断する（Break Links）" 
+                <CheckBox Content="すべての外部リンクを自動的に切断する (Break Links)" 
                           IsChecked="{Binding BreakExternalLinks}"
                           Foreground="{DynamicResource PrimaryTextBrush}"
                           FontSize="14" />
@@ -76,11 +76,11 @@
                         </Style>
                     </StackPanel.Style>
                     <TextBlock Text="📥" FontSize="56" HorizontalAlignment="Center" Margin="0,0,0,16"/>
-                    <TextBlock Text="Excel ファイルまたはフォルダーをここにドロップしてタスクキューに追加" 
+                    <TextBlock Text="Excel ファイルまたはフォルダをこのエリアにドラッグ＆ドロップして、タスクキューを作成します" 
                                FontSize="16" FontWeight="SemiBold"
                                Foreground="{DynamicResource SecondaryTextBrush}"
                                HorizontalAlignment="Center" />
-                    <TextBlock Text="フォルダーをドロップした場合、その中の Excel ファイルを自動でスキャンします" 
+                    <TextBlock Text="フォルダをドロップした場合、フォルダ内のすべての Excel ファイルを自動的にスキャンします" 
                                FontSize="13" Foreground="{DynamicResource SecondaryTextBrush}"
                                Margin="0,8,0,0" Opacity="0.7"
                                HorizontalAlignment="Center" />
@@ -130,7 +130,7 @@
                     </DataGrid.CellStyle>
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="ファイル名" Binding="{Binding FileName}" Width="250" IsReadOnly="True" />
-                        <DataGridTextColumn Header="状態" Binding="{Binding Status}" Width="120" IsReadOnly="True" />
+                        <DataGridTextColumn Header="ステータス" Binding="{Binding Status}" Width="120" IsReadOnly="True" />
                         <DataGridTextColumn Header="パス" Binding="{Binding FilePath}" Width="*" IsReadOnly="True" />
                     </DataGrid.Columns>
                 </DataGrid>
@@ -151,7 +151,7 @@
                 </Grid.ColumnDefinitions>
 
                 <!-- 左：追加・クリア -->
-                <Button Grid.Column="0" Content="＋ 手動で追加…" 
+                <Button Grid.Column="0" Content="+ 手動追加..." 
                         MinWidth="120" Height="36" Padding="16,0"
                         Style="{DynamicResource ActionButtonStyle}"
                         Command="{Binding SelectExcelFallbackCommand}" />
