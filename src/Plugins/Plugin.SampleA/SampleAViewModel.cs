@@ -46,9 +46,6 @@ public partial class SampleAViewModel : ObservableObject
     private bool _formatActiveFirstSheet = true;
 
     [ObservableProperty]
-    private bool _breakExternalLinks = false;
-
-    [ObservableProperty]
     private bool _isProcessing = false;
 
     [ObservableProperty]
@@ -215,6 +212,7 @@ public partial class SampleAViewModel : ObservableObject
             for (int i = 1; i <= wb.Worksheets.Count; i++)
             {
                 var currentSheet = (Excel.Worksheet)wb.Worksheets[i];
+                Excel.Range? usedRange = null;
                 
                 if (EnableZoomFormat || FormatFocusA1)
                 {
@@ -233,20 +231,47 @@ public partial class SampleAViewModel : ObservableObject
                         Marshal.ReleaseComObject(a1);
                     }
                 }
+
+                // フィルター解除 + 数式を値に固定 + 行列の自動調整
+                try
+                {
+                    if (currentSheet.FilterMode)
+                    {
+                        try { currentSheet.ShowAllData(); } catch { }
+                    }
+                    if (currentSheet.AutoFilterMode)
+                    {
+                        currentSheet.AutoFilterMode = false;
+                    }
+
+                    usedRange = currentSheet.UsedRange;
+                    if (usedRange != null)
+                    {
+                        // Value2 を自身に代入して、数式を値へ固定
+                        usedRange.Value2 = usedRange.Value2;
+                        usedRange.Columns.AutoFit();
+                        usedRange.Rows.AutoFit();
+                    }
+                }
+                finally
+                {
+                    if (usedRange != null)
+                    {
+                        Marshal.ReleaseComObject(usedRange);
+                    }
+                }
                 Marshal.ReleaseComObject(currentSheet);
             }
 
-            if (BreakExternalLinks)
+            // 外部リンクは常に切断
+            var links = wb.LinkSources(Excel.XlLink.xlExcelLinks) as Array;
+            if (links != null)
             {
-                var links = wb.LinkSources(Excel.XlLink.xlExcelLinks) as Array;
-                if (links != null)
+                for (int i = 1; i <= links.Length; i++)
                 {
-                    for (int i = 1; i <= links.Length; i++)
+                    if (links.GetValue(i) is string linkName)
                     {
-                        if (links.GetValue(i) is string linkName)
-                        {
-                            try { wb.BreakLink(linkName, Excel.XlLinkType.xlLinkTypeExcelLinks); } catch { }
-                        }
+                        try { wb.BreakLink(linkName, Excel.XlLinkType.xlLinkTypeExcelLinks); } catch { }
                     }
                 }
             }

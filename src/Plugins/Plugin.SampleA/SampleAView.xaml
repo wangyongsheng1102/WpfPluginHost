@@ -50,10 +50,10 @@
                           Foreground="{DynamicResource PrimaryTextBrush}"
                           Margin="0,0,0,12" FontSize="14" />
 
-                <CheckBox Content="すべての外部リンクを自動的に切断する (Break Links)" 
-                          IsChecked="{Binding BreakExternalLinks}"
-                          Foreground="{DynamicResource PrimaryTextBrush}"
-                          FontSize="14" />
+                <TextBlock Text="処理時に自動実行：フィルター解除・数式を値に固定・行列の自動調整・外部リンク切断"
+                           Foreground="{DynamicResource SecondaryTextBrush}"
+                           FontSize="13"
+                           Opacity="0.86" />
             </StackPanel>
         </Border>
 
