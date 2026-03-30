@@ -11,6 +11,10 @@ public sealed class SampleBPlugin : IPluginModule
     public string IconKey => "🧩";
     public int Order => 20;
 
+    public void Initialize(IPluginContext context)
+    {
+    }
+
     public UserControl CreateView()
     {
         return new SampleBView();
