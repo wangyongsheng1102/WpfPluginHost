@@ -43,7 +43,7 @@ public partial class MainWindowViewModel : ObservableObject
     [ObservableProperty]
     private bool isDarkTheme;
 
-    public double MenuWidth => IsMenuCollapsed ? 72 : 260;
+    public double MenuWidth => IsMenuCollapsed ? 84 : 260;
     public string PluginCountText => $"Plugins: {MenuItems.Count}";
 
     public IRelayCommand ToggleMenuCommand { get; }
