@@ -1,17 +1,60 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+    <sys:Double x:Key="TitleFontSize">28</sys:Double>
+    <sys:Double x:Key="SubtitleFontSize">18</sys:Double>
+    <sys:Double x:Key="BodyFontSize">14</sys:Double>
+    <sys:Double x:Key="CaptionFontSize">13</sys:Double>
+    <CornerRadius x:Key="SmallRadius">4</CornerRadius>
+    <CornerRadius x:Key="PanelRadius">8</CornerRadius>
+    <CornerRadius x:Key="CardRadius">10</CornerRadius>
+
+    <DropShadowEffect x:Key="CardShadowLevel1"
+                      BlurRadius="14"
+                      ShadowDepth="2"
+                      Opacity="0.14" />
+    <DropShadowEffect x:Key="CardShadowLevel2"
+                      BlurRadius="24"
+                      ShadowDepth="4"
+                      Opacity="0.22" />
+
+    <Style x:Key="TitleTextStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}" />
+        <Setter Property="FontSize" Value="{StaticResource TitleFontSize}" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+    </Style>
+
+    <Style x:Key="SubtitleTextStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}" />
+        <Setter Property="FontSize" Value="{StaticResource SubtitleFontSize}" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+    </Style>
+
+    <Style x:Key="BodyTextStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}" />
+        <Setter Property="FontSize" Value="{StaticResource BodyFontSize}" />
+        <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+    </Style>
+
+    <Style x:Key="CaptionTextStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}" />
+        <Setter Property="FontSize" Value="{StaticResource CaptionFontSize}" />
+        <Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}" />
+    </Style>
     <Style x:Key="ActionButtonStyle" TargetType="Button">
         <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}" />
         <Setter Property="Background" Value="{DynamicResource ContentBackgroundBrush}" />
         <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
         <Setter Property="BorderThickness" Value="1" />
-        <Setter Property="BorderBrush" Value="{DynamicResource HoverBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderSubtleBrush}" />
         <Setter Property="Cursor" Value="Hand" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
                     <Border x:Name="ButtonBorder"
-                            CornerRadius="4"
+                            CornerRadius="{StaticResource SmallRadius}"
                             Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}"
@@ -44,7 +87,7 @@
         <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}" />
         <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
         <Setter Property="Background" Value="{DynamicResource NavBackgroundBrush}" />
-        <Setter Property="BorderBrush" Value="{DynamicResource HoverBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderSubtleBrush}" />
         <Setter Property="BorderThickness" Value="1" />
         <Setter Property="Cursor" Value="Hand" />
         <Setter Property="HorizontalContentAlignment" Value="Stretch" />
@@ -53,20 +96,23 @@
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
                     <Border x:Name="CardBorder"
-                            CornerRadius="10"
+                            CornerRadius="{StaticResource CardRadius}"
                             Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
-                            BorderThickness="{TemplateBinding BorderThickness}">
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            Effect="{StaticResource CardShadowLevel1}">
                         <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
                                           VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
                             <Setter TargetName="CardBorder" Property="Background" Value="{DynamicResource ButtonHoverGradientBrush}" />
+                            <Setter TargetName="CardBorder" Property="Effect" Value="{StaticResource CardShadowLevel2}" />
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
                             <Setter TargetName="CardBorder" Property="Background" Value="{DynamicResource ButtonPressedGradientBrush}" />
                             <Setter TargetName="CardBorder" Property="Opacity" Value="0.95" />
+                            <Setter TargetName="CardBorder" Property="Effect" Value="{StaticResource CardShadowLevel1}" />
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -84,7 +130,7 @@
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
                     <Border x:Name="ButtonBorder"
-                            CornerRadius="4"
+                            CornerRadius="{StaticResource SmallRadius}"
                             Background="{TemplateBinding Background}"
                             BorderThickness="0"
                             Margin="0"
@@ -124,7 +170,7 @@
                             Background="Transparent"
                             BorderBrush="Transparent"
                             BorderThickness="1"
-                            CornerRadius="4"
+                            CornerRadius="{StaticResource SmallRadius}"
                             Padding="9"
                             Margin="0"
                             Opacity="1"
@@ -277,7 +323,7 @@
                             Background="Transparent"
                             BorderBrush="Transparent"
                             BorderThickness="1"
-                            CornerRadius="4"
+                            CornerRadius="{StaticResource SmallRadius}"
                             Padding="9"
                             Margin="0"
                             Opacity="1"
@@ -382,7 +428,7 @@
                             Background="Transparent"
                             BorderBrush="Transparent"
                             BorderThickness="0"
-                            CornerRadius="4"
+                            CornerRadius="{StaticResource SmallRadius}"
                             Opacity="1">
                         <Grid>
                             <Border x:Name="Indicator"
@@ -468,14 +514,14 @@
         <Setter Property="VerticalAlignment" Value="Center" />
         <Setter Property="HorizontalAlignment" Value="Left" />
         <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
-        <Setter Property="FontSize" Value="16" />
+        <Setter Property="FontSize" Value="{StaticResource SubtitleFontSize}" />
         <Setter Property="Margin" Value="70,0,0,0" />
     </Style>
 
     <Style x:Key="SecondaryTextStyle" TargetType="TextBlock">
         <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}" />
         <Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}" />
-        <Setter Property="FontSize" Value="12" />
+        <Setter Property="FontSize" Value="{StaticResource CaptionFontSize}" />
         <Setter Property="FontWeight" Value="SemiBold" />
     </Style>
 
@@ -495,7 +541,7 @@
                             Background="Transparent"
                             BorderBrush="Transparent"
                             BorderThickness="1"
-                            CornerRadius="4"
+                            CornerRadius="{StaticResource SmallRadius}"
                             Padding="6"
                             Margin="0"
                             Opacity="1">
@@ -562,7 +608,7 @@
                             Background="Transparent"
                             BorderBrush="Transparent"
                             BorderThickness="1"
-                            CornerRadius="4"
+                            CornerRadius="{StaticResource SmallRadius}"
                             Padding="6"
                             Margin="0"
                             Opacity="1">

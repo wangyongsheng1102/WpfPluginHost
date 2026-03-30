@@ -7,8 +7,13 @@
     <Color x:Key="SelectedColor">#282828</Color>
     <Color x:Key="IndicatorColor">#60CDFF</Color>
     <Color x:Key="PrimaryTextColor">#FFFFFF</Color>
-    <Color x:Key="SecondaryTextColor">#999999</Color>
+    <Color x:Key="SecondaryTextColor">#B8B8B8</Color>
     <Color x:Key="ContentBackgroundColor">#282828</Color>
+    <Color x:Key="BorderSubtleColor">#3D434A</Color>
+    <Color x:Key="CardElevatedColor">#2C2C2C</Color>
+    <Color x:Key="SuccessColor">#4CAF78</Color>
+    <Color x:Key="WarningColor">#F4B400</Color>
+    <Color x:Key="ErrorColor">#E57373</Color>
     <Color x:Key="SwitchOnColor">#60CDFF</Color>
     <Color x:Key="SwitchOffColor">#333333</Color>
     <Color x:Key="SwitchThumbColor">#FFFFFF</Color>
@@ -22,6 +27,11 @@
     <SolidColorBrush x:Key="PrimaryTextBrush" Color="{StaticResource PrimaryTextColor}" />
     <SolidColorBrush x:Key="SecondaryTextBrush" Color="{StaticResource SecondaryTextColor}" />
     <SolidColorBrush x:Key="ContentBackgroundBrush" Color="{StaticResource ContentBackgroundColor}" />
+    <SolidColorBrush x:Key="BorderSubtleBrush" Color="{StaticResource BorderSubtleColor}" />
+    <SolidColorBrush x:Key="CardElevatedBrush" Color="{StaticResource CardElevatedColor}" />
+    <SolidColorBrush x:Key="SuccessBrush" Color="{StaticResource SuccessColor}" />
+    <SolidColorBrush x:Key="WarningBrush" Color="{StaticResource WarningColor}" />
+    <SolidColorBrush x:Key="ErrorBrush" Color="{StaticResource ErrorColor}" />
     <SolidColorBrush x:Key="PrimaryButtonTextBrush" Color="#000000" />
     <SolidColorBrush x:Key="SwitchOnBrush" Color="{StaticResource SwitchOnColor}" />
     <SolidColorBrush x:Key="SwitchOffBrush" Color="{StaticResource SwitchOffColor}" />
