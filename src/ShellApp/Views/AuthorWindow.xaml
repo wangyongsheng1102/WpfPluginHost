@@ -26,7 +26,8 @@
                    IsHitTestVisible="False" />
 
         <!-- Content Area -->
-        <ScrollViewer Grid.Row="1" Margin="24,0,24,12"
+        <ScrollViewer Grid.Row="1" Margin="24,0,32,12"
+                      Padding="0,0,8,0"
                       VerticalScrollBarVisibility="Auto"
                       HorizontalScrollBarVisibility="Disabled">
             <StackPanel>
