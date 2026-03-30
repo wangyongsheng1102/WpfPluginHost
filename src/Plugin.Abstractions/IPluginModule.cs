@@ -15,6 +15,10 @@ public interface IPluginModule
     string IconKey { get; }
     /// <summary>メニュー項目の並び順（昇順）。</summary>
     int Order { get; }
+    
+    /// <summary>プラグインを初期化し、ホストシェルからのコンテキスト（グローバルステータスバー等）を受け取る。</summary>
+    void Initialize(IPluginContext context);
+
     /// <summary>プラグインのメイン <see cref="UserControl"/> を生成する。</summary>
     UserControl CreateView();
 }
