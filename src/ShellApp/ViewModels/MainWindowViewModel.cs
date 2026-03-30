@@ -98,6 +98,23 @@ public partial class MainWindowViewModel : ObservableObject
         IsMenuCollapsed = !IsMenuCollapsed;
     }
 
+    [RelayCommand]
+    private void ShowAuthor()
+    {
+        System.Windows.MessageBox.Show(
+            "WPF Plugin Shell\n\n" +
+            "👤 開発者: Antigravity AI (Google DeepMind Team)\n" +
+            "💡 現在のバージョン: 1.2.0\n\n" +
+            "✨ 最新のアップデート内容:\n" +
+            "- Windows 11 Fluent Design（アクリル背景・角丸）を全体に導入しました\n" +
+            "- SampleA: ドラッグ＆ドロップ対応のバッチ処理キューシステムを再構築しました\n" +
+            "- SampleA: 独立したステータスパネルと「外部リンクの切断」の自動化判定を追加しました\n" +
+            "- コア体験：主要ボタンの視認性を向上させ、テーマのシームレスな切り替えを最適化しました",
+            "開発者情報 ＆ アップデート履歴",
+            System.Windows.MessageBoxButton.OK,
+            System.Windows.MessageBoxImage.Information);
+    }
+
     private void ReloadPlugins()
     {
         _pluginManager.ReloadAll();
