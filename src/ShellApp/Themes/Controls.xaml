@@ -70,6 +70,47 @@
         </Setter>
     </Style>
 
+    <Style x:Key="AboutAppStyle" TargetType="Button">
+        <Setter Property="Height" Value="40" />
+        <Setter Property="Width" Value="40" />
+        <Setter Property="HorizontalAlignment" Value="Right" />
+        <Setter Property="VerticalAlignment" Value="Top" />
+        <Setter Property="Margin" Value="0,14,60,0" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="ToolTip" Value="開発者情報 ＆ アップデート履歴" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Root"
+                            Background="Transparent"
+                            BorderBrush="Transparent"
+                            BorderThickness="1"
+                            CornerRadius="4"
+                            Padding="9"
+                            Margin="0"
+                            Opacity="1">
+                        <TextBlock x:Name="AboutIcon"
+                                   Text="💡" FontSize="16"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Root" Property="Background" Value="{DynamicResource ButtonHoverGradientBrush}" />
+                            <Setter TargetName="Root" Property="BorderBrush" Value="{DynamicResource HoverBrush}" />
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Root" Property="Background" Value="{DynamicResource ButtonPressedGradientBrush}" />
+                            <Setter TargetName="Root" Property="BorderBrush" Value="{DynamicResource HoverBrush}" />
+                            <Setter TargetName="Root" Property="Opacity" Value="0.85" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <!-- ThemeIconToggleStyle と同様：40×40 のヒット領域、内側のアイコンは約 22px -->
     <Style x:Key="ExitAppStyle" TargetType="Button">
         <Setter Property="Height" Value="40" />
