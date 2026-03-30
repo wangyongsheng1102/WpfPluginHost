@@ -13,7 +13,7 @@ public partial class MainWindowViewModel : ObservableObject
 {
     private readonly PluginManager _pluginManager;
     private readonly ThemeService _themeService;
-    /// <summary>按插件 Id 复用视图，切换菜单时保留各页状态；插件重载后必须 Clear。</summary>
+    /// <summary>プラグイン Id ごとにビューを再利用し、メニュー切り替え時に各ページの状態を保持する。プラグイン再読み込み後は必ず Clear する。</summary>
     private readonly Dictionary<string, UserControl> _pluginViewCache = new(StringComparer.OrdinalIgnoreCase);
 
     public MainWindowViewModel(PluginManager pluginManager, ThemeService themeService)
@@ -45,7 +45,7 @@ public partial class MainWindowViewModel : ObservableObject
     private bool isDarkTheme;
 
     public double MenuWidth => IsMenuCollapsed ? 84 : 260;
-    public string PluginCountText => $"Plugins: {MenuItems.Count}";
+    public string PluginCountText => $"プラグイン数: {MenuItems.Count}";
 
     public IRelayCommand ToggleMenuCommand { get; }
     public IRelayCommand ReloadPluginsCommand { get; }
@@ -75,7 +75,7 @@ public partial class MainWindowViewModel : ObservableObject
     partial void OnIsDarkThemeChanged(bool value)
     {
         _themeService.ApplyTheme(value);
-        // 不重建插件视图，以免丢失编辑状态；摘挂 + 失效样式/画刷促使 DynamicResource 随 Application 主题字典更新
+        // プラグインビューは作り直さず編集状態を保持。一旦外して戻し、スタイル／ブラシを無効化して Application テーマの DynamicResource を反映
         RefreshCurrentPluginViewAfterThemeChange();
     }
 
@@ -126,7 +126,7 @@ public partial class MainWindowViewModel : ObservableObject
             return;
         }
 
-        // 始终从新的 MenuItems 里取实例，避免 Clear 后仍指向已不在集合中的旧 VM，并触发视图按新程序集重建
+        // 常に新しい MenuItems から項目を選び、Clear 後も古い VM を参照しないようにし、新しいアセンブリに合わせてビューを再構築する
         var previousId = SelectedMenuItem?.Id;
         PluginMenuItemViewModel? match = null;
         if (!string.IsNullOrEmpty(previousId))

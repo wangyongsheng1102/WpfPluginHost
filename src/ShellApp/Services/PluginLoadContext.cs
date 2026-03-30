@@ -14,7 +14,7 @@ public sealed class PluginLoadContext : AssemblyLoadContext
     {
         _resolver = new AssemblyDependencyResolver(mainAssemblyToLoadPath);
         _pluginDirectory = Path.GetDirectoryName(mainAssemblyToLoadPath)
-            ?? throw new ArgumentException("无效的程序集路径。", nameof(mainAssemblyToLoadPath));
+            ?? throw new ArgumentException("無効なアセンブリパスです。", nameof(mainAssemblyToLoadPath));
     }
 
     protected override Assembly? Load(AssemblyName assemblyName)
@@ -26,7 +26,7 @@ public sealed class PluginLoadContext : AssemblyLoadContext
         if (assemblyPath is not null && File.Exists(assemblyPath))
             return LoadFromAssemblyPath(assemblyPath);
 
-        // deps.json 里常为 lib/net5.0/xxx.dll，而插件目录是扁平复制；Resolver 会返回 null，必须在同目录按文件名加载
+        // deps.json では lib/net5.0/xxx.dll などになるが、プラグインディレクトリはフラットコピー。Resolver が null のときは同じフォルダのファイル名で読み込む
         if (!string.IsNullOrEmpty(assemblyName.Name))
         {
             var flat = Path.Combine(_pluginDirectory, assemblyName.Name + ".dll");

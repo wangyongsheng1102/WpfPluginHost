@@ -20,7 +20,7 @@ public partial class App : Application
         Directory.CreateDirectory(pluginRoot);
 
         _themeService = new ThemeService();
-        _themeService.ApplyTheme(isDarkTheme: true);
+        _themeService.ApplyTheme(isDarkTheme: false);
 
         _pluginManager = new PluginManager(pluginRoot);
         var vm = new MainWindowViewModel(_pluginManager, _themeService);
@@ -46,10 +46,10 @@ public partial class App : Application
     {
         var baseDir = AppContext.BaseDirectory;
         var localPlugins = Path.Combine(baseDir, "plugins");
-        // BaseDirectory 一般为 ...\ShellApp\bin\Debug\net8.0-windows\，需向上 5 级到仓库根（原为 4 级会落到不存在的 src\plugins）
+        // BaseDirectory は通常 ...\ShellApp\bin\Debug\net8.0-windows\。リポジトリ直下へは 5 段上がる（4 段だと存在しない src\plugins に落ちる）
         var workspacePlugins = Path.GetFullPath(Path.Combine(baseDir, "..", "..", "..", "..", "..", "plugins"));
 
-        // 不能仅因目录存在就优先本地：空目录或无 deps 会阻断回退到仓库根 plugins
+        // ディレクトリが存在するだけではローカルを優先しない。空または deps が無いとリポジトリ直下の plugins へフォールバックできない
         if (IsUsablePluginFolder(localPlugins))
             return localPlugins;
 
@@ -61,7 +61,7 @@ public partial class App : Application
     }
 
     /// <summary>
-    /// 判断插件目录是否具备 AssemblyDependencyResolver 所需文件（Interop / Mvvm 等由宿主目录提供）。
+    /// プラグインフォルダに AssemblyDependencyResolver に必要なファイルがあるか（Interop / Mvvm 等はホスト側で提供）。
     /// </summary>
     private static bool IsUsablePluginFolder(string path)
     {

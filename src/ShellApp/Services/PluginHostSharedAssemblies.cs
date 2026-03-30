@@ -1,9 +1,9 @@
 namespace ShellApp.Services;
 
 /// <summary>
-/// 由 Shell 默认 <see cref="System.Runtime.Loader.AssemblyLoadContext"/> 加载的程序集。
-/// 插件 ALC 遇到这些名称时返回 null，从主程序输出目录解析，plugins 文件夹不必再带这些 DLL。
-/// 新增共享依赖时：在 ShellApp.csproj 添加同版本 PackageReference，并把程序集简单名称加入集合。
+/// シェルの既定 <see cref="System.Runtime.Loader.AssemblyLoadContext"/> によって読み込まれるアセンブリ。
+/// プラグイン用 ALC はこれらの名前では null を返し、メインの出力ディレクトリから解決する。plugins フォルダに同梱不要。
+/// 共有依存を追加する場合：ShellApp.csproj に同バージョンの PackageReference を追加し、単純名をこの集合に加える。
 /// </summary>
 internal static class PluginHostSharedAssemblies
 {

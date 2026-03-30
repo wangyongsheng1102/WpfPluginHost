@@ -9,13 +9,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- 与插件同版本；与 PluginHostSharedAssemblies 一致，运行时由宿主输出目录提供 -->
+    <!-- プラグインと同バージョン。PluginHostSharedAssemblies と一致し、実行時はホスト出力ディレクトリから解決 -->
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Plugin.Abstractions\Plugin.Abstractions.csproj" />
-    <!-- 生成 Shell 时先编插件，保证仓库根 plugins 含完整依赖；不引用插件程序集本身 -->
+    <!-- Shell ビルド時にプラグインを先にビルドし、リポジトリ直下の plugins に依存関係を揃える。プラグインアセンブリ自体は参照しない -->
     <ProjectReference Include="..\Plugins\Plugin.SampleA\Plugin.SampleA.csproj" ReferenceOutputAssembly="false" />
     <ProjectReference Include="..\Plugins\Plugin.SampleB\Plugin.SampleB.csproj" ReferenceOutputAssembly="false" />
   </ItemGroup>
@@ -26,7 +26,7 @@
     </Content>
   </ItemGroup>
 
-  <!-- 将仓库根 plugins（由插件项目生成）同步到 Shell 输出目录，使 F5 时 bin\...\plugins 与仓库一致 -->
+  <!-- リポジトリ直下の plugins（プラグインプロジェクトの生成物）を Shell 出力に同期し、F5 時の bin\...\plugins をリポジトリと一致させる -->
   <Target Name="CopyWorkspacePluginsToShellOutput" AfterTargets="Build">
     <MakeDir Directories="$(OutDir)plugins" />
     <ItemGroup>

@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="WPF Plugin Shell"
+        Title="WPF プラグインシェル"
         Height="600"
         Width="850"
         MinHeight="560"
@@ -117,7 +117,7 @@
                                 Margin="0,0,0,10"
                                 Style="{StaticResource ActionButtonStyle}"
                                 Command="{Binding ReloadPluginsCommand}"
-                                ToolTip="Reload Plugins">
+                                ToolTip="プラグインを再読み込み">
                             <TextBlock Text="🔄"
                                        FontSize="18"
                                        HorizontalAlignment="Center"
@@ -136,15 +136,15 @@
                     <RowDefinition Height="52" />
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
-                <!-- 标题栏区域 -->
+                <!-- タイトルバー領域 -->
                 <Border Grid.Row="0"
                         Background="Transparent" />
-                <!-- 上边距加大：与右上角关闭按钮、标题栏拉开，避免与子页面挤在一起 -->
+                <!-- 上マージン：閉じるボタン・タイトルバーと子ページの間を空ける -->
                 <Border Grid.Row="1"
                         Margin="0,14,12,12"
                         Background="{DynamicResource ContentBackgroundBrush}"
                         CornerRadius="8">
-                    <!-- 显式背景：避免未设置时透出系统默认浅色块（深色模式下子页发白） -->
+                    <!-- 背景を明示：未設定時のシステム既定の明色が透けるのを防ぐ（ダーク時の子ページの白浮き対策） -->
                     <ContentControl Margin="8"
                                     Background="{DynamicResource ContentBackgroundBrush}"
                                     Content="{Binding CurrentView}" />
@@ -154,7 +154,7 @@
 
         <Button Style="{StaticResource ExitAppStyle}"
                 Click="CloseButton_Click"
-                ToolTip="Close"
+                ToolTip="閉じる"
                 WindowChrome.IsHitTestVisibleInChrome="True" />
     </Grid>
 </Window>

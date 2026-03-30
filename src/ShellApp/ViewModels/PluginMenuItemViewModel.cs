@@ -33,7 +33,7 @@ public sealed class PluginMenuItemViewModel
             return explicitPath;
         }
 
-        // Unified convention fallback: Assets/Images/img_{id}.png
+        // 統一規約によるフォールバック: Assets/Images/img_{id}.png
         if (string.IsNullOrWhiteSpace(moduleId))
         {
             return null;

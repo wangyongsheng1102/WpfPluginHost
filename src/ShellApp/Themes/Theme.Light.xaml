@@ -22,6 +22,7 @@
     <SolidColorBrush x:Key="PrimaryTextBrush" Color="{StaticResource PrimaryTextColor}" />
     <SolidColorBrush x:Key="SecondaryTextBrush" Color="{StaticResource SecondaryTextColor}" />
     <SolidColorBrush x:Key="ContentBackgroundBrush" Color="{StaticResource ContentBackgroundColor}" />
+    <SolidColorBrush x:Key="PrimaryButtonTextBrush" Color="#FFFFFF" />
     <SolidColorBrush x:Key="SwitchOnBrush" Color="{StaticResource SwitchOnColor}" />
     <SolidColorBrush x:Key="SwitchOffBrush" Color="{StaticResource SwitchOffColor}" />
     <SolidColorBrush x:Key="SwitchThumbBrush" Color="{StaticResource SwitchThumbColor}" />

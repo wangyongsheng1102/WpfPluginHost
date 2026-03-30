@@ -36,7 +36,7 @@ public sealed class PluginManager : IDisposable
         {
             UnloadInternal();
 
-            // 只把真正的插件入口当插件加载；依赖 DLL（Interop、Mvvm 等）与主程序集同目录，不应 GetTypes 扫描
+            // プラグイン本体の DLL のみを対象にする。依存 DLL（Interop、Mvvm 等）はメインと同じ出力にあり、GetTypes で走査しない
             foreach (var dllPath in Directory.GetFiles(_pluginsRoot, "Plugin.*.dll", SearchOption.TopDirectoryOnly))
             {
                 if (string.Equals(Path.GetFileName(dllPath), "Plugin.Abstractions.dll", StringComparison.OrdinalIgnoreCase))
@@ -84,7 +84,7 @@ public sealed class PluginManager : IDisposable
         }
         catch
         {
-            // Ignore bad plugin dll and continue loading others.
+            // 不正なプラグイン DLL は無視し、他の読み込みを続行する。
         }
     }
 

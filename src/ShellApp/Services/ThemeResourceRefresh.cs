@@ -6,7 +6,7 @@ using System.Windows.Media;
 namespace ShellApp.Services;
 
 /// <summary>
-/// 在替换 Application 主题合并字典后，促使子树重新解析 DynamicResource（含插件程序集内视图），无需重建控件以免丢失状态。
+/// Application のテーマ用マージド辞書を差し替えた後、サブツリーで DynamicResource を再評価させる（プラグインアセンブリ内のビュー含む）。コントロールを作り直さず状態を保持する。
 /// </summary>
 internal static class ThemeResourceRefresh
 {
@@ -42,7 +42,7 @@ internal static class ThemeResourceRefresh
                 break;
         }
 
-        // Popup 等可能尚未挂到主可视树，仍尝试刷新其 Child
+        // Popup などはメインのビジュアルツリーに未接続のことがあるが、Child は更新を試みる
         if (node is Popup popup && popup.Child is { } popupChild)
         {
             InvalidateRecursive(popupChild);
