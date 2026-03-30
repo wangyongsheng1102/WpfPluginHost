@@ -1,0 +1,361 @@
+    <Window x:Class="ShellApp.Views.MainWindow"
+            x:Name="RootWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:ShellApp.Converters"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="WPF プラグインシェル"
+        Height="900"
+        Width="1250"
+        MinHeight="600"
+        MinWidth="850"
+        AllowsTransparency="False"
+        WindowStyle="SingleBorderWindow"
+        WindowStartupLocation="CenterScreen"
+        Background="{DynamicResource ShellBackgroundBrush}">
+    <WindowChrome.WindowChrome>
+        <WindowChrome GlassFrameThickness="0,0,0,1" CornerRadius="0" CaptionHeight="52" ResizeBorderThickness="8" UseAeroCaptionButtons="False" />
+    </WindowChrome.WindowChrome>
+
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+        <local:InverseBooleanToVisibilityConverter x:Key="InverseBooleanToVisibilityConverter" />
+    </Window.Resources>
+
+    <Grid>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <Grid x:Name="NavPanel"
+                  HorizontalAlignment="Left"
+                  Width="260">
+                <Border Background="{DynamicResource NavBackgroundBrush}"
+                        CornerRadius="8,0,0,8" />
+
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <Button Margin="10,10,10,4"
+                            Width="40"
+                            Height="40"
+                            HorizontalAlignment="Center"
+                            Command="{Binding ToggleMenuCommand}"
+                            WindowChrome.IsHitTestVisibleInChrome="True"
+                            Padding="0"
+                            Style="{StaticResource ThemeIconActionButtonStyle}">
+                        <Button.Triggers>
+                            <EventTrigger RoutedEvent="MouseEnter">
+                                <BeginStoryboard Name="MenuToggleWiggleStoryboard">
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="HamburgerLineTopTranslate"
+                                                         Storyboard.TargetProperty="X"
+                                                         From="-2"
+                                                         To="2"
+                                                         Duration="0:0:0.18"
+                                                         AutoReverse="True"
+                                                         RepeatBehavior="Forever" />
+                                        <DoubleAnimation Storyboard.TargetName="HamburgerLineMidTranslate"
+                                                         Storyboard.TargetProperty="X"
+                                                         From="-1"
+                                                         To="1"
+                                                         Duration="0:0:0.18"
+                                                         AutoReverse="True"
+                                                         RepeatBehavior="Forever" />
+                                        <DoubleAnimation Storyboard.TargetName="HamburgerLineBottomTranslate"
+                                                         Storyboard.TargetProperty="X"
+                                                         From="-2"
+                                                         To="2"
+                                                         Duration="0:0:0.18"
+                                                         AutoReverse="True"
+                                                         RepeatBehavior="Forever" />
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </EventTrigger>
+                            <EventTrigger RoutedEvent="MouseLeave">
+                                <StopStoryboard BeginStoryboardName="MenuToggleWiggleStoryboard" />
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="HamburgerLineTopTranslate"
+                                                         Storyboard.TargetProperty="X"
+                                                         To="0"
+                                                         Duration="0:0:0.05" />
+                                        <DoubleAnimation Storyboard.TargetName="HamburgerLineMidTranslate"
+                                                         Storyboard.TargetProperty="X"
+                                                         To="0"
+                                                         Duration="0:0:0.05" />
+                                        <DoubleAnimation Storyboard.TargetName="HamburgerLineBottomTranslate"
+                                                         Storyboard.TargetProperty="X"
+                                                         To="0"
+                                                         Duration="0:0:0.05" />
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </EventTrigger>
+                        </Button.Triggers>
+                        <!-- 矢量三横（フォント glyph 依存を排除） -->
+                        <Grid Width="22"
+                              Height="22">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="1*" />
+                                <RowDefinition Height="1*" />
+                                <RowDefinition Height="1*" />
+                            </Grid.RowDefinitions>
+                            <Rectangle Grid.Row="0"
+                                       Width="16"
+                                       Height="2"
+                                       RadiusX="1"
+                                       RadiusY="1"
+                                       Fill="{DynamicResource PrimaryTextBrush}"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center">
+                                <Rectangle.RenderTransform>
+                                    <TranslateTransform x:Name="HamburgerLineTopTranslate" X="0" Y="0" />
+                                </Rectangle.RenderTransform>
+                            </Rectangle>
+                            <Rectangle Grid.Row="1"
+                                       Width="16"
+                                       Height="2"
+                                       RadiusX="1"
+                                       RadiusY="1"
+                                       Fill="{DynamicResource PrimaryTextBrush}"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center">
+                                <Rectangle.RenderTransform>
+                                    <TranslateTransform x:Name="HamburgerLineMidTranslate" X="0" Y="0" />
+                                </Rectangle.RenderTransform>
+                            </Rectangle>
+                            <Rectangle Grid.Row="2"
+                                       Width="16"
+                                       Height="2"
+                                       RadiusX="1"
+                                       RadiusY="1"
+                                       Fill="{DynamicResource PrimaryTextBrush}"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center">
+                                <Rectangle.RenderTransform>
+                                    <TranslateTransform x:Name="HamburgerLineBottomTranslate" X="0" Y="0" />
+                                </Rectangle.RenderTransform>
+                            </Rectangle>
+                        </Grid>
+                    </Button>
+
+                    <Button Grid.Row="1"
+                            Margin="10,0,10,8"
+                            Height="40"
+                            HorizontalAlignment="Center"
+                            Padding="0"
+                            ToolTip="ホーム"
+                            Command="{Binding ShowHomeCommand}">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource ActionButtonStyle}">
+                                <Setter Property="Width" Value="40" />
+                                <Setter Property="HorizontalAlignment" Value="Center" />
+                                <Setter Property="Padding" Value="0" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding DataContext.IsMenuCollapsed, ElementName=RootWindow}"
+                                                 Value="False">
+                                        <Setter Property="Width" Value="120" />
+                                        <Setter Property="HorizontalAlignment" Value="Stretch" />
+                                        <Setter Property="Padding" Value="10,8" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                        <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <Image x:Name="HomeIcon"
+                                   Source="/Assets/Images/icons8-eclipse-50.png"
+                                   Width="32"
+                                   Height="32"
+                                   Stretch="Uniform"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"
+                                   Visibility="{Binding DataContext.IsMenuCollapsed, ElementName=RootWindow, Converter={StaticResource BooleanToVisibilityConverter}}" />
+
+                            <TextBlock x:Name="HomeText"
+                                       Text="ホーム"
+                                       FontWeight="SemiBold"
+                                       FontSize="16"
+                                       Foreground="{DynamicResource PrimaryTextBrush}"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       Visibility="{Binding DataContext.IsMenuCollapsed, ElementName=RootWindow, Converter={StaticResource InverseBooleanToVisibilityConverter}}" />
+                        </Grid>
+                    </Button>
+
+                    <ListBox Grid.Row="2"
+                             Margin="0,0,0,0"
+                             Style="{StaticResource NavListBoxStyle}"
+                             ItemContainerStyle="{StaticResource NavListBoxItemStyle}"
+                             ItemsSource="{Binding MenuItems}"
+                             SelectedItem="{Binding SelectedMenuItem, Mode=TwoWay}">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Grid>
+                                    <Grid>
+                                        <Image Source="{Binding IconImagePath}">
+                                            <Image.Style>
+                                                <Style TargetType="Image" BasedOn="{StaticResource NavImageStyle}">
+                                                    <Setter Property="Visibility" Value="Collapsed" />
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding HasIconImage}" Value="True">
+                                                            <Setter Property="Visibility" Value="Visible" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Image.Style>
+                                        </Image>
+                                        <TextBlock Text="{Binding IconGlyph}">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock" BasedOn="{StaticResource NavIconStyle}">
+                                                    <Setter Property="Visibility" Value="Visible" />
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding HasIconImage}" Value="True">
+                                                            <Setter Property="Visibility" Value="Collapsed" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </Grid>
+                                    <TextBlock Text="{Binding Title}">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock" BasedOn="{StaticResource NavTextStyle}">
+                                                <Setter Property="Visibility" Value="Visible" />
+                                                <Setter Property="Opacity" Value="1" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding DataContext.IsMenuCollapsed, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                 Value="True">
+                                                        <DataTrigger.EnterActions>
+                                                            <BeginStoryboard>
+                                                                <Storyboard>
+                                                                    <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                                                                     To="0"
+                                                                                     Duration="0:0:0.18" />
+                                                                </Storyboard>
+                                                            </BeginStoryboard>
+                                                        </DataTrigger.EnterActions>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding DataContext.IsMenuCollapsed, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                                 Value="False">
+                                                        <DataTrigger.EnterActions>
+                                                            <BeginStoryboard>
+                                                                <Storyboard>
+                                                                    <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                                                                     To="1"
+                                                                                     Duration="0:0:0.18" />
+                                                                </Storyboard>
+                                                            </BeginStoryboard>
+                                                        </DataTrigger.EnterActions>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </Grid>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+
+                    <StackPanel Grid.Row="3"
+                                Margin="6,8,6,12"
+                                Orientation="Vertical"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Bottom">
+                        <Button Width="40"
+                                Height="40"
+                                HorizontalAlignment="Center"
+                                Style="{StaticResource ThemeIconActionButtonStyle}"
+                                Command="{Binding ReloadPluginsCommand}"
+                                ToolTip="プラグインを再読み込み">
+                            <TextBlock Text="🔄"
+                                       FontSize="18"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       Foreground="{DynamicResource PrimaryTextBrush}" />
+                        </Button>
+
+                        <ToggleButton Margin="0,8,0,0"
+                                      HorizontalAlignment="Center"
+                                      IsChecked="{Binding IsDarkTheme, Mode=TwoWay}"
+                                      Style="{StaticResource ThemeIconToggleStyle}" />
+
+                        <TextBlock Margin="0,12,0,0"
+                                   HorizontalAlignment="Center"
+                                   MaxWidth="248"
+                                   Text="{Binding PluginCountNavDisplay}"
+                                   ToolTip="{Binding PluginCountText}"
+                                   TextAlignment="Center"
+                                   TextWrapping="Wrap"
+                                   Style="{StaticResource SecondaryTextStyle}" />
+                    </StackPanel>
+                </Grid>
+            </Grid>
+
+            <Grid Grid.Column="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="52" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <!-- タイトルバー領域 -->
+                <Border Grid.Row="0"
+                        Background="Transparent" />
+                <!-- 上マージン：閉じるボタン・タイトルバーと子ページの間を空ける -->
+                <Border Grid.Row="1"
+                        Margin="0,14,12,6"
+                        Background="{DynamicResource ContentBackgroundBrush}"
+                        CornerRadius="8">
+                    <!-- 背景を明示：未設定時のシステム既定の明色が透けるのを防ぐ（ダーク時の子ページの白浮き対策） -->
+                    <ContentControl Margin="8"
+                                    Background="{DynamicResource ContentBackgroundBrush}"
+                                    Content="{Binding CurrentView}" />
+                </Border>
+
+                <!-- Global Status Bar -->
+                <Border Grid.Row="2"
+                        Margin="0,0,12,12"
+                        Height="40"
+                        Background="{DynamicResource NavBackgroundBrush}"
+                        CornerRadius="8"
+                        BorderBrush="{DynamicResource HoverBrush}"
+                        BorderThickness="1">
+                    <Grid>
+                        <!-- Status Icon & Text -->
+                        <TextBlock Text="{Binding GlobalStatus.Message}" 
+                                   VerticalAlignment="Center" Margin="16,0,0,0"
+                                   Foreground="{Binding GlobalStatus.TextColor}" 
+                                   FontSize="13" FontWeight="SemiBold" />
+                        
+                        <!-- Progress Bar -->
+                        <ProgressBar Value="{Binding GlobalStatus.ProgressValue}" 
+                                     IsIndeterminate="{Binding GlobalStatus.IsIndeterminate}"
+                                     Visibility="{Binding GlobalStatus.ShowProgress, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                     VerticalAlignment="Center" HorizontalAlignment="Right" 
+                                     Margin="0,0,16,0" Width="180" Height="6"
+                                     Foreground="{DynamicResource IndicatorBrush}" 
+                                     Background="{DynamicResource ShellBackgroundBrush}" 
+                                     BorderThickness="0" />
+                    </Grid>
+                </Border>
+            </Grid>
+        </Grid>
+
+        <Button Style="{StaticResource AboutAppStyle}"
+                Command="{Binding ShowAuthorCommand}"
+                WindowChrome.IsHitTestVisibleInChrome="True" />
+
+        <Button Style="{StaticResource ExitAppStyle}"
+                Click="CloseButton_Click"
+                ToolTip="閉じる"
+                WindowChrome.IsHitTestVisibleInChrome="True" />
+    </Grid>
+</Window>
