@@ -7,7 +7,7 @@ public sealed class ThemeService
     private const string DarkThemePath = "Themes/Theme.Dark.xaml";
     private const string LightThemePath = "Themes/Theme.Light.xaml";
 
-    public bool IsDarkTheme { get; private set; } = true;
+    public bool IsDarkTheme { get; private set; } = false;
 
     public void ApplyTheme(bool isDarkTheme)
     {

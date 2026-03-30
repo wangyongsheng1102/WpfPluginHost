@@ -11,7 +11,6 @@ internal static class PluginHostSharedAssemblies
     {
         "Plugin.Abstractions",
         "CommunityToolkit.Mvvm",
-        "Microsoft.Office.Interop.Excel",
     };
 
     public static bool IsHostProvided(string? assemblySimpleName) =>
