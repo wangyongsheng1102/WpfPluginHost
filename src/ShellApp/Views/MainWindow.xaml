@@ -46,15 +46,46 @@
                     </Grid.RowDefinitions>
 
                     <Button Margin="10,10,10,4"
-                            Width="42"
-                            Height="32"
-                            HorizontalAlignment="Left"
-                            Style="{StaticResource ActionButtonStyle}"
+                            Style="{StaticResource ThemeIconActionButtonStyle}"
+                            Width="40"
+                            Height="40"
+                            HorizontalAlignment="Center"
                             Command="{Binding ToggleMenuCommand}"
-                            WindowChrome.IsHitTestVisibleInChrome="True">
-                        <TextBlock Text="☰"
-                                   FontSize="16"
-                                   Foreground="{DynamicResource PrimaryTextBrush}" />
+                            WindowChrome.IsHitTestVisibleInChrome="True"
+                            Padding="0">
+                        <!-- 矢量三横（フォント glyph 依存を排除） -->
+                        <Grid Width="22"
+                              Height="22">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="1*" />
+                                <RowDefinition Height="1*" />
+                                <RowDefinition Height="1*" />
+                            </Grid.RowDefinitions>
+                            <Rectangle Grid.Row="0"
+                                       Width="16"
+                                       Height="2"
+                                       RadiusX="1"
+                                       RadiusY="1"
+                                       Fill="{DynamicResource PrimaryTextBrush}"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center" />
+                            <Rectangle Grid.Row="1"
+                                       Width="16"
+                                       Height="2"
+                                       RadiusX="1"
+                                       RadiusY="1"
+                                       Fill="{DynamicResource PrimaryTextBrush}"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center" />
+                            <Rectangle Grid.Row="2"
+                                       Width="16"
+                                       Height="2"
+                                       RadiusX="1"
+                                       RadiusY="1"
+                                       Fill="{DynamicResource PrimaryTextBrush}"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center" />
+                        </Grid>
                     </Button>
 
                     <Button Grid.Row="1"
