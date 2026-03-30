@@ -11,7 +11,9 @@
   <ItemGroup>
     <!-- 与插件同版本；与 PluginHostSharedAssemblies 一致，运行时由宿主输出目录提供 -->
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
-    <PackageReference Include="Microsoft.Office.Interop.Excel" Version="16.0.18925.20022" />
+    <PackageReference Include="Microsoft.Office.Interop.Excel" Version="16.0.18925.20022">
+      <EmbedInteropTypes>false</EmbedInteropTypes>
+    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>
