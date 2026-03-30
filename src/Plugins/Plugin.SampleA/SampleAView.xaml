@@ -13,19 +13,20 @@
 
         <!-- 書式設定オプション -->
         <Border Grid.Row="0" Margin="0,0,0,24" Padding="20"
-                Background="{DynamicResource NavBackgroundBrush}"
-                CornerRadius="8" BorderThickness="1" BorderBrush="{DynamicResource HoverBrush}">
+                Background="{DynamicResource CardElevatedBrush}"
+                CornerRadius="8" BorderThickness="1" BorderBrush="{DynamicResource BorderSubtleBrush}">
             <StackPanel>
-                <TextBlock Text="書式設定オプション" FontSize="18" FontWeight="SemiBold" 
-                           Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,16"/>
+                <TextBlock Text="書式設定オプション"
+                           Margin="0,0,0,16"
+                           Style="{StaticResource SubtitleTextStyle}"/>
                 
                 <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
                     <CheckBox Content="すべてのシートのズーム倍率をリセットする：" 
                               IsChecked="{Binding EnableZoomFormat}"
                               Foreground="{DynamicResource PrimaryTextBrush}"
-                              VerticalAlignment="Center" FontSize="14" />
+                              VerticalAlignment="Center" FontSize="{StaticResource BodyFontSize}" />
                     <Border Background="{DynamicResource NavBackgroundBrush}"
-                            BorderBrush="{DynamicResource HoverBrush}"
+                            BorderBrush="{DynamicResource BorderSubtleBrush}"
                             BorderThickness="1" CornerRadius="4"
                             Margin="8,0,0,0" Width="60" Height="28">
                         <TextBox Text="{Binding ZoomLevel, UpdateSourceTrigger=PropertyChanged}"
@@ -37,30 +38,30 @@
                                  HorizontalContentAlignment="Center"/>
                     </Border>
                     <TextBlock Text="%" Foreground="{DynamicResource PrimaryTextBrush}" 
-                               VerticalAlignment="Center" Margin="6,0,0,0" FontSize="14"/>
+                               VerticalAlignment="Center" Margin="6,0,0,0" FontSize="{StaticResource BodyFontSize}"/>
                 </StackPanel>
                           
                 <CheckBox Content="すべてのシートのカーソルを A1 セルに移動する" 
                           IsChecked="{Binding FormatFocusA1}"
                           Foreground="{DynamicResource PrimaryTextBrush}"
-                          Margin="0,0,0,12" FontSize="14" />
+                          Margin="0,0,0,12" FontSize="{StaticResource BodyFontSize}" />
                           
                 <CheckBox Content="処理完了後、デフォルトで最初のシートをアクティブにする" 
                           IsChecked="{Binding FormatActiveFirstSheet}"
                           Foreground="{DynamicResource PrimaryTextBrush}"
-                          Margin="0,0,0,12" FontSize="14" />
+                          Margin="0,0,0,12" FontSize="{StaticResource BodyFontSize}" />
 
                 <TextBlock Text="処理時に自動実行：フィルター解除・数式を値に固定・行列の自動調整・外部リンク切断"
                            Foreground="{DynamicResource SecondaryTextBrush}"
-                           FontSize="13"
+                           Style="{StaticResource CaptionTextStyle}"
                            Opacity="0.86" />
             </StackPanel>
         </Border>
 
         <!-- 一覧／ドロップ領域 -->
         <Border Grid.Row="1" Margin="0,0,0,24"
-                Background="{DynamicResource NavBackgroundBrush}"
-                BorderBrush="{DynamicResource HoverBrush}"
+                Background="{DynamicResource CardElevatedBrush}"
+                BorderBrush="{DynamicResource BorderSubtleBrush}"
                 BorderThickness="2" CornerRadius="8">
             <Grid>
                 <!-- キューが空のときの表示 -->
@@ -77,11 +78,11 @@
                     </StackPanel.Style>
                     <TextBlock Text="📥" FontSize="56" HorizontalAlignment="Center" Margin="0,0,0,16"/>
                     <TextBlock Text="Excel ファイルまたはフォルダをこのエリアにドラッグ＆ドロップして、タスクキューを作成します" 
-                               FontSize="16" FontWeight="SemiBold"
+                               FontSize="{StaticResource SubtitleFontSize}" FontWeight="SemiBold"
                                Foreground="{DynamicResource SecondaryTextBrush}"
                                HorizontalAlignment="Center" />
                     <TextBlock Text="フォルダをドロップした場合、フォルダ内のすべての Excel ファイルを自動的にスキャンします" 
-                               FontSize="13" Foreground="{DynamicResource SecondaryTextBrush}"
+                               FontSize="{StaticResource CaptionFontSize}" Foreground="{DynamicResource SecondaryTextBrush}"
                                Margin="0,8,0,0" Opacity="0.7"
                                HorizontalAlignment="Center" />
                 </StackPanel>
@@ -112,9 +113,9 @@
                     <DataGrid.ColumnHeaderStyle>
                         <Style TargetType="DataGridColumnHeader">
                             <Setter Property="FontFamily" Value="{DynamicResource AppFontFamily}" />
-                            <Setter Property="Background" Value="{DynamicResource NavBackgroundBrush}" />
+                            <Setter Property="Background" Value="{DynamicResource ContentBackgroundBrush}" />
                             <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
-                            <Setter Property="BorderBrush" Value="{DynamicResource HoverBrush}" />
+                            <Setter Property="BorderBrush" Value="{DynamicResource BorderSubtleBrush}" />
                             <Setter Property="Padding" Value="10,8" />
                         </Style>
                     </DataGrid.ColumnHeaderStyle>
@@ -153,8 +154,8 @@
 
         <!-- 下部のアクションバー -->
         <Border Grid.Row="2" Padding="20,16"
-                Background="{DynamicResource NavBackgroundBrush}"
-                BorderBrush="{DynamicResource HoverBrush}"
+                Background="{DynamicResource CardElevatedBrush}"
+                BorderBrush="{DynamicResource BorderSubtleBrush}"
                 BorderThickness="1" CornerRadius="8">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -180,7 +181,7 @@
                 <TextBlock Grid.Column="2"
                            Margin="24,0" VerticalAlignment="Center" HorizontalAlignment="Right"
                            Foreground="{DynamicResource PrimaryTextBrush}"
-                           FontSize="14" FontWeight="SemiBold"
+                           FontSize="{StaticResource BodyFontSize}" FontWeight="SemiBold"
                            Text="{Binding StatusMessage}" TextWrapping="Wrap" />
 
                 <!-- 右：書式設定の実行 -->
