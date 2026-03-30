@@ -133,71 +133,71 @@
                             <ScaleTransform ScaleX="1" ScaleY="1" />
                         </Border.RenderTransform>
                         <!-- 線画のライト（トグルと同様、アイコンはフォント依存にしない） -->
-                        <Viewbox Width="22" Height="22" Stretch="Uniform">
+                        <Viewbox Width="24" Height="24" Stretch="Uniform">
                             <Canvas Width="24" Height="24">
                                 <!-- rays -->
                                 <Line X1="12" Y1="1.5" X2="12" Y2="4.2"
                                       Stroke="{DynamicResource PrimaryTextBrush}"
-                                      StrokeThickness="1.35"
+                                      StrokeThickness="1.45"
                                       StrokeStartLineCap="Round"
                                       StrokeEndLineCap="Round" />
                                 <Line X1="19" Y1="5" X2="17.2" Y2="7.2"
                                       Stroke="{DynamicResource PrimaryTextBrush}"
-                                      StrokeThickness="1.35"
+                                      StrokeThickness="1.45"
                                       StrokeStartLineCap="Round"
                                       StrokeEndLineCap="Round" />
                                 <Line X1="21.2" Y1="12" X2="18.4" Y2="12"
                                       Stroke="{DynamicResource PrimaryTextBrush}"
-                                      StrokeThickness="1.35"
+                                      StrokeThickness="1.45"
                                       StrokeStartLineCap="Round"
                                       StrokeEndLineCap="Round" />
                                 <Line X1="19" Y1="19" X2="17.2" Y2="16.8"
                                       Stroke="{DynamicResource PrimaryTextBrush}"
-                                      StrokeThickness="1.35"
+                                      StrokeThickness="1.45"
                                       StrokeStartLineCap="Round"
                                       StrokeEndLineCap="Round" />
                                 <Line X1="12" Y1="21.8" X2="12" Y2="18.4"
                                       Stroke="{DynamicResource PrimaryTextBrush}"
-                                      StrokeThickness="1.35"
+                                      StrokeThickness="1.45"
                                       StrokeStartLineCap="Round"
                                       StrokeEndLineCap="Round" />
                                 <Line X1="5" Y1="19" X2="6.8" Y2="16.8"
                                       Stroke="{DynamicResource PrimaryTextBrush}"
-                                      StrokeThickness="1.35"
+                                      StrokeThickness="1.45"
                                       StrokeStartLineCap="Round"
                                       StrokeEndLineCap="Round" />
                                 <Line X1="2.8" Y1="12" X2="5.6" Y2="12"
                                       Stroke="{DynamicResource PrimaryTextBrush}"
-                                      StrokeThickness="1.35"
+                                      StrokeThickness="1.45"
                                       StrokeStartLineCap="Round"
                                       StrokeEndLineCap="Round" />
                                 <Line X1="5" Y1="5" X2="6.8" Y2="7.2"
                                       Stroke="{DynamicResource PrimaryTextBrush}"
-                                      StrokeThickness="1.35"
+                                      StrokeThickness="1.45"
                                       StrokeStartLineCap="Round"
                                       StrokeEndLineCap="Round" />
 
                                 <!-- bulb body -->
                                 <Ellipse Canvas.Left="7.2" Canvas.Top="6.4" Width="9.6" Height="10.3"
                                          Stroke="{DynamicResource PrimaryTextBrush}"
-                                         StrokeThickness="1.6"
+                                         StrokeThickness="1.75"
                                          Fill="Transparent" />
                                 <!-- bulb base -->
                                 <Rectangle x:Name="BulbBase"
                                            Canvas.Left="9.3" Canvas.Top="17.2"
                                            Width="5.4" Height="3.1" RadiusX="1.1" RadiusY="1.1"
                                            Stroke="{DynamicResource PrimaryTextBrush}"
-                                           StrokeThickness="1.6"
+                                           StrokeThickness="1.75"
                                            Fill="Transparent" />
                                 <!-- base legs -->
                                 <Line X1="9.3" Y1="19.3" X2="7.8" Y2="20.4"
                                       Stroke="{DynamicResource PrimaryTextBrush}"
-                                      StrokeThickness="1.35"
+                                      StrokeThickness="1.45"
                                       StrokeStartLineCap="Round"
                                       StrokeEndLineCap="Round" />
                                 <Line X1="14.7" Y1="19.3" X2="16.2" Y2="20.4"
                                       Stroke="{DynamicResource PrimaryTextBrush}"
-                                      StrokeThickness="1.35"
+                                      StrokeThickness="1.45"
                                       StrokeStartLineCap="Round"
                                       StrokeEndLineCap="Round" />
                             </Canvas>
@@ -210,8 +210,8 @@
                                         <DoubleAnimation Storyboard.TargetName="Root"
                                                          Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)"
                                                          From="1"
-                                                         To="1.04"
-                                                         Duration="0:0:0.85">
+                                                         To="1.08"
+                                                         Duration="0:0:0.9">
                                             <DoubleAnimation.EasingFunction>
                                                 <SineEase EasingMode="EaseInOut" />
                                             </DoubleAnimation.EasingFunction>
@@ -219,8 +219,8 @@
                                         <DoubleAnimation Storyboard.TargetName="Root"
                                                          Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)"
                                                          From="1"
-                                                         To="1.04"
-                                                         Duration="0:0:0.85">
+                                                         To="1.08"
+                                                         Duration="0:0:0.9">
                                             <DoubleAnimation.EasingFunction>
                                                 <SineEase EasingMode="EaseInOut" />
                                             </DoubleAnimation.EasingFunction>
@@ -235,11 +235,11 @@
                                         <DoubleAnimation Storyboard.TargetName="Root"
                                                          Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)"
                                                          To="1"
-                                                         Duration="0:0:0.12" />
+                                                         Duration="0:0:0.1" />
                                         <DoubleAnimation Storyboard.TargetName="Root"
                                                          Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)"
                                                          To="1"
-                                                         Duration="0:0:0.12" />
+                                                         Duration="0:0:0.1" />
                                     </Storyboard>
                                 </BeginStoryboard>
                             </EventTrigger>
