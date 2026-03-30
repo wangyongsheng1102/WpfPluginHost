@@ -5,10 +5,10 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
         Title="WPF プラグインシェル"
-        Height="600"
-        Width="850"
-        MinHeight="560"
-        MinWidth="820"
+        Height="900"
+        Width="1250"
+        MinHeight="600"
+        MinWidth="850"
         AllowsTransparency="False"
         WindowStyle="SingleBorderWindow"
         WindowStartupLocation="CenterScreen"
@@ -54,10 +54,18 @@
                                    Foreground="{DynamicResource PrimaryTextBrush}" />
                     </Button>
 
-                    <TextBlock Grid.Row="1"
-                               Margin="14,0,0,4"
-                               Style="{StaticResource SecondaryTextStyle}"
-                               Text="{Binding PluginCountText}" />
+                    <StackPanel Grid.Row="1"
+                                Margin="12,0,12,8">
+                        <Button HorizontalAlignment="Stretch"
+                                MinHeight="36"
+                                Padding="12,8"
+                                Content="ホーム"
+                                Style="{StaticResource ActionButtonStyle}"
+                                Command="{Binding ShowHomeCommand}" />
+                        <TextBlock Margin="2,10,0,0"
+                                   Style="{StaticResource SecondaryTextStyle}"
+                                   Text="{Binding PluginCountText}" />
+                    </StackPanel>
 
                     <ListBox Grid.Row="2"
                              Margin="0,4,0,10"
