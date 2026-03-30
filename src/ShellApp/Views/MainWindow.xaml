@@ -64,7 +64,7 @@
                             Command="{Binding ShowHomeCommand}">
                         <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
                             <Image x:Name="HomeIcon"
-                                   Source="/Assets/Images/img_home.png"
+                                   Source="/Assets/Images/icons8-eclipse-50.png"
                                    Width="22"
                                    Height="22"
                                    Stretch="Uniform"
@@ -73,7 +73,7 @@
                                     <Style TargetType="Image">
                                         <Setter Property="Visibility" Value="Collapsed" />
                                         <Style.Triggers>
-                                            <DataTrigger Binding="{Binding DataContext.IsMenuCollapsed, RelativeSource={RelativeSource AncestorType=Window}}"
+                                            <DataTrigger Binding="{Binding IsMenuCollapsed, RelativeSource={RelativeSource AncestorType=Window}}"
                                                          Value="True">
                                                 <Setter Property="Visibility" Value="Visible" />
                                             </DataTrigger>
@@ -91,7 +91,7 @@
                                     <Style TargetType="TextBlock">
                                         <Setter Property="Visibility" Value="Visible" />
                                         <Style.Triggers>
-                                            <DataTrigger Binding="{Binding DataContext.IsMenuCollapsed, RelativeSource={RelativeSource AncestorType=Window}}"
+                                            <DataTrigger Binding="{Binding IsMenuCollapsed, RelativeSource={RelativeSource AncestorType=Window}}"
                                                          Value="True">
                                                 <Setter Property="Visibility" Value="Collapsed" />
                                             </DataTrigger>
@@ -158,8 +158,18 @@
                     <StackPanel Grid.Row="3"
                                 Margin="6,8,6,12"
                                 Orientation="Vertical"
-                                HorizontalAlignment="Center"
                                 VerticalAlignment="Bottom">
+                        <StackPanel.Style>
+                            <Style TargetType="StackPanel">
+                                <Setter Property="HorizontalAlignment" Value="Left" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding DataContext.IsMenuCollapsed, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                 Value="True">
+                                        <Setter Property="HorizontalAlignment" Value="Center" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </StackPanel.Style>
                         <Button Width="40"
                                 Height="40"
                                 HorizontalAlignment="Center"
