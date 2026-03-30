@@ -132,76 +132,74 @@
                         <Border.RenderTransform>
                             <ScaleTransform ScaleX="1" ScaleY="1" />
                         </Border.RenderTransform>
-                        <!-- 線画のライト（トグルと同様、アイコンはフォント依存にしない） -->
-                        <Viewbox Width="24" Height="24" Stretch="Uniform">
+                        <Grid Width="24"
+                              Height="24"
+                              HorizontalAlignment="Center"
+                              VerticalAlignment="Center"
+                              ClipToBounds="True">
                             <Canvas Width="24" Height="24">
-                                <!-- rays -->
-                                <Line X1="12" Y1="1.5" X2="12" Y2="4.2"
+                                <Path Data="{StaticResource AboutBulbGeometry}"
+                                      Stroke="{DynamicResource PrimaryTextBrush}"
+                                      StrokeThickness="1.65"
+                                      StrokeStartLineCap="Round"
+                                      StrokeEndLineCap="Round"
+                                      StrokeLineJoin="Round"
+                                      Fill="Transparent" />
+                                <Path Data="{StaticResource AboutBaseGeometry}"
+                                      Stroke="{DynamicResource PrimaryTextBrush}"
+                                      StrokeThickness="1.65"
+                                      StrokeStartLineCap="Round"
+                                      StrokeEndLineCap="Round"
+                                      StrokeLineJoin="Round"
+                                      Fill="Transparent" />
+                                <Path Data="{StaticResource AboutFilamentGeometry}"
+                                      Stroke="{DynamicResource PrimaryTextBrush}"
+                                      StrokeThickness="1.45"
+                                      StrokeStartLineCap="Round"
+                                      StrokeEndLineCap="Round"
+                                      StrokeLineJoin="Round" />
+                                <Path Data="{StaticResource AboutRayTopGeometry}"
                                       Stroke="{DynamicResource PrimaryTextBrush}"
                                       StrokeThickness="1.45"
                                       StrokeStartLineCap="Round"
                                       StrokeEndLineCap="Round" />
-                                <Line X1="19" Y1="5" X2="17.2" Y2="7.2"
+                                <Path Data="{StaticResource AboutRayTopRightGeometry}"
                                       Stroke="{DynamicResource PrimaryTextBrush}"
                                       StrokeThickness="1.45"
                                       StrokeStartLineCap="Round"
                                       StrokeEndLineCap="Round" />
-                                <Line X1="21.2" Y1="12" X2="18.4" Y2="12"
+                                <Path Data="{StaticResource AboutRayRightGeometry}"
                                       Stroke="{DynamicResource PrimaryTextBrush}"
                                       StrokeThickness="1.45"
                                       StrokeStartLineCap="Round"
                                       StrokeEndLineCap="Round" />
-                                <Line X1="19" Y1="19" X2="17.2" Y2="16.8"
+                                <Path Data="{StaticResource AboutRayBottomRightGeometry}"
                                       Stroke="{DynamicResource PrimaryTextBrush}"
                                       StrokeThickness="1.45"
                                       StrokeStartLineCap="Round"
                                       StrokeEndLineCap="Round" />
-                                <Line X1="12" Y1="21.8" X2="12" Y2="18.4"
+                                <Path Data="{StaticResource AboutRayBottomGeometry}"
                                       Stroke="{DynamicResource PrimaryTextBrush}"
                                       StrokeThickness="1.45"
                                       StrokeStartLineCap="Round"
                                       StrokeEndLineCap="Round" />
-                                <Line X1="5" Y1="19" X2="6.8" Y2="16.8"
+                                <Path Data="{StaticResource AboutRayBottomLeftGeometry}"
                                       Stroke="{DynamicResource PrimaryTextBrush}"
                                       StrokeThickness="1.45"
                                       StrokeStartLineCap="Round"
                                       StrokeEndLineCap="Round" />
-                                <Line X1="2.8" Y1="12" X2="5.6" Y2="12"
+                                <Path Data="{StaticResource AboutRayLeftGeometry}"
                                       Stroke="{DynamicResource PrimaryTextBrush}"
                                       StrokeThickness="1.45"
                                       StrokeStartLineCap="Round"
                                       StrokeEndLineCap="Round" />
-                                <Line X1="5" Y1="5" X2="6.8" Y2="7.2"
-                                      Stroke="{DynamicResource PrimaryTextBrush}"
-                                      StrokeThickness="1.45"
-                                      StrokeStartLineCap="Round"
-                                      StrokeEndLineCap="Round" />
-
-                                <!-- bulb body -->
-                                <Ellipse Canvas.Left="7.2" Canvas.Top="6.4" Width="9.6" Height="10.3"
-                                         Stroke="{DynamicResource PrimaryTextBrush}"
-                                         StrokeThickness="1.75"
-                                         Fill="Transparent" />
-                                <!-- bulb base -->
-                                <Rectangle x:Name="BulbBase"
-                                           Canvas.Left="9.3" Canvas.Top="17.2"
-                                           Width="5.4" Height="3.1" RadiusX="1.1" RadiusY="1.1"
-                                           Stroke="{DynamicResource PrimaryTextBrush}"
-                                           StrokeThickness="1.75"
-                                           Fill="Transparent" />
-                                <!-- base legs -->
-                                <Line X1="9.3" Y1="19.3" X2="7.8" Y2="20.4"
-                                      Stroke="{DynamicResource PrimaryTextBrush}"
-                                      StrokeThickness="1.45"
-                                      StrokeStartLineCap="Round"
-                                      StrokeEndLineCap="Round" />
-                                <Line X1="14.7" Y1="19.3" X2="16.2" Y2="20.4"
+                                <Path Data="{StaticResource AboutRayTopLeftGeometry}"
                                       Stroke="{DynamicResource PrimaryTextBrush}"
                                       StrokeThickness="1.45"
                                       StrokeStartLineCap="Round"
                                       StrokeEndLineCap="Round" />
                             </Canvas>
-                        </Viewbox>
+                        </Grid>
                         <!-- ホバー時の呼吸アニメーション（押下状態と競合しないよう MouseLeave で停止） -->
                         <Border.Triggers>
                             <EventTrigger RoutedEvent="MouseEnter">
@@ -210,8 +208,8 @@
                                         <DoubleAnimation Storyboard.TargetName="Root"
                                                          Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)"
                                                          From="1"
-                                                         To="1.08"
-                                                         Duration="0:0:0.9">
+                                                         To="{StaticResource IconHoverScale}"
+                                                         Duration="{StaticResource IconHoverBreathDuration}">
                                             <DoubleAnimation.EasingFunction>
                                                 <SineEase EasingMode="EaseInOut" />
                                             </DoubleAnimation.EasingFunction>
@@ -219,8 +217,8 @@
                                         <DoubleAnimation Storyboard.TargetName="Root"
                                                          Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)"
                                                          From="1"
-                                                         To="1.08"
-                                                         Duration="0:0:0.9">
+                                                         To="{StaticResource IconHoverScale}"
+                                                         Duration="{StaticResource IconHoverBreathDuration}">
                                             <DoubleAnimation.EasingFunction>
                                                 <SineEase EasingMode="EaseInOut" />
                                             </DoubleAnimation.EasingFunction>
@@ -235,11 +233,11 @@
                                         <DoubleAnimation Storyboard.TargetName="Root"
                                                          Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)"
                                                          To="1"
-                                                         Duration="0:0:0.1" />
+                                                         Duration="{StaticResource IconHoverReturnDuration}" />
                                         <DoubleAnimation Storyboard.TargetName="Root"
                                                          Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)"
                                                          To="1"
-                                                         Duration="0:0:0.1" />
+                                                         Duration="{StaticResource IconHoverReturnDuration}" />
                                     </Storyboard>
                                 </BeginStoryboard>
                             </EventTrigger>

@@ -1,0 +1,27 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+    <!-- animation params -->
+    <sys:Double x:Key="IconHoverScale">1.08</sys:Double>
+    <Duration x:Key="IconHoverBreathDuration">0:0:0.9</Duration>
+    <Duration x:Key="IconHoverReturnDuration">0:0:0.1</Duration>
+    <Duration x:Key="IconSpinDuration">0:0:0.9</Duration>
+    <Duration x:Key="IconSpinReturnDuration">0:0:0.12</Duration>
+
+    <!-- about icon geometries -->
+    <Geometry x:Key="AboutBulbGeometry">M12,4.2 C8.72,4.2 6.1,6.86 6.1,10.12 C6.1,12.4 7.32,14.23 9.12,15.9 C9.62,16.36 9.92,17.02 9.92,17.72 L14.08,17.72 C14.08,17.02 14.38,16.36 14.88,15.9 C16.68,14.23 17.9,12.4 17.9,10.12 C17.9,6.86 15.28,4.2 12,4.2 Z</Geometry>
+    <Geometry x:Key="AboutBaseGeometry">M9.45,18.65 L14.55,18.65 L14.55,20.2 C14.55,20.86 14.01,21.4 13.35,21.4 L10.65,21.4 C9.99,21.4 9.45,20.86 9.45,20.2 Z</Geometry>
+    <Geometry x:Key="AboutFilamentGeometry">M10.35,11.2 C10.75,11.76 11.34,12.12 12,12.12 C12.66,12.12 13.25,11.76 13.65,11.2</Geometry>
+    <Geometry x:Key="AboutRayTopGeometry">M12,1.6 L12,3.6</Geometry>
+    <Geometry x:Key="AboutRayTopRightGeometry">M19.1,4.5 L17.7,5.9</Geometry>
+    <Geometry x:Key="AboutRayRightGeometry">M22,11.2 L20,11.2</Geometry>
+    <Geometry x:Key="AboutRayBottomRightGeometry">M19.1,17.9 L17.7,16.5</Geometry>
+    <Geometry x:Key="AboutRayBottomGeometry">M12,21.6 L12,19.6</Geometry>
+    <Geometry x:Key="AboutRayBottomLeftGeometry">M4.9,17.9 L6.3,16.5</Geometry>
+    <Geometry x:Key="AboutRayLeftGeometry">M2,11.2 L4,11.2</Geometry>
+    <Geometry x:Key="AboutRayTopLeftGeometry">M4.9,4.5 L6.3,5.9</Geometry>
+
+    <!-- refresh icon geometries -->
+    <Geometry x:Key="RefreshArcGeometry">M10,2.7 A7.3,7.3 0 1 1 4.2,4.8</Geometry>
+    <Geometry x:Key="RefreshArrowTopGeometry">M4.2,4.8 L8.15,4.5 M4.2,4.8 L4.45,8.75</Geometry>
+</ResourceDictionary>

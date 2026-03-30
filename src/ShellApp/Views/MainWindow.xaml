@@ -284,7 +284,7 @@
                                                              Storyboard.TargetProperty="Angle"
                                                              From="0"
                                                              To="360"
-                                                             Duration="0:0:0.9"
+                                                             Duration="{StaticResource IconSpinDuration}"
                                                              RepeatBehavior="Forever" />
                                         </Storyboard>
                                     </BeginStoryboard>
@@ -296,13 +296,12 @@
                                             <DoubleAnimation Storyboard.TargetName="RefreshRotate"
                                                              Storyboard.TargetProperty="Angle"
                                                              To="0"
-                                                             Duration="0:0:0.12" />
+                                                             Duration="{StaticResource IconSpinReturnDuration}" />
                                         </Storyboard>
                                     </BeginStoryboard>
                                 </EventTrigger>
                             </Button.Triggers>
 
-                            <!-- 線画のリロード（回転してもボタン外へはみ出しにくいように固定サイズ + ClipToBounds） -->
                             <Grid Width="22"
                                   Height="22"
                                   HorizontalAlignment="Center"
@@ -319,24 +318,19 @@
                                                           CenterY="10" />
                                     </Canvas.RenderTransform>
 
-                                    <!-- arc -->
-                                    <Path Stroke="{DynamicResource PrimaryTextBrush}"
+                                    <Path Data="{StaticResource RefreshArcGeometry}"
+                                          Stroke="{DynamicResource PrimaryTextBrush}"
                                           StrokeThickness="1.8"
                                           StrokeStartLineCap="Round"
                                           StrokeEndLineCap="Round"
-                                          Data="M 10 3 A 7 7 0 0 1 3 10" />
-
-                                    <!-- arrow head (tip at 3,10) -->
-                                    <Line X1="3" Y1="10" X2="7" Y2="7.4"
+                                          StrokeLineJoin="Round"
+                                          Fill="Transparent" />
+                                    <Path Data="{StaticResource RefreshArrowTopGeometry}"
                                           Stroke="{DynamicResource PrimaryTextBrush}"
                                           StrokeThickness="1.8"
                                           StrokeStartLineCap="Round"
-                                          StrokeEndLineCap="Round" />
-                                    <Line X1="3" Y1="10" X2="7" Y2="12.6"
-                                          Stroke="{DynamicResource PrimaryTextBrush}"
-                                          StrokeThickness="1.8"
-                                          StrokeStartLineCap="Round"
-                                          StrokeEndLineCap="Round" />
+                                          StrokeEndLineCap="Round"
+                                          StrokeLineJoin="Round" />
                                 </Canvas>
                             </Grid>
                         </Button>
