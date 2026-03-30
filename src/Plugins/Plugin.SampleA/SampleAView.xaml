@@ -11,16 +11,16 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <!-- Configuration Options -->
+        <!-- 書式設定オプション -->
         <Border Grid.Row="0" Margin="0,0,0,24" Padding="20"
                 Background="{DynamicResource NavBackgroundBrush}"
                 CornerRadius="8" BorderThickness="1" BorderBrush="{DynamicResource HoverBrush}">
             <StackPanel>
-                <TextBlock Text="格式化选项" FontSize="18" FontWeight="SemiBold" 
+                <TextBlock Text="書式設定オプション" FontSize="18" FontWeight="SemiBold" 
                            Foreground="{DynamicResource PrimaryTextBrush}" Margin="0,0,0,16"/>
                 
                 <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
-                    <CheckBox Content="重置所有工作表缩放比例：" 
+                    <CheckBox Content="すべてのワークシートの表示倍率をリセット：" 
                               IsChecked="{Binding EnableZoomFormat}"
                               Foreground="{DynamicResource PrimaryTextBrush}"
                               VerticalAlignment="Center" FontSize="14" />
@@ -40,30 +40,30 @@
                                VerticalAlignment="Center" Margin="6,0,0,0" FontSize="14"/>
                 </StackPanel>
                           
-                <CheckBox Content="所有工作表光标焦点归位到 A1 单元格" 
+                <CheckBox Content="すべてのワークシートのアクティブセルを A1 に合わせる" 
                           IsChecked="{Binding FormatFocusA1}"
                           Foreground="{DynamicResource PrimaryTextBrush}"
                           Margin="0,0,0,12" FontSize="14" />
                           
-                <CheckBox Content="处理完成后默认只激活第一页工作表" 
+                <CheckBox Content="処理後は先頭のワークシートのみをアクティブにする" 
                           IsChecked="{Binding FormatActiveFirstSheet}"
                           Foreground="{DynamicResource PrimaryTextBrush}"
                           Margin="0,0,0,12" FontSize="14" />
 
-                <CheckBox Content="自动断开所有的外部文件链接 (Break Links)" 
+                <CheckBox Content="外部ブックへのリンクをすべて切断する（Break Links）" 
                           IsChecked="{Binding BreakExternalLinks}"
                           Foreground="{DynamicResource PrimaryTextBrush}"
                           FontSize="14" />
             </StackPanel>
         </Border>
 
-        <!-- List / Drop Zone -->
+        <!-- 一覧／ドロップ領域 -->
         <Border Grid.Row="1" Margin="0,0,0,24"
                 Background="{DynamicResource NavBackgroundBrush}"
                 BorderBrush="{DynamicResource HoverBrush}"
                 BorderThickness="2" CornerRadius="8">
             <Grid>
-                <!-- Empty Placeholder -->
+                <!-- キューが空のときの表示 -->
                 <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" IsHitTestVisible="False">
                     <StackPanel.Style>
                         <Style TargetType="StackPanel">
@@ -76,17 +76,17 @@
                         </Style>
                     </StackPanel.Style>
                     <TextBlock Text="📥" FontSize="56" HorizontalAlignment="Center" Margin="0,0,0,16"/>
-                    <TextBlock Text="将 Excel 文件或文件夹拖放到此区域建立任务队列" 
+                    <TextBlock Text="Excel ファイルまたはフォルダーをここにドロップしてタスクキューに追加" 
                                FontSize="16" FontWeight="SemiBold"
                                Foreground="{DynamicResource SecondaryTextBrush}"
                                HorizontalAlignment="Center" />
-                    <TextBlock Text="若拖入文件夹，将自动扫描其中的所有 Excel 文件" 
+                    <TextBlock Text="フォルダーをドロップした場合、その中の Excel ファイルを自動でスキャンします" 
                                FontSize="13" Foreground="{DynamicResource SecondaryTextBrush}"
                                Margin="0,8,0,0" Opacity="0.7"
                                HorizontalAlignment="Center" />
                 </StackPanel>
 
-                <!-- DataGrid overlay -->
+                <!-- DataGrid オーバーレイ -->
                 <DataGrid ItemsSource="{Binding PendingFiles}"
                           AutoGenerateColumns="False" 
                           CanUserAddRows="False"
@@ -129,15 +129,15 @@
                         </Style>
                     </DataGrid.CellStyle>
                     <DataGrid.Columns>
-                        <DataGridTextColumn Header="文件名" Binding="{Binding FileName}" Width="250" IsReadOnly="True" />
-                        <DataGridTextColumn Header="状态" Binding="{Binding Status}" Width="120" IsReadOnly="True" />
-                        <DataGridTextColumn Header="路径" Binding="{Binding FilePath}" Width="*" IsReadOnly="True" />
+                        <DataGridTextColumn Header="ファイル名" Binding="{Binding FileName}" Width="250" IsReadOnly="True" />
+                        <DataGridTextColumn Header="状態" Binding="{Binding Status}" Width="120" IsReadOnly="True" />
+                        <DataGridTextColumn Header="パス" Binding="{Binding FilePath}" Width="*" IsReadOnly="True" />
                     </DataGrid.Columns>
                 </DataGrid>
             </Grid>
         </Border>
 
-        <!-- Bottom Action Bar -->
+        <!-- 下部のアクションバー -->
         <Border Grid.Row="2" Padding="20,16"
                 Background="{DynamicResource NavBackgroundBrush}"
                 BorderBrush="{DynamicResource HoverBrush}"
@@ -150,29 +150,29 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <!-- Left Actions: Add & Clear -->
-                <Button Grid.Column="0" Content="+ 手动添加..." 
+                <!-- 左：追加・クリア -->
+                <Button Grid.Column="0" Content="＋ 手動で追加…" 
                         MinWidth="120" Height="36" Padding="16,0"
                         Style="{DynamicResource ActionButtonStyle}"
                         Command="{Binding SelectExcelFallbackCommand}" />
                         
-                <Button Grid.Column="1" Content="🗑 清空队列"
+                <Button Grid.Column="1" Content="🗑 キューをクリア"
                         MinWidth="100" Height="36" Margin="12,0,0,0" Padding="16,0"
                         Style="{DynamicResource ActionButtonStyle}"
                         Command="{Binding ClearFilesCommand}"
                         IsEnabled="{Binding HasPendingFiles}" />
 
-                <!-- Center: Pinned Status Text -->
+                <!-- 中央：ステータス -->
                 <TextBlock Grid.Column="2"
                            Margin="24,0" VerticalAlignment="Center" HorizontalAlignment="Right"
                            Foreground="{DynamicResource PrimaryTextBrush}"
                            FontSize="14" FontWeight="SemiBold"
                            Text="{Binding StatusMessage}" TextWrapping="Wrap" />
 
-                <!-- Right Action: Primary Execute (Accented) -->
-                <Button Grid.Column="3" Content="🚀 开始执行格式化"
+                <!-- 右：書式設定の実行 -->
+                <Button Grid.Column="3" Content="🚀 書式設定を実行"
                         MinWidth="160" Height="40" Padding="24,0"
-                        Style="{DynamicResource ActionButtonStyle}"
+                        Style="{DynamicResource PrimaryButtonStyle}"
                         Command="{Binding ExecuteFormatCommand}"
                         IsEnabled="{Binding HasPendingFiles}" />
             </Grid>

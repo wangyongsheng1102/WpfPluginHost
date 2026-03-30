@@ -20,7 +20,7 @@ public partial class ExcelFileItem : ObservableObject
     public string FileName => System.IO.Path.GetFileName(FilePath);
 
     [ObservableProperty]
-    private string _status = "等待处理";
+    private string _status = "処理待ち";
 }
 
 public partial class SampleAViewModel : ObservableObject
@@ -62,8 +62,8 @@ public partial class SampleAViewModel : ObservableObject
         if (IsProcessing) return;
         var dlg = new OpenFileDialog
         {
-            Filter = "Excel (*.xlsx;*.xls)|*.xlsx;*.xls|所有文件 (*.*)|*.*",
-            Title = "手动选择 Excel 文件",
+            Filter = "Excel (*.xlsx;*.xls)|*.xlsx;*.xls|すべてのファイル (*.*)|*.*",
+            Title = "Excel ファイルの選択",
             Multiselect = true
         };
         if (dlg.ShowDialog() == true)
@@ -87,7 +87,7 @@ public partial class SampleAViewModel : ObservableObject
         if (IsProcessing || !HasPendingFiles) return;
 
         IsProcessing = true;
-        StatusMessage = "开始批量格式化...";
+        StatusMessage = "一括書式設定を開始しています…";
         
         await Task.Run(() => ProcessFiles(PendingFiles.ToList()));
         IsProcessing = false;
@@ -97,7 +97,7 @@ public partial class SampleAViewModel : ObservableObject
     {
         if (IsProcessing) return;
         IsProcessing = true;
-        StatusMessage = "扫描文件中...";
+        StatusMessage = "ファイルをスキャンしています…";
 
         var excelFiles = new List<string>();
         await Task.Run(() =>
@@ -111,7 +111,7 @@ public partial class SampleAViewModel : ObservableObject
                         excelFiles.AddRange(Directory.GetFiles(path, "*.xls*", SearchOption.AllDirectories)
                             .Where(f => !Path.GetFileName(f).StartsWith("~")));
                     }
-                    catch { } // Ignore access exceptions
+                    catch { } // アクセス例外は無視
                 }
                 else if (File.Exists(path))
                 {
@@ -139,11 +139,11 @@ public partial class SampleAViewModel : ObservableObject
 
         if (newCount == 0)
         {
-            StatusMessage = "未添加有效的新 Excel 文件。";
+            StatusMessage = "有効な新規 Excel ファイルは追加されませんでした。";
         }
         else
         {
-            StatusMessage = $"成功扫描并添加了 {newCount} 个新文件至队列待处理。";
+            StatusMessage = $"キューに {newCount} 件の新規ファイルを追加しました。";
         }
         IsProcessing = false;
     }
@@ -165,28 +165,28 @@ public partial class SampleAViewModel : ObservableObject
                 
                 System.Windows.Application.Current.Dispatcher.Invoke(() => 
                 {
-                    item.Status = "处理中...";
-                    StatusMessage = $"处理进度: {count}/{files.Count} - {item.FileName}";
+                    item.Status = "処理中…";
+                    StatusMessage = $"処理状況：{count}/{files.Count} — {item.FileName}";
                 });
 
                 bool success = FormatSingleExcel(app, item.FilePath);
 
                 System.Windows.Application.Current.Dispatcher.Invoke(() => 
                 {
-                    item.Status = success ? "✅ 成功" : "❌ 失败";
+                    item.Status = success ? "✅ 成功" : "❌ 失敗";
                 });
             }
 
             System.Windows.Application.Current.Dispatcher.Invoke(() => 
             {
-                StatusMessage = $"全部队列执行完成！共处理了 {files.Count} 个文件。";
+                StatusMessage = $"キューの処理が完了しました。全 {files.Count} 件を処理しました。";
             });
         }
         catch (Exception ex)
         {
             System.Windows.Application.Current.Dispatcher.Invoke(() => 
             {
-                StatusMessage = $"自动化严重异常：{ex.Message}";
+                StatusMessage = $"オートメーションで重大なエラーが発生しました：{ex.Message}";
             });
         }
         finally

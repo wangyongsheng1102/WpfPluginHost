@@ -13,7 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- ExcludeAssets=runtime：仅编译引用，运行 DLL 由 Shell 携带；Interop 用法与原先一致 -->
+    <!-- ExcludeAssets=runtime：コンパイル時のみ参照、実行時の DLL はシェルが提供。Interop の扱いは従来どおり -->
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2">
       <ExcludeAssets>runtime</ExcludeAssets>
     </PackageReference>
