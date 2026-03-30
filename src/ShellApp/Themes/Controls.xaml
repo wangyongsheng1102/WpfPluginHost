@@ -436,6 +436,47 @@
         </Setter>
     </Style>
 
+    <!-- ThemeIconToggleStyle と見た目を揃えるための「ボタン版」。刷新ボタン用に使う -->
+    <Style x:Key="ThemeIconActionButtonStyle" TargetType="Button">
+        <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}" />
+        <Setter Property="Width" Value="40" />
+        <Setter Property="Height" Value="40" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Root"
+                            Background="Transparent"
+                            BorderBrush="Transparent"
+                            BorderThickness="1"
+                            CornerRadius="4"
+                            Padding="6"
+                            Margin="0"
+                            Opacity="1">
+                        <ContentPresenter HorizontalAlignment="Center"
+                                          VerticalAlignment="Center" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Root" Property="Background" Value="{DynamicResource ButtonHoverGradientBrush}" />
+                            <Setter TargetName="Root" Property="BorderBrush" Value="{DynamicResource HoverBrush}" />
+                            <Setter TargetName="Root" Property="BorderThickness" Value="1" />
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Root" Property="Background" Value="{DynamicResource ButtonPressedGradientBrush}" />
+                            <Setter TargetName="Root" Property="BorderBrush" Value="{DynamicResource HoverBrush}" />
+                            <Setter TargetName="Root" Property="BorderThickness" Value="1" />
+                            <Setter TargetName="Root" Property="Opacity" Value="0.88" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <!-- プラグイン等の UserControl は既定でコンテンツ領域の背景色を使用し、Transparent による下層の既定の白の透けを防ぐ -->
     <Style TargetType="UserControl">
         <Setter Property="TextElement.FontFamily" Value="{StaticResource AppFontFamily}" />
