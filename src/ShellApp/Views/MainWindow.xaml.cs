@@ -10,7 +10,7 @@ namespace ShellApp.Views;
 public partial class MainWindow : Window
 {
     private const double ExpandedMenuWidth = 260;
-    private const double CollapsedMenuWidth = 72;
+    private const double CollapsedMenuWidth = 84;
 
     public MainWindow()
     {
@@ -97,19 +97,59 @@ public partial class MainWindow : Window
         NavPanel.BeginAnimation(WidthProperty, animation, HandoffBehavior.SnapshotAndReplace);
     }
 
-    private void ResizeThumb_DragDelta(object sender, DragDeltaEventArgs e)
+    private void ResizeLeft_DragDelta(object sender, DragDeltaEventArgs e)
     {
-        double newWidth = this.Width + e.HorizontalChange;
-        double newHeight = this.Height + e.VerticalChange;
-
+        double newWidth = this.Width - e.HorizontalChange;
         if (newWidth > this.MinWidth)
         {
             this.Width = newWidth;
+            this.Left += e.HorizontalChange;
         }
+    }
 
+    private void ResizeTop_DragDelta(object sender, DragDeltaEventArgs e)
+    {
+        double newHeight = this.Height - e.VerticalChange;
         if (newHeight > this.MinHeight)
         {
             this.Height = newHeight;
+            this.Top += e.VerticalChange;
         }
+    }
+
+    private void ResizeRight_DragDelta(object sender, DragDeltaEventArgs e)
+    {
+        double newWidth = this.Width + e.HorizontalChange;
+        if (newWidth > this.MinWidth) this.Width = newWidth;
+    }
+
+    private void ResizeBottom_DragDelta(object sender, DragDeltaEventArgs e)
+    {
+        double newHeight = this.Height + e.VerticalChange;
+        if (newHeight > this.MinHeight) this.Height = newHeight;
+    }
+
+    private void ResizeTopLeft_DragDelta(object sender, DragDeltaEventArgs e)
+    {
+        ResizeTop_DragDelta(sender, e);
+        ResizeLeft_DragDelta(sender, e);
+    }
+
+    private void ResizeTopRight_DragDelta(object sender, DragDeltaEventArgs e)
+    {
+        ResizeTop_DragDelta(sender, e);
+        ResizeRight_DragDelta(sender, e);
+    }
+
+    private void ResizeBottomLeft_DragDelta(object sender, DragDeltaEventArgs e)
+    {
+        ResizeBottom_DragDelta(sender, e);
+        ResizeLeft_DragDelta(sender, e);
+    }
+
+    private void ResizeBottomRight_DragDelta(object sender, DragDeltaEventArgs e)
+    {
+        ResizeBottom_DragDelta(sender, e);
+        ResizeRight_DragDelta(sender, e);
     }
 }

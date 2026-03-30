@@ -14,6 +14,11 @@
         WindowStartupLocation="CenterScreen"
         Background="{DynamicResource WindowBackgroundBrush}">
     <Grid>
+        <Grid.Resources>
+            <ControlTemplate x:Key="InvisibleThumbTemplate" TargetType="Thumb">
+                <Border Background="Transparent" />
+            </ControlTemplate>
+        </Grid.Resources>
         <Border Background="{DynamicResource ShellBackgroundBrush}"
                 CornerRadius="8" />
 
@@ -141,17 +146,16 @@
                 Click="CloseButton_Click"
                 ToolTip="Close" />
 
-        <Thumb Width="12"
-               Height="12"
-               HorizontalAlignment="Right"
-               VerticalAlignment="Bottom"
-               Cursor="SizeNWSE"
-               DragDelta="ResizeThumb_DragDelta">
-            <Thumb.Template>
-                <ControlTemplate TargetType="Thumb">
-                    <Border Background="Transparent" />
-                </ControlTemplate>
-            </Thumb.Template>
-        </Thumb>
+        <!-- Edge Resize Thumbs -->
+        <Thumb Width="6" Cursor="SizeWE" HorizontalAlignment="Left" VerticalAlignment="Stretch" Margin="0,12,0,12" Background="Transparent" DragDelta="ResizeLeft_DragDelta" Template="{StaticResource InvisibleThumbTemplate}"/>
+        <Thumb Height="6" Cursor="SizeNS" VerticalAlignment="Top" HorizontalAlignment="Stretch" Margin="12,0,12,0" Background="Transparent" DragDelta="ResizeTop_DragDelta" Template="{StaticResource InvisibleThumbTemplate}"/>
+        <Thumb Width="6" Cursor="SizeWE" HorizontalAlignment="Right" VerticalAlignment="Stretch" Margin="0,12,0,12" Background="Transparent" DragDelta="ResizeRight_DragDelta" Template="{StaticResource InvisibleThumbTemplate}"/>
+        <Thumb Height="6" Cursor="SizeNS" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Margin="12,0,12,0" Background="Transparent" DragDelta="ResizeBottom_DragDelta" Template="{StaticResource InvisibleThumbTemplate}"/>
+        
+        <!-- Corner Resize Thumbs -->
+        <Thumb Width="12" Height="12" Cursor="SizeNWSE" HorizontalAlignment="Left" VerticalAlignment="Top" Background="Transparent" DragDelta="ResizeTopLeft_DragDelta" Template="{StaticResource InvisibleThumbTemplate}"/>
+        <Thumb Width="12" Height="12" Cursor="SizeNESW" HorizontalAlignment="Right" VerticalAlignment="Top" Background="Transparent" DragDelta="ResizeTopRight_DragDelta" Template="{StaticResource InvisibleThumbTemplate}"/>
+        <Thumb Width="12" Height="12" Cursor="SizeNESW" HorizontalAlignment="Left" VerticalAlignment="Bottom" Background="Transparent" DragDelta="ResizeBottomLeft_DragDelta" Template="{StaticResource InvisibleThumbTemplate}"/>
+        <Thumb Width="12" Height="12" Cursor="SizeNWSE" HorizontalAlignment="Right" VerticalAlignment="Bottom" Background="Transparent" DragDelta="ResizeBottomRight_DragDelta" Template="{StaticResource InvisibleThumbTemplate}"/>
     </Grid>
 </Window>
