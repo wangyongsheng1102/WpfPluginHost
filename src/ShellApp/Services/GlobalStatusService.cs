@@ -7,14 +7,16 @@ namespace ShellApp.Services;
 
 public partial class GlobalStatusService : ObservableObject, IPluginContext
 {
-    private enum StatusTextTone
+    private enum StatusLevel
     {
-        Neutral,
+        Info,
         Success,
-        Error
+        Warning,
+        Error,
+        Debug
     }
 
-    private StatusTextTone _textTone = StatusTextTone.Neutral;
+    private StatusLevel _currentLevel = StatusLevel.Info;
 
     [ObservableProperty]
     private string _message = "準備完了";
@@ -33,37 +35,87 @@ public partial class GlobalStatusService : ObservableObject, IPluginContext
 
     public GlobalStatusService()
     {
-        ApplyNeutralTextBrushFromTheme();
+        ApplyLevelStyle(StatusLevel.Info, "準備完了", includePrefix: false);
     }
 
-    /// <summary>テーマ切り替え後に呼ぶ。中性メッセージの色は現在の <c>PrimaryTextBrush</c> に合わせ直す。</summary>
+    /// <summary>テーマ切り替え後に呼ぶ。現在レベルの色を再適用する。</summary>
     public void RefreshTextBrushAfterThemeChange()
     {
         Application.Current.Dispatcher.Invoke(() =>
         {
-            if (_textTone == StatusTextTone.Neutral)
-                ApplyNeutralTextBrushFromTheme();
+            TextColor = ResolveLevelBrush(_currentLevel);
         });
     }
 
-    private void ApplyNeutralTextBrushFromTheme()
+    private static string GetLevelPrefix(StatusLevel level) => level switch
     {
-        _textTone = StatusTextTone.Neutral;
-        if (Application.Current?.TryFindResource("PrimaryTextBrush") is Brush brush)
-            TextColor = brush;
-        else
-            TextColor = new SolidColorBrush(Colors.Gray);
+        StatusLevel.Info => "INFO",
+        StatusLevel.Success => "SUCCESS",
+        StatusLevel.Warning => "WARNING",
+        StatusLevel.Error => "ERROR",
+        StatusLevel.Debug => "DEBUG",
+        _ => "INFO"
+    };
+
+    private static Color FromHex(string hex) =>
+        (Color)ColorConverter.ConvertFromString(hex);
+
+    private Brush ResolveLevelBrush(StatusLevel level)
+    {
+        return level switch
+        {
+            StatusLevel.Info => new SolidColorBrush(FromHex("#9AA0A6")),
+            StatusLevel.Success => new SolidColorBrush(Color.FromRgb(40, 167, 69)),
+            StatusLevel.Warning => new SolidColorBrush(FromHex("#F4B400")),
+            StatusLevel.Error => new SolidColorBrush(FromHex("#DC3545")),
+            StatusLevel.Debug => new SolidColorBrush(FromHex("#6C8AA3")),
+            _ => new SolidColorBrush(FromHex("#9AA0A6"))
+        };
+    }
+
+    private void ApplyLevelStyle(
+        StatusLevel level,
+        string message,
+        bool includePrefix = true,
+        bool showProgress = false,
+        double progressValue = 0,
+        bool isIndeterminate = false)
+    {
+        _currentLevel = level;
+        Message = includePrefix ? $"[{GetLevelPrefix(level)}] {message}" : message;
+        ShowProgress = showProgress;
+        ProgressValue = progressValue;
+        IsIndeterminate = isIndeterminate;
+        TextColor = ResolveLevelBrush(level);
     }
 
     public void ReportProgress(string message, double percentage = 0, bool isIndeterminate = false)
     {
         Application.Current.Dispatcher.Invoke(() =>
         {
-            Message = message;
-            ProgressValue = percentage;
-            IsIndeterminate = isIndeterminate;
-            ShowProgress = true;
-            ApplyNeutralTextBrushFromTheme();
+            ApplyLevelStyle(
+                StatusLevel.Info,
+                message,
+                includePrefix: true,
+                showProgress: true,
+                progressValue: percentage,
+                isIndeterminate: isIndeterminate);
+        });
+    }
+
+    public void ReportInfo(string message)
+    {
+        Application.Current.Dispatcher.Invoke(() =>
+        {
+            ApplyLevelStyle(StatusLevel.Info, message, includePrefix: true);
+        });
+    }
+
+    public void ReportWarning(string message)
+    {
+        Application.Current.Dispatcher.Invoke(() =>
+        {
+            ApplyLevelStyle(StatusLevel.Warning, message, includePrefix: true);
         });
     }
 
@@ -71,10 +123,7 @@ public partial class GlobalStatusService : ObservableObject, IPluginContext
     {
         Application.Current.Dispatcher.Invoke(() =>
         {
-            Message = "✅ " + message;
-            ShowProgress = false;
-            _textTone = StatusTextTone.Success;
-            TextColor = new SolidColorBrush(Color.FromRgb(40, 167, 69));
+            ApplyLevelStyle(StatusLevel.Success, message, includePrefix: true);
         });
     }
 
@@ -82,10 +131,15 @@ public partial class GlobalStatusService : ObservableObject, IPluginContext
     {
         Application.Current.Dispatcher.Invoke(() =>
         {
-            Message = "❌ " + message;
-            ShowProgress = false;
-            _textTone = StatusTextTone.Error;
-            TextColor = new SolidColorBrush(Color.FromRgb(220, 53, 69));
+            ApplyLevelStyle(StatusLevel.Error, message, includePrefix: true);
+        });
+    }
+
+    public void ReportDebug(string message)
+    {
+        Application.Current.Dispatcher.Invoke(() =>
+        {
+            ApplyLevelStyle(StatusLevel.Debug, message, includePrefix: true);
         });
     }
 
@@ -93,9 +147,7 @@ public partial class GlobalStatusService : ObservableObject, IPluginContext
     {
         Application.Current.Dispatcher.Invoke(() =>
         {
-            Message = "準備完了";
-            ShowProgress = false;
-            ApplyNeutralTextBrushFromTheme();
+            ApplyLevelStyle(StatusLevel.Info, "準備完了", includePrefix: false);
         });
     }
 }
