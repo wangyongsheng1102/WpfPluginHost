@@ -7,6 +7,15 @@ namespace ShellApp.Services;
 
 public partial class GlobalStatusService : ObservableObject, IPluginContext
 {
+    private enum StatusTextTone
+    {
+        Neutral,
+        Success,
+        Error
+    }
+
+    private StatusTextTone _textTone = StatusTextTone.Neutral;
+
     [ObservableProperty]
     private string _message = "準備完了";
 
@@ -20,10 +29,31 @@ public partial class GlobalStatusService : ObservableObject, IPluginContext
     private bool _showProgress = false;
 
     [ObservableProperty]
-    private Brush _statusColor = new SolidColorBrush(Colors.Transparent);
-    
-    [ObservableProperty]
-    private Brush _textColor = new SolidColorBrush(Colors.White);
+    private Brush _textColor = Brushes.Transparent;
+
+    public GlobalStatusService()
+    {
+        ApplyNeutralTextBrushFromTheme();
+    }
+
+    /// <summary>テーマ切り替え後に呼ぶ。中性メッセージの色は現在の <c>PrimaryTextBrush</c> に合わせ直す。</summary>
+    public void RefreshTextBrushAfterThemeChange()
+    {
+        Application.Current.Dispatcher.Invoke(() =>
+        {
+            if (_textTone == StatusTextTone.Neutral)
+                ApplyNeutralTextBrushFromTheme();
+        });
+    }
+
+    private void ApplyNeutralTextBrushFromTheme()
+    {
+        _textTone = StatusTextTone.Neutral;
+        if (Application.Current?.TryFindResource("PrimaryTextBrush") is Brush brush)
+            TextColor = brush;
+        else
+            TextColor = new SolidColorBrush(Colors.Gray);
+    }
 
     public void ReportProgress(string message, double percentage = 0, bool isIndeterminate = false)
     {
@@ -33,7 +63,7 @@ public partial class GlobalStatusService : ObservableObject, IPluginContext
             ProgressValue = percentage;
             IsIndeterminate = isIndeterminate;
             ShowProgress = true;
-            TextColor = (Brush)Application.Current.Resources["PrimaryTextBrush"];
+            ApplyNeutralTextBrushFromTheme();
         });
     }
 
@@ -43,7 +73,8 @@ public partial class GlobalStatusService : ObservableObject, IPluginContext
         {
             Message = "✅ " + message;
             ShowProgress = false;
-            TextColor = new SolidColorBrush(Color.FromRgb(40, 167, 69)); // Success Green
+            _textTone = StatusTextTone.Success;
+            TextColor = new SolidColorBrush(Color.FromRgb(40, 167, 69));
         });
     }
 
@@ -53,7 +84,8 @@ public partial class GlobalStatusService : ObservableObject, IPluginContext
         {
             Message = "❌ " + message;
             ShowProgress = false;
-            TextColor = new SolidColorBrush(Color.FromRgb(220, 53, 69)); // Error Red
+            _textTone = StatusTextTone.Error;
+            TextColor = new SolidColorBrush(Color.FromRgb(220, 53, 69));
         });
     }
 
@@ -63,7 +95,7 @@ public partial class GlobalStatusService : ObservableObject, IPluginContext
         {
             Message = "準備完了";
             ShowProgress = false;
-            TextColor = (Brush)Application.Current.Resources["PrimaryTextBrush"];
+            ApplyNeutralTextBrushFromTheme();
         });
     }
 }
