@@ -1,0 +1,40 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- 与插件同版本；与 PluginHostSharedAssemblies 一致，运行时由宿主输出目录提供 -->
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+    <PackageReference Include="Microsoft.Office.Interop.Excel" Version="16.0.18925.20022" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Plugin.Abstractions\Plugin.Abstractions.csproj" />
+    <!-- 生成 Shell 时先编插件，保证仓库根 plugins 含完整依赖；不引用插件程序集本身 -->
+    <ProjectReference Include="..\Plugins\Plugin.SampleA\Plugin.SampleA.csproj" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\Plugins\Plugin.SampleB\Plugin.SampleB.csproj" ReferenceOutputAssembly="false" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Assets\Images\**\*.*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <!-- 将仓库根 plugins（由插件项目生成）同步到 Shell 输出目录，使 F5 时 bin\...\plugins 与仓库一致 -->
+  <Target Name="CopyWorkspacePluginsToShellOutput" AfterTargets="Build">
+    <MakeDir Directories="$(OutDir)plugins" />
+    <ItemGroup>
+      <_PluginFiles Include="$(MSBuildThisFileDirectory)..\..\plugins\*.*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(_PluginFiles)"
+          DestinationFolder="$(OutDir)plugins"
+          SkipUnchangedFiles="true" />
+  </Target>
+</Project>

@@ -1,0 +1,96 @@
+<UserControl x:Class="Plugin.SampleA.SampleAView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="{DynamicResource ContentBackgroundBrush}">
+    <Grid Margin="20"
+          Background="{DynamicResource ContentBackgroundBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- 路径 + 选择 -->
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <TextBox Grid.Column="0"
+                     MinHeight="36"
+                     Margin="0,0,12,0"
+                     Padding="10,8"
+                     VerticalContentAlignment="Center"
+                     IsReadOnly="True"
+                     Text="{Binding ExcelPath, Mode=OneWay}"
+                     ToolTip="所选 Excel 文件的绝对路径"
+                     Background="{DynamicResource NavBackgroundBrush}"
+                     BorderBrush="{DynamicResource HoverBrush}"
+                     Foreground="{DynamicResource PrimaryTextBrush}"
+                     CaretBrush="{DynamicResource PrimaryTextBrush}" />
+            <Button Grid.Column="1"
+                    MinWidth="120"
+                    MinHeight="36"
+                    Padding="16,8"
+                    Content="选择 Excel…"
+                    Command="{Binding SelectExcelCommand}"
+                    Style="{DynamicResource ActionButtonStyle}" />
+        </Grid>
+
+        <TextBlock Grid.Row="1"
+                   Margin="0,8,0,12"
+                   Foreground="#E57373"
+                   Text="{Binding StatusMessage}"
+                   TextWrapping="Wrap">
+            <TextBlock.Style>
+                <Style TargetType="TextBlock">
+                    <Setter Property="Visibility" Value="Collapsed" />
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding HasStatusMessage}" Value="True">
+                            <Setter Property="Visibility" Value="Visible" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </TextBlock.Style>
+        </TextBlock>
+
+        <DataGrid Grid.Row="2"
+                  AutoGenerateColumns="True"
+                  CanUserAddRows="False"
+                  CanUserDeleteRows="False"
+                  GridLinesVisibility="Horizontal"
+                  HeadersVisibility="Column"
+                  IsReadOnly="True"
+                  ItemsSource="{Binding ExcelTable}"
+                  RowHeight="32"
+                  SelectionUnit="CellOrRowHeader"
+                  AlternationCount="2"
+                  Background="{DynamicResource ContentBackgroundBrush}"
+                  Foreground="{DynamicResource PrimaryTextBrush}"
+                  BorderBrush="{DynamicResource HoverBrush}"
+                  HorizontalGridLinesBrush="{DynamicResource HoverBrush}"
+                  RowBackground="{DynamicResource ContentBackgroundBrush}"
+                  AlternatingRowBackground="{DynamicResource NavBackgroundBrush}">
+            <DataGrid.ColumnHeaderStyle>
+                <Style TargetType="DataGridColumnHeader">
+                    <Setter Property="Background" Value="{DynamicResource NavBackgroundBrush}" />
+                    <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+                    <Setter Property="BorderBrush" Value="{DynamicResource HoverBrush}" />
+                    <Setter Property="Padding" Value="10,8" />
+                </Style>
+            </DataGrid.ColumnHeaderStyle>
+            <DataGrid.CellStyle>
+                <Style TargetType="DataGridCell">
+                    <Setter Property="BorderBrush" Value="{DynamicResource HoverBrush}" />
+                    <Setter Property="Padding" Value="10,6" />
+                    <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+                    <Style.Triggers>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter Property="Background" Value="{DynamicResource SelectedBrush}" />
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </DataGrid.CellStyle>
+        </DataGrid>
+    </Grid>
+</UserControl>

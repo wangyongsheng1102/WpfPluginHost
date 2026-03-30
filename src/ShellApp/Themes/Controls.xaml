@@ -1,0 +1,330 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Style x:Key="ActionButtonStyle" TargetType="Button">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="ButtonBorder"
+                            CornerRadius="8"
+                            Background="Transparent"
+                            BorderBrush="Transparent"
+                            BorderThickness="0"
+                            Margin="0"
+                            Opacity="1">
+                        <ContentPresenter HorizontalAlignment="Center"
+                                          VerticalAlignment="Center" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="ButtonBorder"
+                                    Property="Background"
+                                    Value="{DynamicResource ButtonHoverGradientBrush}" />
+                            <Setter TargetName="ButtonBorder" Property="BorderBrush" Value="{DynamicResource HoverBrush}" />
+                            <Setter TargetName="ButtonBorder" Property="BorderThickness" Value="1" />
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="ButtonBorder"
+                                    Property="Background"
+                                    Value="{DynamicResource ButtonPressedGradientBrush}" />
+                            <Setter TargetName="ButtonBorder" Property="BorderBrush" Value="{DynamicResource HoverBrush}" />
+                            <Setter TargetName="ButtonBorder" Property="BorderThickness" Value="1" />
+                            <Setter TargetName="ButtonBorder" Property="Opacity" Value="0.88" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- 与 ThemeIconToggleStyle 一致：40×40 热区，内嵌约 22px 图标 -->
+    <Style x:Key="ExitAppStyle" TargetType="Button">
+        <Setter Property="Height" Value="40" />
+        <Setter Property="Width" Value="40" />
+        <Setter Property="HorizontalAlignment" Value="Right" />
+        <Setter Property="VerticalAlignment" Value="Top" />
+        <Setter Property="Margin" Value="0,14,14,0" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="ToolTip" Value="关闭" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Root"
+                            Background="Transparent"
+                            BorderBrush="Transparent"
+                            BorderThickness="0"
+                            CornerRadius="10"
+                            Padding="9"
+                            Margin="0"
+                            Opacity="1"
+                            RenderTransformOrigin="0.5,0.5">
+                        <Border.RenderTransform>
+                            <ScaleTransform ScaleX="1" ScaleY="1" />
+                        </Border.RenderTransform>
+                        <Image x:Name="CloseIcon"
+                               Width="22"
+                               Height="22"
+                               Stretch="Uniform"
+                               Source="/Assets/Images/shutdown_def.png" />
+                        <!-- 悬停呼吸：轻微缩放循环；MouseLeave 停止并释放动画，避免与按下状态冲突 -->
+                        <Border.Triggers>
+                            <EventTrigger RoutedEvent="MouseEnter">
+                                <BeginStoryboard Name="CloseBreathingStoryboard">
+                                    <Storyboard RepeatBehavior="Forever" AutoReverse="True">
+                                        <DoubleAnimation Storyboard.TargetName="Root"
+                                                         Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)"
+                                                         From="1"
+                                                         To="1.08"
+                                                         Duration="0:0:0.9">
+                                            <DoubleAnimation.EasingFunction>
+                                                <SineEase EasingMode="EaseInOut" />
+                                            </DoubleAnimation.EasingFunction>
+                                        </DoubleAnimation>
+                                        <DoubleAnimation Storyboard.TargetName="Root"
+                                                         Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)"
+                                                         From="1"
+                                                         To="1.08"
+                                                         Duration="0:0:0.9">
+                                            <DoubleAnimation.EasingFunction>
+                                                <SineEase EasingMode="EaseInOut" />
+                                            </DoubleAnimation.EasingFunction>
+                                        </DoubleAnimation>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </EventTrigger>
+                            <EventTrigger RoutedEvent="MouseLeave">
+                                <StopStoryboard BeginStoryboardName="CloseBreathingStoryboard" />
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="Root"
+                                                         Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)"
+                                                         To="1"
+                                                         Duration="0:0:0.12" />
+                                        <DoubleAnimation Storyboard.TargetName="Root"
+                                                         Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)"
+                                                         To="1"
+                                                         Duration="0:0:0.12" />
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </EventTrigger>
+                        </Border.Triggers>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Root" Property="Background" Value="{DynamicResource ButtonHoverGradientBrush}" />
+                            <Setter TargetName="CloseIcon" Property="Source" Value="/Assets/Images/shutdown_mo.png" />
+                            <Setter TargetName="Root" Property="BorderBrush" Value="{DynamicResource HoverBrush}" />
+                            <Setter TargetName="Root" Property="BorderThickness" Value="1" />
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Root" Property="Background" Value="{DynamicResource ButtonPressedGradientBrush}" />
+                            <Setter TargetName="CloseIcon" Property="Source" Value="/Assets/Images/shutdown_mo.png" />
+                            <Setter TargetName="Root" Property="BorderBrush" Value="{DynamicResource HoverBrush}" />
+                            <Setter TargetName="Root" Property="BorderThickness" Value="1" />
+                            <Setter TargetName="Root" Property="Opacity" Value="0.85" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="NavListBoxStyle" TargetType="ListBox">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled" />
+        <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto" />
+    </Style>
+
+    <Style x:Key="NavListBoxItemStyle" TargetType="ListBoxItem">
+        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        <Setter Property="Margin" Value="0,5,0,0" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ListBoxItem">
+                    <Border x:Name="ItemBorder"
+                            Height="50"
+                            HorizontalAlignment="Stretch"
+                            Background="{DynamicResource NavBackgroundBrush}"
+                            BorderBrush="Transparent"
+                            BorderThickness="0"
+                            Opacity="1">
+                        <Grid>
+                            <Border x:Name="Indicator"
+                                    Height="35"
+                                    Width="4"
+                                    HorizontalAlignment="Left"
+                                    VerticalAlignment="Center"
+                                    Background="{DynamicResource IndicatorBrush}"
+                                    CornerRadius="2"
+                                    Visibility="Collapsed" />
+                            <ContentPresenter />
+                        </Grid>
+                        <Border.Triggers>
+                            <EventTrigger RoutedEvent="UIElement.PreviewMouseLeftButtonDown">
+                                <BeginStoryboard HandoffBehavior="SnapshotAndReplace">
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="ItemBorder"
+                                                         Storyboard.TargetProperty="Opacity"
+                                                         To="0.82"
+                                                         Duration="0:0:0.06"
+                                                         AutoReverse="True" />
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </EventTrigger>
+                        </Border.Triggers>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <!-- 悬停：渐变 + 轻微放大，比纯色更易感知 -->
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Indicator" Property="Visibility" Value="Visible" />
+                            <Setter TargetName="ItemBorder" Property="Background" Value="{DynamicResource ButtonHoverGradientBrush}" />
+                            <Setter TargetName="ItemBorder" Property="BorderBrush" Value="{DynamicResource HoverBrush}" />
+                            <Setter TargetName="ItemBorder" Property="BorderThickness" Value="1" />
+                        </Trigger>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter TargetName="Indicator" Property="Visibility" Value="Visible" />
+                            <Setter TargetName="ItemBorder" Property="Background" Value="{DynamicResource SelectedBrush}" />
+                            <Setter TargetName="ItemBorder" Property="BorderThickness" Value="0" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="NavIconStyle" TargetType="TextBlock">
+        <Setter Property="HorizontalAlignment" Value="Left" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+        <Setter Property="FontSize" Value="18" />
+        <Setter Property="Margin" Value="22,0,0,0" />
+        <Setter Property="Width" Value="24" />
+    </Style>
+
+    <Style x:Key="NavImageStyle" TargetType="Image">
+        <Setter Property="HorizontalAlignment" Value="Left" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="Stretch" Value="Uniform" />
+        <Setter Property="Height" Value="24" />
+        <Setter Property="Width" Value="24" />
+        <Setter Property="Margin" Value="22,0,0,0" />
+    </Style>
+
+    <Style x:Key="NavTextStyle" TargetType="TextBlock">
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="HorizontalAlignment" Value="Left" />
+        <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+        <Setter Property="FontSize" Value="16" />
+        <Setter Property="Margin" Value="70,0,0,0" />
+    </Style>
+
+    <Style x:Key="SecondaryTextStyle" TargetType="TextBlock">
+        <Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+
+    <!-- Sun / moon line icons: light = sun, dark = moon (IsChecked = dark theme) -->
+    <Style x:Key="ThemeIconToggleStyle" TargetType="ToggleButton">
+        <Setter Property="Width" Value="40" />
+        <Setter Property="Height" Value="40" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="ToolTip" Value="切换明暗主题" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ToggleButton">
+                    <Border x:Name="Root"
+                            Background="Transparent"
+                            BorderBrush="Transparent"
+                            BorderThickness="0"
+                            CornerRadius="10"
+                            Padding="6"
+                            Margin="0"
+                            Opacity="1">
+                        <Viewbox Width="22" Height="22" Stretch="Uniform">
+                            <Grid Width="24" Height="24">
+                                <!-- Sun (light mode, IsChecked = False) -->
+                                <Canvas x:Name="SunIcon" Visibility="Visible">
+                                    <Path Stroke="{DynamicResource PrimaryTextBrush}"
+                                          StrokeThickness="1.35"
+                                          StrokeLineJoin="Round"
+                                          StrokeStartLineCap="Round"
+                                          StrokeEndLineCap="Round"
+                                          Fill="Transparent"
+                                          Data="M 12,3 L 12,5 M 12,19 L 12,21 M 3,12 L 5,12 M 19,12 L 21,12 M 5.64,5.64 L 7.05,7.05 M 16.95,16.95 L 18.36,18.36 M 18.36,5.64 L 16.95,7.05 M 7.05,16.95 L 5.64,18.36 M 12,8 A 4,4 0 1 1 12,16 A 4,4 0 1 1 12,8 Z" />
+                                </Canvas>
+                                <!-- Moon (dark mode, IsChecked = True) -->
+                                <Canvas x:Name="MoonIcon" Visibility="Collapsed">
+                                    <Path Stroke="{DynamicResource PrimaryTextBrush}"
+                                          StrokeThickness="1.35"
+                                          StrokeLineJoin="Round"
+                                          StrokeStartLineCap="Round"
+                                          StrokeEndLineCap="Round"
+                                          Fill="Transparent"
+                                          Data="M 21 12.79 A 9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79 Z" />
+                                </Canvas>
+                            </Grid>
+                        </Viewbox>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="SunIcon" Property="Visibility" Value="Collapsed" />
+                            <Setter TargetName="MoonIcon" Property="Visibility" Value="Visible" />
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Root" Property="Background" Value="{DynamicResource ButtonHoverGradientBrush}" />
+                            <Setter TargetName="Root" Property="BorderBrush" Value="{DynamicResource HoverBrush}" />
+                            <Setter TargetName="Root" Property="BorderThickness" Value="1" />
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Root" Property="Background" Value="{DynamicResource ButtonPressedGradientBrush}" />
+                            <Setter TargetName="Root" Property="BorderBrush" Value="{DynamicResource HoverBrush}" />
+                            <Setter TargetName="Root" Property="BorderThickness" Value="1" />
+                            <Setter TargetName="Root" Property="Opacity" Value="0.88" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- 插件等 UserControl 默认使用内容区底色，避免 Transparent 透出下层默认白底 -->
+    <Style TargetType="UserControl">
+        <Setter Property="Background" Value="{DynamicResource ContentBackgroundBrush}" />
+        <Setter Property="RenderTransform">
+            <Setter.Value>
+                <TranslateTransform X="0" Y="40" />
+            </Setter.Value>
+        </Setter>
+        <Style.Triggers>
+            <Trigger Property="Visibility" Value="Collapsed">
+                <Setter Property="Opacity" Value="0" />
+            </Trigger>
+            <EventTrigger RoutedEvent="Loaded">
+                <BeginStoryboard>
+                    <Storyboard>
+                        <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                         Duration="0:0:0.5"
+                                         From="0"
+                                         To="1" />
+                        <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)"
+                                         From="40"
+                                         To="0"
+                                         Duration="0:0:0.35"
+                                         DecelerationRatio="0.6" />
+                    </Storyboard>
+                </BeginStoryboard>
+            </EventTrigger>
+        </Style.Triggers>
+    </Style>
+</ResourceDictionary>
