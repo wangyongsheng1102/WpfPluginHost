@@ -7,9 +7,8 @@
           Background="{DynamicResource ContentBackgroundBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
         <!-- Configuration Options -->
@@ -53,47 +52,121 @@
             </StackPanel>
         </Border>
 
-        <!-- Drop Zone -->
-        <Border Grid.Row="1" Margin="0,0,0,16" MinHeight="220"
-                Background="Transparent"
+        <!-- List / Drop Zone -->
+        <Border Grid.Row="1" Margin="0,0,0,24"
+                Background="{DynamicResource NavBackgroundBrush}"
                 BorderBrush="{DynamicResource HoverBrush}"
                 BorderThickness="2" CornerRadius="8">
-            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                <TextBlock Text="📥" FontSize="56" HorizontalAlignment="Center" Margin="0,0,0,16" IsHitTestVisible="False"/>
-                <TextBlock Text="将 Excel 文件或文件夹拖放到此区域进行批量处理" 
-                           FontSize="16" FontWeight="SemiBold"
-                           Foreground="{DynamicResource SecondaryTextBrush}"
-                           HorizontalAlignment="Center" IsHitTestVisible="False"/>
-                <TextBlock Text="若拖入文件夹，将自动扫描其中的所有 Excel 文件" 
-                           FontSize="13" Foreground="{DynamicResource SecondaryTextBrush}"
-                           Margin="0,8,0,0" Opacity="0.7"
-                           HorizontalAlignment="Center" IsHitTestVisible="False"/>
-                
-                <Button Content="或点此手动选择 Excel..." 
-                        Width="180" Height="36" Margin="0,20,0,0"
-                        Style="{DynamicResource ActionButtonStyle}"
-                        Command="{Binding SelectExcelFallbackCommand}" />
-            </StackPanel>
+            <Grid>
+                <!-- Empty Placeholder -->
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" IsHitTestVisible="False">
+                    <StackPanel.Style>
+                        <Style TargetType="StackPanel">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding HasPendingFiles}" Value="False">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </StackPanel.Style>
+                    <TextBlock Text="📥" FontSize="56" HorizontalAlignment="Center" Margin="0,0,0,16"/>
+                    <TextBlock Text="将 Excel 文件或文件夹拖放到此区域建立任务队列" 
+                               FontSize="16" FontWeight="SemiBold"
+                               Foreground="{DynamicResource SecondaryTextBrush}"
+                               HorizontalAlignment="Center" />
+                    <TextBlock Text="若拖入文件夹，将自动扫描其中的所有 Excel 文件" 
+                               FontSize="13" Foreground="{DynamicResource SecondaryTextBrush}"
+                               Margin="0,8,0,0" Opacity="0.7"
+                               HorizontalAlignment="Center" />
+                </StackPanel>
+
+                <!-- DataGrid overlay -->
+                <DataGrid ItemsSource="{Binding PendingFiles}"
+                          AutoGenerateColumns="False" 
+                          CanUserAddRows="False"
+                          HeadersVisibility="Column"
+                          GridLinesVisibility="None"
+                          Background="Transparent"
+                          BorderThickness="0"
+                          RowHeight="36"
+                          Foreground="{DynamicResource PrimaryTextBrush}"
+                          RowBackground="Transparent"
+                          AlternatingRowBackground="{DynamicResource ContentBackgroundBrush}">
+                    <DataGrid.Style>
+                        <Style TargetType="DataGrid">
+                            <Setter Property="Visibility" Value="Visible"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding HasPendingFiles}" Value="False">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGrid.Style>
+                    <DataGrid.ColumnHeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="Background" Value="{DynamicResource NavBackgroundBrush}" />
+                            <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+                            <Setter Property="BorderBrush" Value="{DynamicResource HoverBrush}" />
+                            <Setter Property="Padding" Value="10,8" />
+                        </Style>
+                    </DataGrid.ColumnHeaderStyle>
+                    <DataGrid.CellStyle>
+                        <Style TargetType="DataGridCell">
+                            <Setter Property="BorderThickness" Value="0" />
+                            <Setter Property="Padding" Value="10,6" />
+                            <Setter Property="VerticalAlignment" Value="Center" />
+                            <Style.Triggers>
+                                <Trigger Property="IsSelected" Value="True">
+                                    <Setter Property="Background" Value="{DynamicResource SelectedBrush}" />
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGrid.CellStyle>
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="文件名" Binding="{Binding FileName}" Width="250" IsReadOnly="True" />
+                        <DataGridTextColumn Header="状态" Binding="{Binding Status}" Width="120" IsReadOnly="True" />
+                        <DataGridTextColumn Header="路径" Binding="{Binding FilePath}" Width="*" IsReadOnly="True" />
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
         </Border>
 
-        <!-- 状态栏提示 -->
-        <TextBlock Grid.Row="2"
-                   Margin="0,16,0,0"
-                   Foreground="{DynamicResource PrimaryTextBrush}"
-                   FontSize="14"
-                   FontWeight="SemiBold"
-                   Text="{Binding StatusMessage}"
-                   TextWrapping="Wrap">
-            <TextBlock.Style>
-                <Style TargetType="TextBlock">
-                    <Setter Property="Visibility" Value="Collapsed" />
-                    <Style.Triggers>
-                        <DataTrigger Binding="{Binding HasStatusMessage}" Value="True">
-                            <Setter Property="Visibility" Value="Visible" />
-                        </DataTrigger>
-                    </Style.Triggers>
-                </Style>
-            </TextBlock.Style>
-        </TextBlock>
+        <!-- Bottom Status Bar -->
+        <Grid Grid.Row="2" MinHeight="44">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Execute Button -->
+            <Button Grid.Column="0" Content="▶ 开始处理"
+                    Width="160" Height="40"
+                    Style="{DynamicResource ActionButtonStyle}"
+                    Command="{Binding ExecuteFormatCommand}"
+                    IsEnabled="{Binding HasPendingFiles}" />
+
+            <!-- Pinned Status Text -->
+            <TextBlock Grid.Column="1"
+                       Margin="16,0" VerticalAlignment="Center"
+                       Foreground="{DynamicResource PrimaryTextBrush}"
+                       FontSize="14" FontWeight="SemiBold"
+                       Text="{Binding StatusMessage}" TextWrapping="Wrap" />
+
+            <!-- Manual Add Button -->
+            <Button Grid.Column="2" Content="+ 手动添加..." 
+                    Width="140" Height="40" Margin="12,0,0,0"
+                    Style="{DynamicResource ActionButtonStyle}"
+                    Command="{Binding SelectExcelFallbackCommand}" />
+                    
+            <!-- Clear Button -->
+            <Button Grid.Column="3" Content="🗑 清空列表"
+                    Width="120" Height="40" Margin="12,0,0,0"
+                    Style="{DynamicResource ActionButtonStyle}"
+                    Command="{Binding ClearFilesCommand}"
+                    IsEnabled="{Binding HasPendingFiles}" />
+        </Grid>
     </Grid>
 </UserControl>

@@ -33,7 +33,7 @@ public partial class SampleAView : UserControl
             {
                 if (DataContext is SampleAViewModel vm)
                 {
-                    vm.HandleDroppedPathsAsync(paths);
+                    _ = vm.HandleDroppedPathsAsync(paths);
                 }
             }
         }
