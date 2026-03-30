@@ -9,19 +9,14 @@
         Width="850"
         MinHeight="560"
         MinWidth="820"
-        AllowsTransparency="True"
-        WindowStyle="None"
+        AllowsTransparency="False"
+        WindowStyle="SingleBorderWindow"
         WindowStartupLocation="CenterScreen"
-        Background="{DynamicResource WindowBackgroundBrush}">
+        Background="{DynamicResource ShellBackgroundBrush}">
+    <WindowChrome.WindowChrome>
+        <WindowChrome GlassFrameThickness="0,0,0,1" CornerRadius="0" CaptionHeight="52" ResizeBorderThickness="8" UseAeroCaptionButtons="False" />
+    </WindowChrome.WindowChrome>
     <Grid>
-        <Grid.Resources>
-            <ControlTemplate x:Key="InvisibleThumbTemplate" TargetType="Thumb">
-                <Border Background="Transparent" />
-            </ControlTemplate>
-        </Grid.Resources>
-        <Border Background="{DynamicResource ShellBackgroundBrush}"
-                CornerRadius="8" />
-
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto" />
@@ -47,7 +42,8 @@
                             Height="32"
                             HorizontalAlignment="Left"
                             Style="{StaticResource ActionButtonStyle}"
-                            Command="{Binding ToggleMenuCommand}">
+                            Command="{Binding ToggleMenuCommand}"
+                            WindowChrome.IsHitTestVisibleInChrome="True">
                         <TextBlock Text="☰"
                                    FontSize="16"
                                    Foreground="{DynamicResource PrimaryTextBrush}" />
@@ -125,10 +121,9 @@
                     <RowDefinition Height="52" />
                     <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
-                <!-- 标题栏区域：仅内容列，避免遮挡左侧汉堡菜单；拖拽移动、双击最大化 -->
+                <!-- 标题栏区域 -->
                 <Border Grid.Row="0"
-                        Background="Transparent"
-                        MouseLeftButtonDown="DragArea_MouseLeftButtonDown" />
+                        Background="Transparent" />
                 <!-- 上边距加大：与右上角关闭按钮、标题栏拉开，避免与子页面挤在一起 -->
                 <Border Grid.Row="1"
                         Margin="0,14,12,12"
@@ -144,18 +139,7 @@
 
         <Button Style="{StaticResource ExitAppStyle}"
                 Click="CloseButton_Click"
-                ToolTip="Close" />
-
-        <!-- Edge Resize Thumbs -->
-        <Thumb Width="6" Cursor="SizeWE" HorizontalAlignment="Left" VerticalAlignment="Stretch" Margin="0,12,0,12" Background="Transparent" DragDelta="ResizeLeft_DragDelta" Template="{StaticResource InvisibleThumbTemplate}"/>
-        <Thumb Height="6" Cursor="SizeNS" VerticalAlignment="Top" HorizontalAlignment="Stretch" Margin="12,0,12,0" Background="Transparent" DragDelta="ResizeTop_DragDelta" Template="{StaticResource InvisibleThumbTemplate}"/>
-        <Thumb Width="6" Cursor="SizeWE" HorizontalAlignment="Right" VerticalAlignment="Stretch" Margin="0,12,0,12" Background="Transparent" DragDelta="ResizeRight_DragDelta" Template="{StaticResource InvisibleThumbTemplate}"/>
-        <Thumb Height="6" Cursor="SizeNS" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Margin="12,0,12,0" Background="Transparent" DragDelta="ResizeBottom_DragDelta" Template="{StaticResource InvisibleThumbTemplate}"/>
-        
-        <!-- Corner Resize Thumbs -->
-        <Thumb Width="12" Height="12" Cursor="SizeNWSE" HorizontalAlignment="Left" VerticalAlignment="Top" Background="Transparent" DragDelta="ResizeTopLeft_DragDelta" Template="{StaticResource InvisibleThumbTemplate}"/>
-        <Thumb Width="12" Height="12" Cursor="SizeNESW" HorizontalAlignment="Right" VerticalAlignment="Top" Background="Transparent" DragDelta="ResizeTopRight_DragDelta" Template="{StaticResource InvisibleThumbTemplate}"/>
-        <Thumb Width="12" Height="12" Cursor="SizeNESW" HorizontalAlignment="Left" VerticalAlignment="Bottom" Background="Transparent" DragDelta="ResizeBottomLeft_DragDelta" Template="{StaticResource InvisibleThumbTemplate}"/>
-        <Thumb Width="12" Height="12" Cursor="SizeNWSE" HorizontalAlignment="Right" VerticalAlignment="Bottom" Background="Transparent" DragDelta="ResizeBottomRight_DragDelta" Template="{StaticResource InvisibleThumbTemplate}"/>
+                ToolTip="Close"
+                WindowChrome.IsHitTestVisibleInChrome="True" />
     </Grid>
 </Window>

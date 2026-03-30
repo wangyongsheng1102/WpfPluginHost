@@ -2,7 +2,6 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media.Animation;
 using System.ComponentModel;
-using System.Windows.Controls.Primitives;
 using ShellApp.ViewModels;
 
 namespace ShellApp.Views;
@@ -21,27 +20,6 @@ public partial class MainWindow : Window
     private void CloseButton_Click(object sender, RoutedEventArgs e)
     {
         Close();
-    }
-
-    private void DragArea_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-    {
-        if (e.ClickCount == 2)
-        {
-            ToggleMaximizeRestore();
-            return;
-        }
-
-        if (e.ButtonState == MouseButtonState.Pressed)
-        {
-            try
-            {
-                DragMove();
-            }
-            catch
-            {
-                // 极少数情况下 DragMove 会失败，忽略即可
-            }
-        }
     }
 
     private void ToggleMaximizeRestore()
@@ -95,61 +73,5 @@ public partial class MainWindow : Window
         };
 
         NavPanel.BeginAnimation(WidthProperty, animation, HandoffBehavior.SnapshotAndReplace);
-    }
-
-    private void ResizeLeft_DragDelta(object sender, DragDeltaEventArgs e)
-    {
-        double newWidth = this.Width - e.HorizontalChange;
-        if (newWidth > this.MinWidth)
-        {
-            this.Width = newWidth;
-            this.Left += e.HorizontalChange;
-        }
-    }
-
-    private void ResizeTop_DragDelta(object sender, DragDeltaEventArgs e)
-    {
-        double newHeight = this.Height - e.VerticalChange;
-        if (newHeight > this.MinHeight)
-        {
-            this.Height = newHeight;
-            this.Top += e.VerticalChange;
-        }
-    }
-
-    private void ResizeRight_DragDelta(object sender, DragDeltaEventArgs e)
-    {
-        double newWidth = this.Width + e.HorizontalChange;
-        if (newWidth > this.MinWidth) this.Width = newWidth;
-    }
-
-    private void ResizeBottom_DragDelta(object sender, DragDeltaEventArgs e)
-    {
-        double newHeight = this.Height + e.VerticalChange;
-        if (newHeight > this.MinHeight) this.Height = newHeight;
-    }
-
-    private void ResizeTopLeft_DragDelta(object sender, DragDeltaEventArgs e)
-    {
-        ResizeTop_DragDelta(sender, e);
-        ResizeLeft_DragDelta(sender, e);
-    }
-
-    private void ResizeTopRight_DragDelta(object sender, DragDeltaEventArgs e)
-    {
-        ResizeTop_DragDelta(sender, e);
-        ResizeRight_DragDelta(sender, e);
-    }
-
-    private void ResizeBottomLeft_DragDelta(object sender, DragDeltaEventArgs e)
-    {
-        ResizeBottom_DragDelta(sender, e);
-        ResizeLeft_DragDelta(sender, e);
-    }
-
-    private void ResizeBottomRight_DragDelta(object sender, DragDeltaEventArgs e)
-    {
-        ResizeBottom_DragDelta(sender, e);
-        ResizeRight_DragDelta(sender, e);
     }
 }
