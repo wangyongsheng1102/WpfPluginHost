@@ -6,12 +6,10 @@
                   Padding="24,20,24,28">
         <StackPanel>
             <TextBlock Text="ホーム"
-                       FontSize="28"
-                       FontWeight="SemiBold"
-                       Foreground="{DynamicResource PrimaryTextBrush}"
-                       Margin="0,0,0,8" />
+                       Margin="0,0,0,8"
+                       Style="{StaticResource TitleTextStyle}" />
             <TextBlock Text="プラグインを選んで開きます。カードまたは左のメニューから切り替えられます。"
-                       FontSize="14"
+                       Style="{StaticResource BodyTextStyle}"
                        Foreground="{DynamicResource SecondaryTextBrush}"
                        TextWrapping="Wrap"
                        Margin="0,0,0,24" />
@@ -78,15 +76,12 @@
                                     </Grid>
                                     <TextBlock Grid.Row="1"
                                                Text="{Binding Title}"
-                                               FontSize="18"
-                                               FontWeight="SemiBold"
-                                               Foreground="{DynamicResource PrimaryTextBrush}"
+                                               Style="{StaticResource SubtitleTextStyle}"
                                                TextWrapping="Wrap"
                                                Margin="0,0,0,8" />
                                     <TextBlock Grid.Row="2"
                                                Text="{Binding Description}"
-                                               FontSize="13"
-                                               Foreground="{DynamicResource SecondaryTextBrush}"
+                                               Style="{StaticResource CaptionTextStyle}"
                                                TextWrapping="Wrap"
                                                LineHeight="20"
                                                MaxHeight="80"
@@ -101,11 +96,12 @@
             <TextBlock Margin="0,32,0,0"
                        HorizontalAlignment="Center"
                        Foreground="{DynamicResource SecondaryTextBrush}"
-                       FontSize="14"
                        TextWrapping="Wrap"
                        TextAlignment="Center">
                 <TextBlock.Style>
                     <Style TargetType="TextBlock">
+                        <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}" />
+                        <Setter Property="FontSize" Value="{StaticResource BodyFontSize}" />
                         <Setter Property="Visibility" Value="Collapsed" />
                         <Style.Triggers>
                             <DataTrigger Binding="{Binding MenuItems.Count}" Value="0">

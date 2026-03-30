@@ -378,7 +378,7 @@
                         Height="40"
                         Background="{DynamicResource NavBackgroundBrush}"
                         CornerRadius="8"
-                        BorderBrush="{DynamicResource HoverBrush}"
+                        BorderBrush="{DynamicResource BorderSubtleBrush}"
                         BorderThickness="1">
                     <Grid>
                         <!-- Status Icon & Text -->

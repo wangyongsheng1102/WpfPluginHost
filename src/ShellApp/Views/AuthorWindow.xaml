@@ -21,7 +21,7 @@
         <!-- Title Bar -->
         <TextBlock Text="開発者情報" 
                    VerticalAlignment="Center" Margin="24,0,0,0"
-                   FontSize="16" FontWeight="SemiBold"
+                   Style="{StaticResource SubtitleTextStyle}"
                    Foreground="{DynamicResource PrimaryTextBrush}"
                    IsHitTestVisible="False" />
 
@@ -33,68 +33,69 @@
             <StackPanel>
                 <!-- Profile / Hero Section -->
                 <Border Background="{DynamicResource ContentBackgroundBrush}"
-                        BorderBrush="{DynamicResource HoverBrush}"
+                        BorderBrush="{DynamicResource BorderSubtleBrush}"
                         BorderThickness="1" CornerRadius="8"
                         Padding="24" Margin="0,0,0,24">
                     <StackPanel>
-                        <TextBlock Text="WPF Plugin Shell" FontSize="26" FontWeight="Bold" Foreground="{DynamicResource PrimaryTextBrush}" />
-                        <TextBlock Text="Version 1.2.0" FontSize="14" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,4,0,20" />
+                        <TextBlock Text="WPF Plugin Shell" Style="{StaticResource TitleTextStyle}" FontSize="26" FontWeight="Bold" />
+                        <TextBlock Text="Version 1.2.0" Style="{StaticResource BodyTextStyle}" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,4,0,20" />
                         
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="👤" FontSize="28" VerticalAlignment="Center" Margin="0,0,16,0"/>
                             <StackPanel VerticalAlignment="Center">
-                                <TextBlock Text="Antigravity AI" FontSize="18" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryTextBrush}" />
-                                <TextBlock Text="Google DeepMind Team" FontSize="14" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,2,0,0"/>
+                                <TextBlock Text="Antigravity AI" Style="{StaticResource SubtitleTextStyle}" />
+                                <TextBlock Text="Google DeepMind Team" Style="{StaticResource BodyTextStyle}" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,2,0,0"/>
                             </StackPanel>
                         </StackPanel>
                     </StackPanel>
                 </Border>
 
-                <TextBlock Text="アップデート履歴 (Release Notes)" FontSize="18" FontWeight="SemiBold" 
-                           Foreground="{DynamicResource PrimaryTextBrush}" Margin="4,0,0,16"/>
+                <TextBlock Text="アップデート履歴 (Release Notes)"
+                           Style="{StaticResource SubtitleTextStyle}"
+                           Margin="4,0,0,16"/>
 
                 <!-- Version Card 1.2.0 -->
                 <Border Background="{DynamicResource NavBackgroundBrush}"
-                        BorderBrush="{DynamicResource HoverBrush}"
+                        BorderBrush="{DynamicResource BorderSubtleBrush}"
                         BorderThickness="2" CornerRadius="8"
                         Padding="20" Margin="0,0,0,16">
                     <StackPanel>
                         <Grid Margin="0,0,0,12">
                             <TextBlock Text="v1.2.0 - プレシジョン・アップデート" FontWeight="Bold" FontSize="15" Foreground="{DynamicResource PrimaryTextBrush}" HorizontalAlignment="Left"/>
-                            <TextBlock Text="2026/03" FontSize="13" Foreground="{DynamicResource SecondaryTextBrush}" HorizontalAlignment="Right"/>
+                            <TextBlock Text="2026/03" Style="{StaticResource CaptionTextStyle}" HorizontalAlignment="Right"/>
                         </Grid>
                         <TextBlock Text="• Windows 11 Fluent Design（アクリル背景・角丸・シャドウ）を全体設計に導入&#x0a;• SampleA: ドラッグ＆ドロップ対応のバッチ処理キューシステムへ完全にアップグレード&#x0a;• SampleA: 操作性を向上させる独立ステータスバーを実装&#x0a;• SampleA: 「外部リンクの自動切断」安全機能を追加&#x0a;• ダーク／ライトモードのシームレスなホットリロードを最適化"
-                                   Foreground="{DynamicResource PrimaryTextBrush}" FontSize="13" LineHeight="22" TextWrapping="Wrap" />
+                                   Style="{StaticResource CaptionTextStyle}" Foreground="{DynamicResource PrimaryTextBrush}" LineHeight="22" TextWrapping="Wrap" />
                     </StackPanel>
                 </Border>
 
                 <!-- Version Card 1.1.0 -->
                 <Border Background="{DynamicResource NavBackgroundBrush}"
-                        BorderBrush="{DynamicResource HoverBrush}"
+                        BorderBrush="{DynamicResource BorderSubtleBrush}"
                         BorderThickness="1" CornerRadius="8"
                         Padding="20" Margin="0,0,0,16">
                     <StackPanel>
                         <Grid Margin="0,0,0,12">
                             <TextBlock Text="v1.1.0 - アーキテクチャ強化" FontWeight="Bold" FontSize="15" Foreground="{DynamicResource PrimaryTextBrush}" HorizontalAlignment="Left"/>
-                            <TextBlock Text="2026/02" FontSize="13" Foreground="{DynamicResource SecondaryTextBrush}" HorizontalAlignment="Right"/>
+                            <TextBlock Text="2026/02" Style="{StaticResource CaptionTextStyle}" HorizontalAlignment="Right"/>
                         </Grid>
                         <TextBlock Text="• プラグインのダイナミック・ホットリロード機構（再起動不要）を実装&#x0a;• 共有依存関係（Excel COM等）のアセンブリ分離と安定性向上&#x0a;• MVVMアーキテクチャの標準化とCommunityToolkitの導入"
-                                   Foreground="{DynamicResource PrimaryTextBrush}" FontSize="13" LineHeight="22" TextWrapping="Wrap" />
+                                   Style="{StaticResource CaptionTextStyle}" Foreground="{DynamicResource PrimaryTextBrush}" LineHeight="22" TextWrapping="Wrap" />
                     </StackPanel>
                 </Border>
 
                 <!-- Version Card 1.0.0 -->
                 <Border Background="{DynamicResource NavBackgroundBrush}"
-                        BorderBrush="{DynamicResource HoverBrush}"
+                        BorderBrush="{DynamicResource BorderSubtleBrush}"
                         BorderThickness="1" CornerRadius="8"
                         Padding="20">
                     <StackPanel>
                         <Grid Margin="0,0,0,12">
                             <TextBlock Text="v1.0.0 - 初期リリース" FontWeight="Bold" FontSize="15" Foreground="{DynamicResource PrimaryTextBrush}" HorizontalAlignment="Left"/>
-                            <TextBlock Text="2026/01" FontSize="13" Foreground="{DynamicResource SecondaryTextBrush}" HorizontalAlignment="Right"/>
+                            <TextBlock Text="2026/01" Style="{StaticResource CaptionTextStyle}" HorizontalAlignment="Right"/>
                         </Grid>
                         <TextBlock Text="• WPF Plugin ベースシェルの基本フレームワークを確立&#x0a;• SampleA / SampleB プラグインモジュールの基礎設計"
-                                   Foreground="{DynamicResource PrimaryTextBrush}" FontSize="13" LineHeight="22" TextWrapping="Wrap" />
+                                   Style="{StaticResource CaptionTextStyle}" Foreground="{DynamicResource PrimaryTextBrush}" LineHeight="22" TextWrapping="Wrap" />
                     </StackPanel>
                 </Border>
 
