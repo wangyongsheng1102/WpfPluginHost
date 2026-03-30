@@ -23,6 +23,7 @@ public partial class MainWindowViewModel : ObservableObject
         _pluginManager.PluginsChanged += OnPluginsChanged;
 
         ToggleMenuCommand = new RelayCommand(ToggleMenu);
+        ReloadPluginsCommand = new RelayCommand(ReloadPlugins);
         MenuItems = new ObservableCollection<PluginMenuItemViewModel>();
         IsDarkTheme = _themeService.IsDarkTheme;
 
@@ -47,6 +48,7 @@ public partial class MainWindowViewModel : ObservableObject
     public string PluginCountText => $"Plugins: {MenuItems.Count}";
 
     public IRelayCommand ToggleMenuCommand { get; }
+    public IRelayCommand ReloadPluginsCommand { get; }
 
     partial void OnSelectedMenuItemChanged(PluginMenuItemViewModel? value)
     {
@@ -94,6 +96,11 @@ public partial class MainWindowViewModel : ObservableObject
     private void ToggleMenu()
     {
         IsMenuCollapsed = !IsMenuCollapsed;
+    }
+
+    private void ReloadPlugins()
+    {
+        _pluginManager.ReloadAll();
     }
 
     private void OnPluginsChanged(object? sender, EventArgs e)
