@@ -137,11 +137,11 @@ public partial class SampleAViewModel : ObservableObject
 
         if (newCount == 0)
         {
-            _context?.ReportError("有効な新しい Excel ファイルは追加されませんでした。");
+            _context?.ReportWarning("有効な新しい Excel ファイルは追加されませんでした。");
         }
         else
         {
-            _context?.ReportSuccess($"{newCount} 個の新しいファイルをスキャンし、キューに追加しました。");
+            _context?.ReportInfo($"{newCount} 個の新しいファイルをスキャンし、キューに追加しました。");
         }
         IsProcessing = false;
     }
