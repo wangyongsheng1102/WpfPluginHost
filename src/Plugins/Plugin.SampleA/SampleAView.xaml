@@ -48,6 +48,11 @@
                 <CheckBox Content="处理完成后默认只激活第一页工作表" 
                           IsChecked="{Binding FormatActiveFirstSheet}"
                           Foreground="{DynamicResource PrimaryTextBrush}"
+                          Margin="0,0,0,12" FontSize="14" />
+
+                <CheckBox Content="自动断开所有的外部文件链接 (Break Links)" 
+                          IsChecked="{Binding BreakExternalLinks}"
+                          Foreground="{DynamicResource PrimaryTextBrush}"
                           FontSize="14" />
             </StackPanel>
         </Border>
@@ -132,41 +137,45 @@
             </Grid>
         </Border>
 
-        <!-- Bottom Status Bar -->
-        <Grid Grid.Row="2" MinHeight="44">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
+        <!-- Bottom Action Bar -->
+        <Border Grid.Row="2" Padding="20,16"
+                Background="{DynamicResource NavBackgroundBrush}"
+                BorderBrush="{DynamicResource HoverBrush}"
+                BorderThickness="1" CornerRadius="8">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
 
-            <!-- Execute Button -->
-            <Button Grid.Column="0" Content="▶ 开始处理"
-                    Width="160" Height="40"
-                    Style="{DynamicResource ActionButtonStyle}"
-                    Command="{Binding ExecuteFormatCommand}"
-                    IsEnabled="{Binding HasPendingFiles}" />
+                <!-- Left Actions: Add & Clear -->
+                <Button Grid.Column="0" Content="+ 手动添加..." 
+                        MinWidth="120" Height="36" Padding="16,0"
+                        Style="{DynamicResource ActionButtonStyle}"
+                        Command="{Binding SelectExcelFallbackCommand}" />
+                        
+                <Button Grid.Column="1" Content="🗑 清空队列"
+                        MinWidth="100" Height="36" Margin="12,0,0,0" Padding="16,0"
+                        Style="{DynamicResource ActionButtonStyle}"
+                        Command="{Binding ClearFilesCommand}"
+                        IsEnabled="{Binding HasPendingFiles}" />
 
-            <!-- Pinned Status Text -->
-            <TextBlock Grid.Column="1"
-                       Margin="16,0" VerticalAlignment="Center"
-                       Foreground="{DynamicResource PrimaryTextBrush}"
-                       FontSize="14" FontWeight="SemiBold"
-                       Text="{Binding StatusMessage}" TextWrapping="Wrap" />
+                <!-- Center: Pinned Status Text -->
+                <TextBlock Grid.Column="2"
+                           Margin="24,0" VerticalAlignment="Center" HorizontalAlignment="Right"
+                           Foreground="{DynamicResource PrimaryTextBrush}"
+                           FontSize="14" FontWeight="SemiBold"
+                           Text="{Binding StatusMessage}" TextWrapping="Wrap" />
 
-            <!-- Manual Add Button -->
-            <Button Grid.Column="2" Content="+ 手动添加..." 
-                    Width="140" Height="40" Margin="12,0,0,0"
-                    Style="{DynamicResource ActionButtonStyle}"
-                    Command="{Binding SelectExcelFallbackCommand}" />
-                    
-            <!-- Clear Button -->
-            <Button Grid.Column="3" Content="🗑 清空列表"
-                    Width="120" Height="40" Margin="12,0,0,0"
-                    Style="{DynamicResource ActionButtonStyle}"
-                    Command="{Binding ClearFilesCommand}"
-                    IsEnabled="{Binding HasPendingFiles}" />
-        </Grid>
+                <!-- Right Action: Primary Execute (Accented) -->
+                <Button Grid.Column="3" Content="🚀 开始执行格式化"
+                        MinWidth="160" Height="40" Padding="24,0"
+                        Style="{DynamicResource ActionButtonStyle}"
+                        Command="{Binding ExecuteFormatCommand}"
+                        IsEnabled="{Binding HasPendingFiles}" />
+            </Grid>
+        </Border>
     </Grid>
 </UserControl>

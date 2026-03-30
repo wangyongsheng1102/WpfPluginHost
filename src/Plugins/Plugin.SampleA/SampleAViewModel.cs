@@ -41,6 +41,9 @@ public partial class SampleAViewModel : ObservableObject
     private bool _formatActiveFirstSheet = true;
 
     [ObservableProperty]
+    private bool _breakExternalLinks = false;
+
+    [ObservableProperty]
     private bool _isProcessing = false;
 
     [ObservableProperty]
@@ -230,6 +233,21 @@ public partial class SampleAViewModel : ObservableObject
                     }
                 }
                 Marshal.ReleaseComObject(currentSheet);
+            }
+
+            if (BreakExternalLinks)
+            {
+                var links = wb.LinkSources(Excel.XlLink.xlExcelLinks) as Array;
+                if (links != null)
+                {
+                    for (int i = 1; i <= links.Length; i++)
+                    {
+                        if (links.GetValue(i) is string linkName)
+                        {
+                            try { wb.BreakLink(linkName, Excel.XlLinkType.xlLinkTypeExcelLinks); } catch { }
+                        }
+                    }
+                }
             }
 
             if (FormatActiveFirstSheet && wb.Sheets.Count > 0)
