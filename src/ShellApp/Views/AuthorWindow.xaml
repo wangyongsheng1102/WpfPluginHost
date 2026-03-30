@@ -15,6 +15,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="52" />
             <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
         <!-- Title Bar -->
@@ -24,13 +25,8 @@
                    Foreground="{DynamicResource PrimaryTextBrush}"
                    IsHitTestVisible="False" />
 
-        <!-- Close Button -->
-        <Button Style="{StaticResource ExitAppStyle}"
-                Click="CloseButton_Click"
-                WindowChrome.IsHitTestVisibleInChrome="True" />
-
         <!-- Content Area -->
-        <ScrollViewer Grid.Row="1" Margin="24,0,24,24"
+        <ScrollViewer Grid.Row="1" Margin="24,0,24,12"
                       VerticalScrollBarVisibility="Auto"
                       HorizontalScrollBarVisibility="Disabled">
             <StackPanel>
@@ -101,10 +97,18 @@
                     </StackPanel>
                 </Border>
 
-                <Button Content="閉じる" Width="140" Height="40" Margin="0,24,0,12"
-                        Style="{DynamicResource PrimaryButtonStyle}" 
-                        Click="CloseButton_Click" HorizontalAlignment="Center"/>
             </StackPanel>
         </ScrollViewer>
+
+        <!-- Close Button: keep it pinned at the bottom (not inside ScrollViewer) -->
+        <Button Grid.Row="2"
+                Content="閉じる"
+                Width="140"
+                Height="40"
+                Margin="0,0,0,18"
+                Style="{DynamicResource PrimaryButtonStyle}"
+                Click="CloseButton_Click"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Bottom"/>
     </Grid>
 </Window>
