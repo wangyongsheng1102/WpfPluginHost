@@ -8,18 +8,8 @@
     <Duration x:Key="IconSpinDuration">0:0:0.9</Duration>
     <Duration x:Key="IconSpinReturnDuration">0:0:0.12</Duration>
 
-    <!-- about icon geometries -->
-    <Geometry x:Key="AboutBulbGeometry">M12,4.2 C8.72,4.2 6.1,6.86 6.1,10.12 C6.1,12.4 7.32,14.23 9.12,15.9 C9.62,16.36 9.92,17.02 9.92,17.72 L14.08,17.72 C14.08,17.02 14.38,16.36 14.88,15.9 C16.68,14.23 17.9,12.4 17.9,10.12 C17.9,6.86 15.28,4.2 12,4.2 Z</Geometry>
-    <Geometry x:Key="AboutBaseGeometry">M9.45,18.65 L14.55,18.65 L14.55,20.2 C14.55,20.86 14.01,21.4 13.35,21.4 L10.65,21.4 C9.99,21.4 9.45,20.86 9.45,20.2 Z</Geometry>
-    <Geometry x:Key="AboutFilamentGeometry">M10.35,11.2 C10.75,11.76 11.34,12.12 12,12.12 C12.66,12.12 13.25,11.76 13.65,11.2</Geometry>
-    <Geometry x:Key="AboutRayTopGeometry">M12,1.6 L12,3.6</Geometry>
-    <Geometry x:Key="AboutRayTopRightGeometry">M19.1,4.5 L17.7,5.9</Geometry>
-    <Geometry x:Key="AboutRayRightGeometry">M22,11.2 L20,11.2</Geometry>
-    <Geometry x:Key="AboutRayBottomRightGeometry">M19.1,17.9 L17.7,16.5</Geometry>
-    <Geometry x:Key="AboutRayBottomGeometry">M12,21.6 L12,19.6</Geometry>
-    <Geometry x:Key="AboutRayBottomLeftGeometry">M4.9,17.9 L6.3,16.5</Geometry>
-    <Geometry x:Key="AboutRayLeftGeometry">M2,11.2 L4,11.2</Geometry>
-    <Geometry x:Key="AboutRayTopLeftGeometry">M4.9,4.5 L6.3,5.9</Geometry>
+    <!-- about icon（SVG path 由来、viewBox 0 0 24 24） -->
+    <Geometry x:Key="AboutIconGeometry">M19.536 9.146c-1.373 0-2.133 1.014-2.294 2.116h4.608c-.125-1.05-.867-2.115-2.314-2.115m-2.26 3.617c.235 1.156 1.193 1.97 2.532 1.97.725 0 1.77-.27 2.384-.914l1.175 1.35c-1.064 1.11-2.653 1.426-3.74 1.426-2.64 0-4.697-1.906-4.697-4.606 0-2.535 1.894-4.62 4.57-4.62 2.585 0 4.5 1.98 4.5 4.604v.766h-6.723v.023zm-6.487 3.83v-5.69c0-.976-.435-1.536-1.338-1.536-.814 0-1.355.585-1.717 1.007v6.24h-2.35v-5.7c0-.976-.415-1.532-1.318-1.532-.813 0-1.375.586-1.717 1.006v6.24H0V7.505h2.35v1.15c.4-.463 1.302-1.26 2.71-1.26 1.247 0 2.096.526 2.477 1.59.524-.761 1.5-1.59 2.91-1.59 1.7 0 2.69 1.01 2.69 2.963v6.24h-2.353l.005-.007z</Geometry>
 
     <!-- refresh icon geometries -->
     <Geometry x:Key="RefreshArcGeometry">M10,2.7 A7.3,7.3 0 1 1 4.2,4.8</Geometry>
