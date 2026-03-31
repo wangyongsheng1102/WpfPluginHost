@@ -196,9 +196,9 @@
                           HeadersVisibility="Column"
                           SelectionMode="Single"
                           SelectionUnit="FullRow"
-                          GridLinesVisibility="Horizontal"
+                          GridLinesVisibility="All"
                           HorizontalGridLinesBrush="{DynamicResource BorderSubtleBrush}"
-                          VerticalGridLinesBrush="Transparent"
+                          VerticalGridLinesBrush="{DynamicResource BorderSubtleBrush}"
                           Background="Transparent"
                           BorderThickness="0"
                           RowHeight="40"
@@ -207,6 +207,15 @@
                           Foreground="{DynamicResource PrimaryTextBrush}"
                           RowBackground="Transparent"
                           AlternatingRowBackground="{DynamicResource ContentBackgroundBrush}">
+                    <DataGrid.Resources>
+                        <!-- BasedOn で Shell の StaticResource に依存しない（プラグイン単体解析時に落ちるのを防ぐ） -->
+                        <Style x:Key="SampleADataGridTextStyle" TargetType="TextBlock">
+                            <Setter Property="FontFamily" Value="{DynamicResource AppFontFamily}" />
+                            <Setter Property="VerticalAlignment" Value="Center" />
+                            <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+                            <Setter Property="TextDecorations" Value="{x:Null}" />
+                        </Style>
+                    </DataGrid.Resources>
                     <DataGrid.Style>
                         <Style TargetType="DataGrid">
                             <Setter Property="Visibility" Value="Visible"/>
@@ -224,7 +233,8 @@
                             <Setter Property="Background" Value="{DynamicResource CardElevatedBrush}" />
                             <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
                             <Setter Property="BorderBrush" Value="{DynamicResource BorderSubtleBrush}" />
-                            <Setter Property="BorderThickness" Value="0,0,0,1" />
+                            <!-- 表頭：右・下の細線で Excel 風の区切り -->
+                            <Setter Property="BorderThickness" Value="0,0,1,1" />
                             <Setter Property="Padding" Value="12,8" />
                             <Setter Property="HorizontalContentAlignment" Value="Left" />
                         </Style>
@@ -245,9 +255,9 @@
                     </DataGrid.RowStyle>
                     <DataGrid.CellStyle>
                         <Style TargetType="DataGridCell">
-                            <Setter Property="BorderBrush" Value="{DynamicResource BorderSubtleBrush}" />
-                            <Setter Property="BorderThickness" Value="1" />
-                            <Setter Property="Padding" Value="14,8" />
+                            <!-- セル本体の枠は付けず、DataGrid の GridLines で Excel 風の罫線のみ -->
+                            <Setter Property="BorderThickness" Value="0" />
+                            <Setter Property="Padding" Value="10,6" />
                             <Setter Property="VerticalAlignment" Value="Center" />
                             <Setter Property="Background" Value="Transparent" />
                             <Setter Property="FocusVisualStyle" Value="{x:Null}" />
@@ -266,7 +276,7 @@
                                             Binding="{Binding FileName}"
                                             Width="250"
                                             IsReadOnly="True"
-                                            ElementStyle="{StaticResource SampleADataGridTextStyle}" />
+                                            ElementStyle="{DynamicResource SampleADataGridTextStyle}" />
                         <DataGridTemplateColumn Header="ステータス"
                                                 Width="120"
                                                 IsReadOnly="True">
@@ -301,7 +311,7 @@
                                             </Style>
                                         </Border.Style>
                                         <TextBlock Text="{Binding Status}"
-                                                   Style="{StaticResource SampleADataGridTextStyle}"
+                                                   Style="{DynamicResource SampleADataGridTextStyle}"
                                                    ToolTip="{Binding StatusDetail}" />
                                     </Border>
                                 </DataTemplate>
@@ -311,13 +321,8 @@
                                             Binding="{Binding FilePath}"
                                             Width="*"
                                             IsReadOnly="True"
-                                            ElementStyle="{StaticResource SampleADataGridTextStyle}" />
+                                            ElementStyle="{DynamicResource SampleADataGridTextStyle}" />
                     </DataGrid.Columns>
-                    <DataGrid.Resources>
-                        <Style x:Key="SampleADataGridTextStyle" TargetType="TextBlock" BasedOn="{StaticResource DataGridTextColumnElementStyle}">
-                            <Setter Property="TextDecorations" Value="{x:Null}" />
-                        </Style>
-                    </DataGrid.Resources>
                 </DataGrid>
             </Grid>
         </Border>
