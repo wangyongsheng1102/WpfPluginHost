@@ -189,13 +189,20 @@
 
                 <!-- DataGrid オーバーレイ -->
                 <DataGrid ItemsSource="{Binding PendingFiles}"
-                          AutoGenerateColumns="False" 
+                          AutoGenerateColumns="False"
                           CanUserAddRows="False"
+                          CanUserDeleteRows="False"
+                          CanUserResizeRows="False"
                           HeadersVisibility="Column"
-                          GridLinesVisibility="None"
+                          SelectionMode="Single"
+                          SelectionUnit="FullRow"
+                          GridLinesVisibility="Horizontal"
+                          HorizontalGridLinesBrush="{DynamicResource BorderSubtleBrush}"
+                          VerticalGridLinesBrush="Transparent"
                           Background="Transparent"
                           BorderThickness="0"
-                          RowHeight="36"
+                          RowHeight="40"
+                          ColumnHeaderHeight="40"
                           FontFamily="{DynamicResource AppFontFamily}"
                           Foreground="{DynamicResource PrimaryTextBrush}"
                           RowBackground="Transparent"
@@ -213,20 +220,42 @@
                     <DataGrid.ColumnHeaderStyle>
                         <Style TargetType="DataGridColumnHeader">
                             <Setter Property="FontFamily" Value="{DynamicResource AppFontFamily}" />
-                            <Setter Property="Background" Value="{DynamicResource ContentBackgroundBrush}" />
+                            <Setter Property="FontWeight" Value="SemiBold" />
+                            <Setter Property="Background" Value="{DynamicResource CardElevatedBrush}" />
                             <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
                             <Setter Property="BorderBrush" Value="{DynamicResource BorderSubtleBrush}" />
-                            <Setter Property="Padding" Value="10,8" />
+                            <Setter Property="BorderThickness" Value="0,0,0,1" />
+                            <Setter Property="Padding" Value="12,8" />
+                            <Setter Property="HorizontalContentAlignment" Value="Left" />
                         </Style>
                     </DataGrid.ColumnHeaderStyle>
+                    <DataGrid.RowStyle>
+                        <Style TargetType="DataGridRow">
+                            <Setter Property="BorderThickness" Value="0" />
+                            <Setter Property="SnapsToDevicePixels" Value="True" />
+                            <Style.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Background" Value="{DynamicResource ButtonHoverGradientBrush}" />
+                                </Trigger>
+                                <Trigger Property="IsSelected" Value="True">
+                                    <Setter Property="Background" Value="{DynamicResource SelectedBrush}" />
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGrid.RowStyle>
                     <DataGrid.CellStyle>
                         <Style TargetType="DataGridCell">
                             <Setter Property="BorderThickness" Value="0" />
-                            <Setter Property="Padding" Value="10,6" />
+                            <Setter Property="Padding" Value="12,6" />
                             <Setter Property="VerticalAlignment" Value="Center" />
+                            <Setter Property="Background" Value="Transparent" />
+                            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
                             <Style.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Background" Value="Transparent" />
+                                </Trigger>
                                 <Trigger Property="IsSelected" Value="True">
-                                    <Setter Property="Background" Value="{DynamicResource SelectedBrush}" />
+                                    <Setter Property="Background" Value="Transparent" />
                                 </Trigger>
                             </Style.Triggers>
                         </Style>
@@ -242,9 +271,34 @@
                                                 IsReadOnly="True">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
-                                    <TextBlock Text="{Binding Status}"
-                                               Style="{DynamicResource DataGridTextColumnElementStyle}"
-                                               ToolTip="{Binding StatusDetail}" />
+                                    <Border Padding="8,3"
+                                            CornerRadius="10"
+                                            HorizontalAlignment="Left">
+                                        <Border.Style>
+                                            <Style TargetType="Border">
+                                                <Setter Property="Background" Value="{DynamicResource NavBackgroundBrush}" />
+                                                <Setter Property="BorderBrush" Value="{DynamicResource BorderSubtleBrush}" />
+                                                <Setter Property="BorderThickness" Value="1" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Status}" Value="✅ 完了">
+                                                        <Setter Property="Background" Value="#1A2FB776" />
+                                                        <Setter Property="BorderBrush" Value="#552FB776" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Status}" Value="❌ 失敗">
+                                                        <Setter Property="Background" Value="#1AE05252" />
+                                                        <Setter Property="BorderBrush" Value="#66E05252" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Status}" Value="処理中...">
+                                                        <Setter Property="Background" Value="#1A3B82F6" />
+                                                        <Setter Property="BorderBrush" Value="#663B82F6" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
+                                        <TextBlock Text="{Binding Status}"
+                                                   Style="{DynamicResource DataGridTextColumnElementStyle}"
+                                                   ToolTip="{Binding StatusDetail}" />
+                                    </Border>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
