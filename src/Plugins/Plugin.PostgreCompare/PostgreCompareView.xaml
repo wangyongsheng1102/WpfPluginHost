@@ -1,0 +1,41 @@
+<UserControl x:Class="Plugin.PostgreCompare.PostgreCompareView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="clr-namespace:Plugin.PostgreCompare.ViewModels"
+             mc:Ignorable="d"
+             Background="{DynamicResource ContentBackgroundBrush}">
+    <Grid Margin="30"
+          Background="{DynamicResource ContentBackgroundBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- メインタブ（DB設定／比較／インポート・エクスポート） -->
+        <TabControl>
+            <TabItem Header="DB 設定">
+                <Grid Margin="0,16,0,0">
+                    <!-- ここに DB 設定レイアウトを、元 MainView.axaml の DB タブ構造に合わせて今後詳細実装 -->
+                    <TextBlock Text="DB 設定"
+                               Style="{StaticResource SubtitleTextStyle}" />
+                </Grid>
+            </TabItem>
+            <TabItem Header="比較">
+                <Grid Margin="0,16,0,0">
+                    <!-- ここに 比較レイアウトを、元 MainView.axaml の 比較タブ構造に合わせて今後詳細実装 -->
+                    <TextBlock Text="比較"
+                               Style="{StaticResource SubtitleTextStyle}" />
+                </Grid>
+            </TabItem>
+            <TabItem Header="インポート・エクスポート">
+                <Grid Margin="0,16,0,0">
+                    <!-- ここに インポート/エクスポート レイアウトを、元 MainView.axaml の該当タブ構造に合わせて今後詳細実装 -->
+                    <TextBlock Text="インポート・エクスポート"
+                               Style="{StaticResource SubtitleTextStyle}" />
+                </Grid>
+            </TabItem>
+        </TabControl>
+    </Grid>
+</UserControl>
+
