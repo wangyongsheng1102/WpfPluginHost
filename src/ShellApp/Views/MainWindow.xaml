@@ -307,30 +307,29 @@
                                   HorizontalAlignment="Center"
                                   VerticalAlignment="Center"
                                   ClipToBounds="True">
-                                <Canvas Width="20"
-                                        Height="20"
+                                <Canvas Width="24"
+                                        Height="24"
                                         HorizontalAlignment="Center"
                                         VerticalAlignment="Center">
                                     <Canvas.RenderTransform>
                                         <RotateTransform x:Name="RefreshRotate"
                                                           Angle="0"
-                                                          CenterX="10"
-                                                          CenterY="10" />
+                                                          CenterX="12"
+                                                          CenterY="12" />
                                     </Canvas.RenderTransform>
 
-                                    <Path Data="{StaticResource RefreshArcGeometry}"
+                                    <Path Data="{StaticResource RefreshArrowLeftGeometry}"
+                                          Fill="{DynamicResource PrimaryTextBrush}" />
+                                    <Path Data="{StaticResource RefreshArrowRightGeometry}"
+                                          Fill="{DynamicResource PrimaryTextBrush}" />
+                                    <Path Data="{StaticResource RefreshFrameOutlineGeometry}"
                                           Stroke="{DynamicResource PrimaryTextBrush}"
-                                          StrokeThickness="1.8"
+                                          StrokeThickness="1.5"
                                           StrokeStartLineCap="Round"
                                           StrokeEndLineCap="Round"
                                           StrokeLineJoin="Round"
-                                          Fill="Transparent" />
-                                    <Path Data="{StaticResource RefreshArrowTopGeometry}"
-                                          Stroke="{DynamicResource PrimaryTextBrush}"
-                                          StrokeThickness="1.8"
-                                          StrokeStartLineCap="Round"
-                                          StrokeEndLineCap="Round"
-                                          StrokeLineJoin="Round" />
+                                          Fill="Transparent"
+                                          Opacity="0.5" />
                                 </Canvas>
                             </Grid>
                         </Button>
