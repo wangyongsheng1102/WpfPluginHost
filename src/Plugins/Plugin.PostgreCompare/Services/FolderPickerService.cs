@@ -1,5 +1,6 @@
 using System;
-using System.Reflection;
+using System.IO;
+using Microsoft.Win32;
 
 namespace Plugin.PostgreCompare.Services;
 
@@ -9,33 +10,31 @@ public static class FolderPickerService
     {
         try
         {
-            var dialogType = Type.GetType("System.Windows.Forms.FolderBrowserDialog, System.Windows.Forms");
-            if (dialogType == null)
+            // SampleA と同様に OpenFileDialog ベースでシンプルに実装する。
+            // フォルダを直接選べないため、任意ファイルを選択してその親フォルダを採用する。
+            var dlg = new OpenFileDialog
+            {
+                Title = description,
+                CheckFileExists = false,
+                ValidateNames = false,
+                FileName = "フォルダを選択"
+            };
+
+            if (dlg.ShowDialog() != true)
             {
                 return null;
             }
 
-            var dialog = Activator.CreateInstance(dialogType);
-            if (dialog == null)
+            if (!string.IsNullOrWhiteSpace(dlg.FileName))
             {
-                return null;
+                var candidateDir = Path.GetDirectoryName(dlg.FileName);
+                if (!string.IsNullOrWhiteSpace(candidateDir) && Directory.Exists(candidateDir))
+                {
+                    return candidateDir;
+                }
             }
 
-            using var disposable = dialog as IDisposable;
-
-            dialogType.GetProperty("Description", BindingFlags.Public | BindingFlags.Instance)
-                ?.SetValue(dialog, description);
-
-            var showDialog = dialogType.GetMethod("ShowDialog", Type.EmptyTypes);
-            var result = showDialog?.Invoke(dialog, null);
-
-            if (result == null || !string.Equals(result.ToString(), "OK", StringComparison.OrdinalIgnoreCase))
-            {
-                return null;
-            }
-
-            return dialogType.GetProperty("SelectedPath", BindingFlags.Public | BindingFlags.Instance)
-                ?.GetValue(dialog) as string;
+            return null;
         }
         catch
         {

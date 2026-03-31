@@ -9,7 +9,7 @@ public sealed class PostgreComparePlugin : IPluginModule
     public string Title => "Postgre データ比較";
     public string Description => "PostgreSQL の DB設定・CSV比較・インポート/エクスポートを行います。";
     public string IconKey => "🗄️";
-    public int Order => 20;
+    public int Order => 30;
 
     private IPluginContext? _context;
 

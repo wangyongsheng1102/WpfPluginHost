@@ -325,19 +325,10 @@
                                           IsChecked="{Binding CompareViewModel.AccessLogChecked}"
                                           VerticalAlignment="Center"
                                           Margin="0,0,16,0" />
-                                <Button Content="すべて選択"
-                                        Style="{StaticResource ActionButtonStyle}"
-                                        Padding="12,4"
-                                        Margin="0,0,8,0"
-                                        Command="{Binding CompareViewModel.SelectAllCsvFilesCommand}" />
-                                <Button Content="すべて解除"
-                                        Style="{StaticResource ActionButtonStyle}"
-                                        Padding="12,4"
-                                        Command="{Binding CompareViewModel.DeselectAllCsvFilesCommand}" />
                                 <Button Content="比較実行"
                                         Style="{StaticResource PrimaryButtonStyle}"
                                         Padding="16,4"
-                                        Margin="16,0,0,0"
+                                        Margin="8,0,0,0"
                                         Command="{Binding CompareViewModel.CompareCsvFilesCommand}" />
                             </StackPanel>
                         </StackPanel>
@@ -352,67 +343,25 @@
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto" />
-                                <RowDefinition Height="*" />
+                                <RowDefinition Height="Auto" />
                             </Grid.RowDefinitions>
 
                             <TextBlock Grid.Row="0"
-                                       Text="{Binding CompareViewModel.SelectedCsvFileCount, StringFormat='検出された CSV: {0} 件'}"
+                                       Text="エクスポート設定"
                                        Style="{StaticResource BodyTextStyle}"
+                                       Margin="0,0,0,10" />
+
+                            <TextBlock Grid.Row="1"
+                                       Text="{Binding CompareViewModel.SelectedCsvFileCount, StringFormat='検出された共通 CSV: {0} 件'}"
+                                       Style="{StaticResource CaptionTextStyle}"
                                        Margin="0,0,0,8" />
 
-                            <DataGrid Grid.Row="1"
-                                      ItemsSource="{Binding CompareViewModel.CsvFileInfos}"
-                                      AutoGenerateColumns="False"
-                                      CanUserAddRows="False"
-                                      CanUserDeleteRows="False"
-                                      CanUserResizeRows="False"
-                                      HeadersVisibility="Column"
-                                      SelectionMode="Single"
-                                      SelectionUnit="FullRow"
-                                      GridLinesVisibility="All"
-                                      HorizontalGridLinesBrush="{DynamicResource BorderSubtleBrush}"
-                                      VerticalGridLinesBrush="{DynamicResource BorderSubtleBrush}"
-                                      Background="Transparent"
-                                      BorderThickness="0"
-                                      RowHeight="40"
-                                      ColumnHeaderHeight="40"
-                                      FontFamily="{DynamicResource AppFontFamily}"
-                                      Foreground="{DynamicResource PrimaryTextBrush}"
-                                      RowBackground="Transparent"
-                                      AlternatingRowBackground="{DynamicResource ContentBackgroundBrush}"
-                                      UseLayoutRounding="True">
-                                <DataGrid.ColumnHeaderStyle>
-                                    <Style TargetType="DataGridColumnHeader">
-                                        <Setter Property="FontFamily" Value="{DynamicResource AppFontFamily}" />
-                                        <Setter Property="FontWeight" Value="Bold" />
-                                        <Setter Property="Background" Value="{DynamicResource CardElevatedBrush}" />
-                                        <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
-                                        <Setter Property="BorderBrush" Value="{DynamicResource BorderSubtleBrush}" />
-                                        <Setter Property="BorderThickness" Value="0,0,1,1" />
-                                        <Setter Property="Padding" Value="12,8" />
-                                        <Setter Property="HorizontalContentAlignment" Value="Left" />
-                                    </Style>
-                                </DataGrid.ColumnHeaderStyle>
-                                <DataGrid.RowStyle>
-                                    <Style TargetType="DataGridRow">
-                                        <Setter Property="BorderThickness" Value="0" />
-                                        <Style.Triggers>
-                                            <Trigger Property="IsMouseOver" Value="True">
-                                                <Setter Property="Background" Value="{DynamicResource ButtonHoverGradientBrush}" />
-                                            </Trigger>
-                                            <Trigger Property="IsSelected" Value="True">
-                                                <Setter Property="Background" Value="{DynamicResource SelectedBrush}" />
-                                            </Trigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </DataGrid.RowStyle>
-                                <DataGrid.Columns>
-                                    <DataGridCheckBoxColumn Header="選択"
-                                                            Binding="{Binding IsSelected}" />
-                                    <DataGridTextColumn Header="ファイル名"
-                                                        Binding="{Binding FileName}" />
-                                </DataGrid.Columns>
-                            </DataGrid>
+                            <ProgressBar Grid.Row="2"
+                                         Height="12"
+                                         Margin="0,4,0,0"
+                                         Minimum="0"
+                                         Maximum="100"
+                                         Value="{Binding CompareViewModel.ProgressValue}" />
                         </Grid>
                     </Border>
                 </Grid>
