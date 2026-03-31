@@ -267,7 +267,7 @@
                             BorderBrush="Transparent"
                             BorderThickness="1"
                             CornerRadius="{StaticResource SmallRadius}"
-                            Padding="7"
+                            Padding="5"
                             Margin="0"
                             Opacity="1">
                         <Viewbox Width="26"
@@ -598,9 +598,9 @@
                             <Trigger.EnterActions>
                                 <BeginStoryboard>
                                     <Storyboard>
+                                        <!-- 現在角度から 360° へ（From 省略で途中離脱後も連続しやすい） -->
                                         <DoubleAnimation Storyboard.TargetName="ThemeIconRotate"
                                                          Storyboard.TargetProperty="Angle"
-                                                         From="0"
                                                          To="360"
                                                          Duration="0:0:0.42">
                                             <DoubleAnimation.EasingFunction>
@@ -629,6 +629,15 @@
                             <Trigger.ExitActions>
                                 <BeginStoryboard>
                                     <Storyboard>
+                                        <!-- 現在の角度から 0 へ戻す＝進入時と逆向きの回転 -->
+                                        <DoubleAnimation Storyboard.TargetName="ThemeIconRotate"
+                                                         Storyboard.TargetProperty="Angle"
+                                                         To="0"
+                                                         Duration="0:0:0.42">
+                                            <DoubleAnimation.EasingFunction>
+                                                <CubicEase EasingMode="EaseInOut" />
+                                            </DoubleAnimation.EasingFunction>
+                                        </DoubleAnimation>
                                         <DoubleAnimation Storyboard.TargetName="ThemeIconScale"
                                                          Storyboard.TargetProperty="ScaleX"
                                                          To="1"
