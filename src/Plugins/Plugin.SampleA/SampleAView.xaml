@@ -213,7 +213,22 @@
                             <Setter Property="FontFamily" Value="{DynamicResource AppFontFamily}" />
                             <Setter Property="VerticalAlignment" Value="Center" />
                             <Setter Property="TextTrimming" Value="CharacterEllipsis" />
-                            <Setter Property="TextDecorations" Value="{x:Null}" />
+                            <!-- {x:Null} は「未設定」扱いになり装飾が残ることがあるため明示的に空集合 -->
+                            <Setter Property="TextDecorations">
+                                <Setter.Value>
+                                    <TextDecorationCollection />
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                        <Style x:Key="SampleADataGridEditingStyle" TargetType="TextBox">
+                            <Setter Property="BorderThickness" Value="0" />
+                            <Setter Property="Background" Value="Transparent" />
+                            <Setter Property="Padding" Value="0" />
+                            <Setter Property="TextDecorations">
+                                <Setter.Value>
+                                    <TextDecorationCollection />
+                                </Setter.Value>
+                            </Setter>
                         </Style>
                     </DataGrid.Resources>
                     <DataGrid.Style>
@@ -257,7 +272,8 @@
                         <Style TargetType="DataGridCell">
                             <!-- セル本体の枠は付けず、DataGrid の GridLines で Excel 風の罫線のみ -->
                             <Setter Property="BorderThickness" Value="0" />
-                            <Setter Property="Padding" Value="10,6" />
+                            <!-- 行罫線と文字の距離を空け、罫線が下線に見えないようにする -->
+                            <Setter Property="Padding" Value="12,8" />
                             <Setter Property="VerticalAlignment" Value="Center" />
                             <Setter Property="Background" Value="Transparent" />
                             <Setter Property="FocusVisualStyle" Value="{x:Null}" />
@@ -276,7 +292,8 @@
                                             Binding="{Binding FileName}"
                                             Width="250"
                                             IsReadOnly="True"
-                                            ElementStyle="{DynamicResource SampleADataGridTextStyle}" />
+                                            ElementStyle="{DynamicResource SampleADataGridTextStyle}"
+                                            EditingElementStyle="{DynamicResource SampleADataGridEditingStyle}" />
                         <DataGridTemplateColumn Header="ステータス"
                                                 Width="120"
                                                 IsReadOnly="True">
@@ -321,7 +338,8 @@
                                             Binding="{Binding FilePath}"
                                             Width="*"
                                             IsReadOnly="True"
-                                            ElementStyle="{DynamicResource SampleADataGridTextStyle}" />
+                                            ElementStyle="{DynamicResource SampleADataGridTextStyle}"
+                                            EditingElementStyle="{DynamicResource SampleADataGridEditingStyle}" />
                     </DataGrid.Columns>
                 </DataGrid>
             </Grid>
