@@ -48,6 +48,10 @@ public partial class SampleAViewModel : ObservableObject
     [ObservableProperty]
     private bool _isProcessing = false;
 
+    /// <summary>ドラッグがドロップ領域上にあるとき true（視覚フィードバック用）</summary>
+    [ObservableProperty]
+    private bool _isDragOverDropZone;
+
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(HasPendingFiles))]
     private ObservableCollection<ExcelFileItem> _pendingFiles = new();

@@ -1,3 +1,4 @@
+using System.Windows;
 using System.Windows.Controls;
 
 namespace Plugin.SampleA;
@@ -10,32 +11,39 @@ public partial class SampleAView : UserControl
         DataContext = new SampleAViewModel(context);
     }
 
-    private void OnDragEnter(object sender, System.Windows.DragEventArgs e)
+    private void OnDropZonePreviewDragOver(object sender, DragEventArgs e)
     {
-        if (e.Data.GetDataPresent(System.Windows.DataFormats.FileDrop))
-            e.Effects = System.Windows.DragDropEffects.Copy;
-        else
-            e.Effects = System.Windows.DragDropEffects.None;
-        e.Handled = true;
-    }
-
-    private void OnDragOver(object sender, System.Windows.DragEventArgs e)
-    {
-        OnDragEnter(sender, e);
-    }
-
-    private void OnDrop(object sender, System.Windows.DragEventArgs e)
-    {
-        if (e.Data.GetDataPresent(System.Windows.DataFormats.FileDrop))
+        if (DataContext is not SampleAViewModel vm)
+            return;
+        if (e.Data.GetDataPresent(DataFormats.FileDrop))
         {
-            var paths = (string[])e.Data.GetData(System.Windows.DataFormats.FileDrop);
-            if (paths != null && paths.Length > 0)
-            {
-                if (DataContext is SampleAViewModel vm)
-                {
-                    _ = vm.HandleDroppedPathsAsync(paths);
-                }
-            }
+            e.Effects = DragDropEffects.Copy;
+            vm.IsDragOverDropZone = true;
         }
+        else
+        {
+            e.Effects = DragDropEffects.None;
+            vm.IsDragOverDropZone = false;
+        }
+    }
+
+    private void OnDropZonePreviewDragLeave(object sender, DragEventArgs e)
+    {
+        if (DataContext is SampleAViewModel vm)
+            vm.IsDragOverDropZone = false;
+    }
+
+    private void OnDropZonePreviewDrop(object sender, DragEventArgs e)
+    {
+        if (DataContext is not SampleAViewModel vm)
+            return;
+        vm.IsDragOverDropZone = false;
+        if (!e.Data.GetDataPresent(DataFormats.FileDrop))
+            return;
+        var paths = (string[])e.Data.GetData(DataFormats.FileDrop);
+        if (paths == null || paths.Length == 0)
+            return;
+        _ = vm.HandleDroppedPathsAsync(paths);
+        e.Handled = true;
     }
 }
