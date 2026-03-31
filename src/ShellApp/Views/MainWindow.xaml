@@ -307,6 +307,20 @@
                                   HorizontalAlignment="Center"
                                   VerticalAlignment="Center"
                                   ClipToBounds="True">
+                                <!-- 外枠は固定、双矢印のみ回転 -->
+                                <Canvas Width="24"
+                                        Height="24"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center">
+                                    <Path Data="{StaticResource RefreshFrameOutlineGeometry}"
+                                          Stroke="{DynamicResource PrimaryTextBrush}"
+                                          StrokeThickness="1.5"
+                                          StrokeStartLineCap="Round"
+                                          StrokeEndLineCap="Round"
+                                          StrokeLineJoin="Round"
+                                          Fill="Transparent"
+                                          Opacity="0.5" />
+                                </Canvas>
                                 <Canvas Width="24"
                                         Height="24"
                                         HorizontalAlignment="Center"
@@ -317,19 +331,10 @@
                                                           CenterX="12"
                                                           CenterY="12" />
                                     </Canvas.RenderTransform>
-
                                     <Path Data="{StaticResource RefreshArrowLeftGeometry}"
                                           Fill="{DynamicResource PrimaryTextBrush}" />
                                     <Path Data="{StaticResource RefreshArrowRightGeometry}"
                                           Fill="{DynamicResource PrimaryTextBrush}" />
-                                    <Path Data="{StaticResource RefreshFrameOutlineGeometry}"
-                                          Stroke="{DynamicResource PrimaryTextBrush}"
-                                          StrokeThickness="1.5"
-                                          StrokeStartLineCap="Round"
-                                          StrokeEndLineCap="Round"
-                                          StrokeLineJoin="Round"
-                                          Fill="Transparent"
-                                          Opacity="0.5" />
                                 </Canvas>
                             </Grid>
                         </Button>
