@@ -12,7 +12,49 @@
         </Grid.RowDefinitions>
 
         <!-- メインタブ（DB設定／比較／インポート・エクスポート） -->
-        <TabControl>
+        <TabControl Background="Transparent"
+                    BorderThickness="0">
+            <TabControl.Resources>
+                <!-- タブヘッダーをシェルテーマに合わせる -->
+                <Style TargetType="TabItem">
+                    <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}" />
+                    <Setter Property="FontSize" Value="{StaticResource BodyFontSize}" />
+                    <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+                    <Setter Property="Padding" Value="16,6" />
+                    <Setter Property="Margin" Value="0,0,6,0" />
+                    <Setter Property="Background" Value="{DynamicResource NavBackgroundBrush}" />
+                    <Setter Property="BorderBrush" Value="{DynamicResource BorderSubtleBrush}" />
+                    <Setter Property="BorderThickness" Value="0,0,0,2" />
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="TabItem">
+                                <Border x:Name="TabBorder"
+                                        Background="{TemplateBinding Background}"
+                                        BorderBrush="{TemplateBinding BorderBrush}"
+                                        BorderThickness="{TemplateBinding BorderThickness}"
+                                        CornerRadius="6,6,0,0"
+                                        Padding="{TemplateBinding Padding}">
+                                    <ContentPresenter HorizontalAlignment="Center"
+                                                      VerticalAlignment="Center" />
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsSelected" Value="True">
+                                        <Setter TargetName="TabBorder" Property="Background" Value="{DynamicResource CardElevatedBrush}" />
+                                        <Setter TargetName="TabBorder" Property="BorderBrush" Value="{DynamicResource IndicatorBrush}" />
+                                        <Setter TargetName="TabBorder" Property="BorderThickness" Value="0,0,0,3" />
+                                    </Trigger>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="TabBorder" Property="Background" Value="{DynamicResource ButtonHoverGradientBrush}" />
+                                    </Trigger>
+                                    <Trigger Property="IsEnabled" Value="False">
+                                        <Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}" />
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </TabControl.Resources>
             <!-- DB 設定タブ -->
             <TabItem Header="📋 DB設定">
                 <Grid Margin="0,16,0,0">
