@@ -206,24 +206,18 @@
                           FontFamily="{DynamicResource AppFontFamily}"
                           Foreground="{DynamicResource PrimaryTextBrush}"
                           RowBackground="Transparent"
-                          AlternatingRowBackground="{DynamicResource ContentBackgroundBrush}">
+                          AlternatingRowBackground="{DynamicResource ContentBackgroundBrush}"
+                          UseLayoutRounding="True">
                     <DataGrid.Resources>
-                        <!-- BasedOn で Shell の StaticResource に依存しない（プラグイン単体解析時に落ちるのを防ぐ） -->
-                        <Style x:Key="SampleADataGridTextStyle" TargetType="TextBlock">
+                        <!-- DataGridTextColumn の生成要素はテーマによって下線っぽく見えることがあるため、
+                             テンプレート列では TextBlock に直接 TextDecorations を付与する -->
+                        <Style x:Key="SampleADataGridCellTextStyle" TargetType="TextBlock" BasedOn="{x:Null}">
                             <Setter Property="FontFamily" Value="{DynamicResource AppFontFamily}" />
+                            <Setter Property="FontSize" Value="{StaticResource BodyFontSize}" />
+                            <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
                             <Setter Property="VerticalAlignment" Value="Center" />
                             <Setter Property="TextTrimming" Value="CharacterEllipsis" />
-                            <!-- {x:Null} は「未設定」扱いになり装飾が残ることがあるため明示的に空集合 -->
-                            <Setter Property="TextDecorations">
-                                <Setter.Value>
-                                    <TextDecorationCollection />
-                                </Setter.Value>
-                            </Setter>
-                        </Style>
-                        <Style x:Key="SampleADataGridEditingStyle" TargetType="TextBox">
-                            <Setter Property="BorderThickness" Value="0" />
-                            <Setter Property="Background" Value="Transparent" />
-                            <Setter Property="Padding" Value="0" />
+                            <Setter Property="TextWrapping" Value="NoWrap" />
                             <Setter Property="TextDecorations">
                                 <Setter.Value>
                                     <TextDecorationCollection />
@@ -288,12 +282,16 @@
                         </Style>
                     </DataGrid.CellStyle>
                     <DataGrid.Columns>
-                        <DataGridTextColumn Header="ファイル名"
-                                            Binding="{Binding FileName}"
-                                            Width="250"
-                                            IsReadOnly="True"
-                                            ElementStyle="{DynamicResource SampleADataGridTextStyle}"
-                                            EditingElementStyle="{DynamicResource SampleADataGridEditingStyle}" />
+                        <DataGridTemplateColumn Header="ファイル名"
+                                                Width="250"
+                                                IsReadOnly="True">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Style="{DynamicResource SampleADataGridCellTextStyle}"
+                                               Text="{Binding FileName}" />
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
                         <DataGridTemplateColumn Header="ステータス"
                                                 Width="120"
                                                 IsReadOnly="True">
@@ -328,18 +326,22 @@
                                             </Style>
                                         </Border.Style>
                                         <TextBlock Text="{Binding Status}"
-                                                   Style="{DynamicResource SampleADataGridTextStyle}"
+                                                   Style="{DynamicResource SampleADataGridCellTextStyle}"
                                                    ToolTip="{Binding StatusDetail}" />
                                     </Border>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
-                        <DataGridTextColumn Header="パス"
-                                            Binding="{Binding FilePath}"
-                                            Width="*"
-                                            IsReadOnly="True"
-                                            ElementStyle="{DynamicResource SampleADataGridTextStyle}"
-                                            EditingElementStyle="{DynamicResource SampleADataGridEditingStyle}" />
+                        <DataGridTemplateColumn Header="パス"
+                                                Width="*"
+                                                IsReadOnly="True">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Style="{DynamicResource SampleADataGridCellTextStyle}"
+                                               Text="{Binding FilePath}" />
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
                     </DataGrid.Columns>
                 </DataGrid>
             </Grid>
