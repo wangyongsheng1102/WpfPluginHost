@@ -209,8 +209,6 @@
                                                         Binding="{Binding User, UpdateSourceTrigger=PropertyChanged}" />
                                     <DataGridTextColumn Header="パスワード" Width="*"
                                                         Binding="{Binding Password, UpdateSourceTrigger=PropertyChanged}" />
-                                    <DataGridTextColumn Header="WSL" Width="*"
-                                                        Binding="{Binding WslDistro, UpdateSourceTrigger=PropertyChanged}" />
                                 </DataGrid.Columns>
                             </DataGrid>
                         </Grid>
@@ -244,6 +242,7 @@
                                     <RowDefinition Height="Auto" />
                                     <RowDefinition Height="Auto" />
                                     <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
                                 </Grid.RowDefinitions>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto" />
@@ -252,55 +251,72 @@
                                 </Grid.ColumnDefinitions>
 
                                 <TextBlock Grid.Row="0" Grid.Column="0"
+                                           Text="接続"
+                                           Margin="0,0,8,4"
+                                           VerticalAlignment="Center"
+                                           Style="{StaticResource BodyTextStyle}" />
+                                <ComboBox Grid.Row="0" Grid.Column="1"
+                                          ItemsSource="{Binding Connections}"
+                                          SelectedItem="{Binding CompareViewModel.SelectedConnection, Mode=TwoWay}"
+                                          DisplayMemberPath="ConfigurationName"
+                                          Margin="0,0,8,4" />
+
+                                <TextBlock Grid.Row="1" Grid.Column="0"
                                            Text="基準フォルダ"
                                            Margin="0,0,8,4"
                                            VerticalAlignment="Center"
                                            Style="{StaticResource BodyTextStyle}" />
-                                <TextBox Grid.Row="0" Grid.Column="1"
-                                         Text="{Binding CompareViewModel.BaseFolderPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                         Margin="0,0,8,4" />
-                                <Button Grid.Row="0" Grid.Column="2"
-                                        Content="参照..."
-                                        Style="{StaticResource ActionButtonStyle}"
-                                        Padding="12,4"
-                                        Command="{Binding CompareViewModel.SelectBaseFolderCommand}" />
-
-                                <TextBlock Grid.Row="1" Grid.Column="0"
-                                           Text="旧フォルダ"
-                                           Margin="0,0,8,4"
-                                           VerticalAlignment="Center"
-                                           Style="{StaticResource BodyTextStyle}" />
                                 <TextBox Grid.Row="1" Grid.Column="1"
-                                         Text="{Binding CompareViewModel.OldFolderPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                         Text="{Binding CompareViewModel.BaseFolderPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                          Margin="0,0,8,4" />
                                 <Button Grid.Row="1" Grid.Column="2"
                                         Content="参照..."
                                         Style="{StaticResource ActionButtonStyle}"
                                         Padding="12,4"
-                                        Command="{Binding CompareViewModel.SelectOldFolderCommand}" />
+                                        Command="{Binding CompareViewModel.SelectBaseFolderCommand}" />
 
                                 <TextBlock Grid.Row="2" Grid.Column="0"
-                                           Text="新フォルダ"
+                                           Text="旧フォルダ"
                                            Margin="0,0,8,4"
                                            VerticalAlignment="Center"
                                            Style="{StaticResource BodyTextStyle}" />
                                 <TextBox Grid.Row="2" Grid.Column="1"
-                                         Text="{Binding CompareViewModel.NewFolderPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                         Text="{Binding CompareViewModel.OldFolderPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                          Margin="0,0,8,4" />
                                 <Button Grid.Row="2" Grid.Column="2"
                                         Content="参照..."
                                         Style="{StaticResource ActionButtonStyle}"
                                         Padding="12,4"
-                                        Command="{Binding CompareViewModel.SelectNewFolderCommand}" />
+                                        Command="{Binding CompareViewModel.SelectOldFolderCommand}" />
 
                                 <TextBlock Grid.Row="3" Grid.Column="0"
+                                           Text="新フォルダ"
+                                           Margin="0,0,8,4"
+                                           VerticalAlignment="Center"
+                                           Style="{StaticResource BodyTextStyle}" />
+                                <TextBox Grid.Row="3" Grid.Column="1"
+                                         Text="{Binding CompareViewModel.NewFolderPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                         Margin="0,0,8,4" />
+                                <Button Grid.Row="3" Grid.Column="2"
+                                        Content="参照..."
+                                        Style="{StaticResource ActionButtonStyle}"
+                                        Padding="12,4"
+                                        Command="{Binding CompareViewModel.SelectNewFolderCommand}" />
+
+                                <TextBlock Grid.Row="4" Grid.Column="0"
                                            Text="Excel 出力先"
                                            Margin="0,4,8,0"
                                            VerticalAlignment="Center"
                                            Style="{StaticResource BodyTextStyle}" />
-                                <TextBox Grid.Row="3" Grid.Column="1"
+                                <TextBox Grid.Row="4" Grid.Column="1"
                                          Text="{Binding CompareViewModel.ExportFilePath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                          Margin="0,4,8,0" />
+                                <Button Grid.Row="4" Grid.Column="2"
+                                        Content="保存先..."
+                                        Style="{StaticResource ActionButtonStyle}"
+                                        Padding="12,4"
+                                        Margin="0,4,0,0"
+                                        Command="{Binding CompareViewModel.SelectExportFileCommand}" />
                             </Grid>
 
                             <StackPanel Orientation="Horizontal"
@@ -349,7 +365,47 @@
                                       AutoGenerateColumns="False"
                                       CanUserAddRows="False"
                                       CanUserDeleteRows="False"
-                                      HeadersVisibility="Column">
+                                      CanUserResizeRows="False"
+                                      HeadersVisibility="Column"
+                                      SelectionMode="Single"
+                                      SelectionUnit="FullRow"
+                                      GridLinesVisibility="All"
+                                      HorizontalGridLinesBrush="{DynamicResource BorderSubtleBrush}"
+                                      VerticalGridLinesBrush="{DynamicResource BorderSubtleBrush}"
+                                      Background="Transparent"
+                                      BorderThickness="0"
+                                      RowHeight="40"
+                                      ColumnHeaderHeight="40"
+                                      FontFamily="{DynamicResource AppFontFamily}"
+                                      Foreground="{DynamicResource PrimaryTextBrush}"
+                                      RowBackground="Transparent"
+                                      AlternatingRowBackground="{DynamicResource ContentBackgroundBrush}"
+                                      UseLayoutRounding="True">
+                                <DataGrid.ColumnHeaderStyle>
+                                    <Style TargetType="DataGridColumnHeader">
+                                        <Setter Property="FontFamily" Value="{DynamicResource AppFontFamily}" />
+                                        <Setter Property="FontWeight" Value="Bold" />
+                                        <Setter Property="Background" Value="{DynamicResource CardElevatedBrush}" />
+                                        <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+                                        <Setter Property="BorderBrush" Value="{DynamicResource BorderSubtleBrush}" />
+                                        <Setter Property="BorderThickness" Value="0,0,1,1" />
+                                        <Setter Property="Padding" Value="12,8" />
+                                        <Setter Property="HorizontalContentAlignment" Value="Left" />
+                                    </Style>
+                                </DataGrid.ColumnHeaderStyle>
+                                <DataGrid.RowStyle>
+                                    <Style TargetType="DataGridRow">
+                                        <Setter Property="BorderThickness" Value="0" />
+                                        <Style.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter Property="Background" Value="{DynamicResource ButtonHoverGradientBrush}" />
+                                            </Trigger>
+                                            <Trigger Property="IsSelected" Value="True">
+                                                <Setter Property="Background" Value="{DynamicResource SelectedBrush}" />
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </DataGrid.RowStyle>
                                 <DataGrid.Columns>
                                     <DataGridCheckBoxColumn Header="選択"
                                                             Binding="{Binding IsSelected}" />
@@ -486,7 +542,34 @@
                                       AutoGenerateColumns="False"
                                       CanUserAddRows="False"
                                       CanUserDeleteRows="False"
-                                      HeadersVisibility="Column">
+                                      CanUserResizeRows="False"
+                                      HeadersVisibility="Column"
+                                      SelectionMode="Single"
+                                      SelectionUnit="FullRow"
+                                      GridLinesVisibility="All"
+                                      HorizontalGridLinesBrush="{DynamicResource BorderSubtleBrush}"
+                                      VerticalGridLinesBrush="{DynamicResource BorderSubtleBrush}"
+                                      Background="Transparent"
+                                      BorderThickness="0"
+                                      RowHeight="40"
+                                      ColumnHeaderHeight="40"
+                                      FontFamily="{DynamicResource AppFontFamily}"
+                                      Foreground="{DynamicResource PrimaryTextBrush}"
+                                      RowBackground="Transparent"
+                                      AlternatingRowBackground="{DynamicResource ContentBackgroundBrush}"
+                                      UseLayoutRounding="True">
+                                <DataGrid.ColumnHeaderStyle>
+                                    <Style TargetType="DataGridColumnHeader">
+                                        <Setter Property="FontFamily" Value="{DynamicResource AppFontFamily}" />
+                                        <Setter Property="FontWeight" Value="Bold" />
+                                        <Setter Property="Background" Value="{DynamicResource CardElevatedBrush}" />
+                                        <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+                                        <Setter Property="BorderBrush" Value="{DynamicResource BorderSubtleBrush}" />
+                                        <Setter Property="BorderThickness" Value="0,0,1,1" />
+                                        <Setter Property="Padding" Value="12,8" />
+                                        <Setter Property="HorizontalContentAlignment" Value="Left" />
+                                    </Style>
+                                </DataGrid.ColumnHeaderStyle>
                                 <DataGrid.Columns>
                                     <DataGridCheckBoxColumn Header="選択"
                                                             Binding="{Binding IsSelected}" />
