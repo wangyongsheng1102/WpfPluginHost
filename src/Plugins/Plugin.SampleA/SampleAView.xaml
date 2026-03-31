@@ -220,7 +220,7 @@
                     <DataGrid.ColumnHeaderStyle>
                         <Style TargetType="DataGridColumnHeader">
                             <Setter Property="FontFamily" Value="{DynamicResource AppFontFamily}" />
-                            <Setter Property="FontWeight" Value="SemiBold" />
+                            <Setter Property="FontWeight" Value="Bold" />
                             <Setter Property="Background" Value="{DynamicResource CardElevatedBrush}" />
                             <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
                             <Setter Property="BorderBrush" Value="{DynamicResource BorderSubtleBrush}" />
@@ -245,8 +245,9 @@
                     </DataGrid.RowStyle>
                     <DataGrid.CellStyle>
                         <Style TargetType="DataGridCell">
-                            <Setter Property="BorderThickness" Value="0" />
-                            <Setter Property="Padding" Value="12,6" />
+                            <Setter Property="BorderBrush" Value="{DynamicResource BorderSubtleBrush}" />
+                            <Setter Property="BorderThickness" Value="1" />
+                            <Setter Property="Padding" Value="14,8" />
                             <Setter Property="VerticalAlignment" Value="Center" />
                             <Setter Property="Background" Value="Transparent" />
                             <Setter Property="FocusVisualStyle" Value="{x:Null}" />
@@ -265,7 +266,7 @@
                                             Binding="{Binding FileName}"
                                             Width="250"
                                             IsReadOnly="True"
-                                            ElementStyle="{DynamicResource DataGridTextColumnElementStyle}" />
+                                            ElementStyle="{StaticResource SampleADataGridTextStyle}" />
                         <DataGridTemplateColumn Header="ステータス"
                                                 Width="120"
                                                 IsReadOnly="True">
@@ -276,27 +277,31 @@
                                             HorizontalAlignment="Left">
                                         <Border.Style>
                                             <Style TargetType="Border">
-                                                <Setter Property="Background" Value="{DynamicResource NavBackgroundBrush}" />
-                                                <Setter Property="BorderBrush" Value="{DynamicResource BorderSubtleBrush}" />
+                                                <Setter Property="Background" Value="#143B82F6" />
+                                                <Setter Property="BorderBrush" Value="#663B82F6" />
                                                 <Setter Property="BorderThickness" Value="1" />
                                                 <Style.Triggers>
                                                     <DataTrigger Binding="{Binding Status}" Value="✅ 完了">
-                                                        <Setter Property="Background" Value="#1A2FB776" />
-                                                        <Setter Property="BorderBrush" Value="#552FB776" />
+                                                        <Setter Property="Background" Value="#1634D399" />
+                                                        <Setter Property="BorderBrush" Value="#6645D5A4" />
                                                     </DataTrigger>
                                                     <DataTrigger Binding="{Binding Status}" Value="❌ 失敗">
-                                                        <Setter Property="Background" Value="#1AE05252" />
-                                                        <Setter Property="BorderBrush" Value="#66E05252" />
+                                                        <Setter Property="Background" Value="#1AF87171" />
+                                                        <Setter Property="BorderBrush" Value="#66F87171" />
                                                     </DataTrigger>
                                                     <DataTrigger Binding="{Binding Status}" Value="処理中...">
-                                                        <Setter Property="Background" Value="#1A3B82F6" />
-                                                        <Setter Property="BorderBrush" Value="#663B82F6" />
+                                                        <Setter Property="Background" Value="#14F59E0B" />
+                                                        <Setter Property="BorderBrush" Value="#66F59E0B" />
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding Status}" Value="待機中">
+                                                        <Setter Property="Background" Value="#144B5563" />
+                                                        <Setter Property="BorderBrush" Value="#665B6471" />
                                                     </DataTrigger>
                                                 </Style.Triggers>
                                             </Style>
                                         </Border.Style>
                                         <TextBlock Text="{Binding Status}"
-                                                   Style="{DynamicResource DataGridTextColumnElementStyle}"
+                                                   Style="{StaticResource SampleADataGridTextStyle}"
                                                    ToolTip="{Binding StatusDetail}" />
                                     </Border>
                                 </DataTemplate>
@@ -306,8 +311,13 @@
                                             Binding="{Binding FilePath}"
                                             Width="*"
                                             IsReadOnly="True"
-                                            ElementStyle="{DynamicResource DataGridTextColumnElementStyle}" />
+                                            ElementStyle="{StaticResource SampleADataGridTextStyle}" />
                     </DataGrid.Columns>
+                    <DataGrid.Resources>
+                        <Style x:Key="SampleADataGridTextStyle" TargetType="TextBlock" BasedOn="{StaticResource DataGridTextColumnElementStyle}">
+                            <Setter Property="TextDecorations" Value="{x:Null}" />
+                        </Style>
+                    </DataGrid.Resources>
                 </DataGrid>
             </Grid>
         </Border>
