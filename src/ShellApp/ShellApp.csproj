@@ -11,6 +11,7 @@
   <ItemGroup>
     <!-- プラグインと同バージョン。PluginHostSharedAssemblies と一致し、実行時はホスト出力ディレクトリから解決 -->
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+    <PackageReference Include="SharpVectors.Wpf" Version="1.8.5" />
   </ItemGroup>
 
   <ItemGroup>
@@ -25,6 +26,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Resource Include="Assets\Fonts\**\*.ttf" />
+    <Resource Include="Assets\SVG\**\*.svg" />
   </ItemGroup>
 
   <!-- リポジトリ直下の plugins（プラグインプロジェクトの生成物）を Shell 出力に同期し、F5 時の bin\...\plugins をリポジトリと一致させる -->
@@ -33,8 +35,6 @@
     <ItemGroup>
       <_PluginFiles Include="$(MSBuildThisFileDirectory)..\..\plugins\*.*" />
     </ItemGroup>
-    <Copy SourceFiles="@(_PluginFiles)"
-          DestinationFolder="$(OutDir)plugins"
-          SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(_PluginFiles)" DestinationFolder="$(OutDir)plugins" SkipUnchangedFiles="true" />
   </Target>
 </Project>
