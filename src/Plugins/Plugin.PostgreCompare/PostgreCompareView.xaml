@@ -3,7 +3,6 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:vm="clr-namespace:Plugin.PostgreCompare.ViewModels"
              mc:Ignorable="d"
              Background="{DynamicResource ContentBackgroundBrush}">
     <Grid Margin="30"
@@ -14,25 +13,151 @@
 
         <!-- メインタブ（DB設定／比較／インポート・エクスポート） -->
         <TabControl>
-            <TabItem Header="DB 設定">
+            <!-- DB 設定タブ -->
+            <TabItem Header="📋 DB設定">
                 <Grid Margin="0,16,0,0">
-                    <!-- ここに DB 設定レイアウトを、元 MainView.axaml の DB タブ構造に合わせて今後詳細実装 -->
-                    <TextBlock Text="DB 設定"
-                               Style="{StaticResource SubtitleTextStyle}" />
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <!-- ヘッダー + 操作ボタン -->
+                    <Border Grid.Row="0"
+                            Background="{DynamicResource CardElevatedBrush}"
+                            CornerRadius="{StaticResource PanelRadius}"
+                            BorderBrush="{DynamicResource BorderSubtleBrush}"
+                            BorderThickness="1"
+                            Padding="16"
+                            Margin="0,0,0,16">
+                        <DockPanel>
+                            <TextBlock Text="データベース接続設定"
+                                       Style="{StaticResource SubtitleTextStyle}"
+                                       DockPanel.Dock="Left" />
+                            <StackPanel Orientation="Horizontal"
+                                        DockPanel.Dock="Right">
+                                <Button Content="➕ 接続を追加"
+                                        Style="{StaticResource PrimaryButtonStyle}"
+                                        Margin="0,0,8,0"
+                                        Padding="16,6"
+                                        Command="{Binding DbConfigViewModel.AddConnectionCommand}" />
+                                <Button Content="🔄 WSLリストを更新"
+                                        Style="{StaticResource ActionButtonStyle}"
+                                        Padding="16,6"
+                                        Command="{Binding DbConfigViewModel.RefreshWslDistributionsCommand}" />
+                            </StackPanel>
+                        </DockPanel>
+                    </Border>
+
+                    <!-- 接続一覧 -->
+                    <Border Grid.Row="1"
+                            Background="{DynamicResource CardElevatedBrush}"
+                            CornerRadius="{StaticResource PanelRadius}"
+                            BorderBrush="{DynamicResource BorderSubtleBrush}"
+                            BorderThickness="1"
+                            Padding="16">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Grid.Row="0"
+                                       Text="接続一覧"
+                                       Margin="0,0,0,8"
+                                       Style="{StaticResource BodyTextStyle}" />
+
+                            <DataGrid Grid.Row="1"
+                                      ItemsSource="{Binding DbConfigViewModel.Connections}"
+                                      AutoGenerateColumns="False"
+                                      CanUserAddRows="False"
+                                      CanUserDeleteRows="False"
+                                      HeadersVisibility="Column"
+                                      Margin="0">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="設定名"
+                                                        Binding="{Binding ConfigurationName}" />
+                                    <DataGridTextColumn Header="ホスト"
+                                                        Binding="{Binding Host}" />
+                                    <DataGridTextColumn Header="ポート"
+                                                        Binding="{Binding Port}" />
+                                    <DataGridTextColumn Header="データベース"
+                                                        Binding="{Binding Database}" />
+                                    <DataGridTextColumn Header="ユーザー"
+                                                        Binding="{Binding User}" />
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </Grid>
+                    </Border>
                 </Grid>
             </TabItem>
-            <TabItem Header="比較">
+
+            <!-- 比較タブ（レイアウト骨格） -->
+            <TabItem Header="🔍 比較">
                 <Grid Margin="0,16,0,0">
-                    <!-- ここに 比較レイアウトを、元 MainView.axaml の 比較タブ構造に合わせて今後詳細実装 -->
-                    <TextBlock Text="比較"
-                               Style="{StaticResource SubtitleTextStyle}" />
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <Border Grid.Row="0"
+                            Background="{DynamicResource CardElevatedBrush}"
+                            CornerRadius="{StaticResource PanelRadius}"
+                            BorderBrush="{DynamicResource BorderSubtleBrush}"
+                            BorderThickness="1"
+                            Padding="16"
+                            Margin="0,0,0,16">
+                        <StackPanel>
+                            <TextBlock Text="CSV フォルダ選択"
+                                       Style="{StaticResource SubtitleTextStyle}"
+                                       Margin="0,0,0,8" />
+                            <!-- 这里可以按需继续细化：基準/旧/新フォルダ、エクスポート先など的行布局 -->
+                        </StackPanel>
+                    </Border>
+
+                    <Border Grid.Row="1"
+                            Background="{DynamicResource CardElevatedBrush}"
+                            CornerRadius="{StaticResource PanelRadius}"
+                            BorderBrush="{DynamicResource BorderSubtleBrush}"
+                            BorderThickness="1"
+                            Padding="16">
+                        <TextBlock Text="比較結果一覧（後で実装）"
+                                   Style="{StaticResource BodyTextStyle}" />
+                    </Border>
                 </Grid>
             </TabItem>
-            <TabItem Header="インポート・エクスポート">
+
+            <!-- インポート・エクスポートタブ（レイアウト骨格） -->
+            <TabItem Header="⇄ インポート・エクスポート">
                 <Grid Margin="0,16,0,0">
-                    <!-- ここに インポート/エクスポート レイアウトを、元 MainView.axaml の該当タブ構造に合わせて今後詳細実装 -->
-                    <TextBlock Text="インポート・エクスポート"
-                               Style="{StaticResource SubtitleTextStyle}" />
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <Border Grid.Row="0"
+                            Background="{DynamicResource CardElevatedBrush}"
+                            CornerRadius="{StaticResource PanelRadius}"
+                            BorderBrush="{DynamicResource BorderSubtleBrush}"
+                            BorderThickness="1"
+                            Padding="16"
+                            Margin="0,0,0,16">
+                        <StackPanel>
+                            <TextBlock Text="テーブル選択とエクスポート/インポート"
+                                       Style="{StaticResource SubtitleTextStyle}"
+                                       Margin="0,0,0,8" />
+                            <!-- 这里可继续布置导出目录、导入目录、按钮等 -->
+                        </StackPanel>
+                    </Border>
+
+                    <Border Grid.Row="1"
+                            Background="{DynamicResource CardElevatedBrush}"
+                            CornerRadius="{StaticResource PanelRadius}"
+                            BorderBrush="{DynamicResource BorderSubtleBrush}"
+                            BorderThickness="1"
+                            Padding="16">
+                        <TextBlock Text="テーブル一覧（後で実装）"
+                                   Style="{StaticResource BodyTextStyle}" />
+                    </Border>
                 </Grid>
             </TabItem>
         </TabControl>
