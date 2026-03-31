@@ -315,15 +315,25 @@
                                           StrokeDashOffset="{StaticResource ShutdownWireDashLength}"
                                           StrokeDashArray="96 96"
                                           Data="{StaticResource ShutdownWirePathGeometry}" />
-                                    <Ellipse x:Name="ShutdownPenTip"
-                                             Width="2.8"
-                                             Height="2.8"
-                                             Fill="{DynamicResource PrimaryTextBrush}"
-                                             Opacity="0">
-                                        <Ellipse.RenderTransform>
-                                            <MatrixTransform x:Name="ShutdownPenTipMatrix" />
-                                        </Ellipse.RenderTransform>
-                                    </Ellipse>
+                                    <Path x:Name="ShutdownWireTipGlow"
+                                          Stroke="{DynamicResource PrimaryTextBrush}"
+                                          StrokeThickness="3.2"
+                                          StrokeStartLineCap="Round"
+                                          StrokeEndLineCap="Round"
+                                          StrokeLineJoin="Round"
+                                          Fill="Transparent"
+                                          Opacity="0"
+                                          StrokeDashCap="Round"
+                                          StrokeDashOffset="{StaticResource ShutdownWireDashLength}"
+                                          StrokeDashArray="2.2 96"
+                                          Data="{StaticResource ShutdownWirePathGeometry}">
+                                        <Path.Effect>
+                                            <DropShadowEffect BlurRadius="5"
+                                                              ShadowDepth="0"
+                                                              Opacity="0.65"
+                                                              Color="#FFFFFFFF" />
+                                        </Path.Effect>
+                                    </Path>
                                     <Path Stroke="{DynamicResource PrimaryTextBrush}"
                                           StrokeThickness="1.5"
                                           StrokeStartLineCap="Round"
@@ -364,16 +374,16 @@
                                                 <SineEase EasingMode="EaseInOut" />
                                             </DoubleAnimation.EasingFunction>
                                         </DoubleAnimation>
-                                        <MatrixAnimationUsingPath Storyboard.TargetName="ShutdownPenTipMatrix"
-                                                                  Storyboard.TargetProperty="Matrix"
-                                                                  Duration="0:0:2.4"
-                                                                  DoesRotateWithTangent="False"
-                                                                  PathGeometry="{StaticResource ShutdownWirePathGeometry}" />
-                                        <DoubleAnimationUsingKeyFrames Storyboard.TargetName="ShutdownPenTip"
+                                        <DoubleAnimation Storyboard.TargetName="ShutdownWireTipGlow"
+                                                         Storyboard.TargetProperty="StrokeDashOffset"
+                                                         From="{StaticResource ShutdownWireDashLength}"
+                                                         To="0"
+                                                         Duration="0:0:2.4" />
+                                        <DoubleAnimationUsingKeyFrames Storyboard.TargetName="ShutdownWireTipGlow"
                                                                        Storyboard.TargetProperty="Opacity">
                                             <DiscreteDoubleKeyFrame KeyTime="0:0:0" Value="0" />
-                                            <LinearDoubleKeyFrame KeyTime="0:0:0.15" Value="1" />
-                                            <LinearDoubleKeyFrame KeyTime="0:0:2.25" Value="1" />
+                                            <LinearDoubleKeyFrame KeyTime="0:0:0.12" Value="0.72" />
+                                            <LinearDoubleKeyFrame KeyTime="0:0:2.2" Value="0.72" />
                                             <LinearDoubleKeyFrame KeyTime="0:0:2.4" Value="0" />
                                         </DoubleAnimationUsingKeyFrames>
                                     </Storyboard>
@@ -386,9 +396,13 @@
                                                          Storyboard.TargetProperty="StrokeDashOffset"
                                                          To="{StaticResource ShutdownWireDashLength}"
                                                          Duration="0:0:0.45" />
-                                        <DoubleAnimation Storyboard.TargetName="ShutdownPenTip"
+                                        <DoubleAnimation Storyboard.TargetName="ShutdownWireTipGlow"
                                                          Storyboard.TargetProperty="Opacity"
                                                          To="0"
+                                                         Duration="0:0:0.12" />
+                                        <DoubleAnimation Storyboard.TargetName="ShutdownWireTipGlow"
+                                                         Storyboard.TargetProperty="StrokeDashOffset"
+                                                         To="{StaticResource ShutdownWireDashLength}"
                                                          Duration="0:0:0.12" />
                                     </Storyboard>
                                 </BeginStoryboard>
