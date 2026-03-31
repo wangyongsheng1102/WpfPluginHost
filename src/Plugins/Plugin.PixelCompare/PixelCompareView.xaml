@@ -1,0 +1,252 @@
+<UserControl x:Class="Plugin.PixelCompare.PixelCompareView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Background="{DynamicResource ContentBackgroundBrush}">
+    <Grid Margin="30"
+          Background="{DynamicResource ContentBackgroundBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0" Margin="0,0,0,16" Padding="16"
+                Background="{DynamicResource CardElevatedBrush}"
+                CornerRadius="8"
+                BorderThickness="1"
+                BorderBrush="{DynamicResource BorderSubtleBrush}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <Button Grid.Column="0"
+                        Content="Excelを選択"
+                        Height="36"
+                        MinWidth="110"
+                        Padding="16,0"
+                        Style="{DynamicResource ActionButtonStyle}"
+                        Command="{Binding SelectExcelCommand}" />
+
+                <TextBlock Grid.Column="1"
+                           Margin="12,0,16,0"
+                           VerticalAlignment="Center"
+                           Foreground="{DynamicResource PrimaryTextBrush}"
+                           Text="{Binding ExcelPath}" />
+
+                <ComboBox Grid.Column="2"
+                          Width="170"
+                          Margin="0,0,8,0"
+                          ItemsSource="{Binding AvailableSheets}"
+                          SelectedItem="{Binding SelectedSheet, Mode=TwoWay}" />
+
+                <ComboBox Grid.Column="3"
+                          Width="74"
+                          IsEditable="True"
+                          Margin="0,0,8,0"
+                          ItemsSource="{Binding AvailableColumns}"
+                          Text="{Binding LeftColumnName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+                <TextBlock Grid.Column="4"
+                           Margin="0,0,8,0"
+                           VerticalAlignment="Center"
+                           Foreground="{DynamicResource SecondaryTextBrush}"
+                           Text="vs" />
+
+                <ComboBox Grid.Column="5"
+                          Width="74"
+                          IsEditable="True"
+                          Margin="0,0,8,0"
+                          ItemsSource="{Binding AvailableColumns}"
+                          Text="{Binding RightColumnName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+                <StackPanel Grid.Column="6" Orientation="Horizontal">
+                    <Button Content="シートを再読込"
+                            Height="36"
+                            MinWidth="100"
+                            Padding="12,0"
+                            Margin="0,0,8,0"
+                            Style="{DynamicResource ActionButtonStyle}"
+                            Command="{Binding ReloadSheetNamesCommand}" />
+                    <Button Content="読込/比較"
+                            Height="36"
+                            MinWidth="100"
+                            Padding="12,0"
+                            Margin="0,0,8,0"
+                            Style="{DynamicResource PrimaryButtonStyle}"
+                            Command="{Binding StartCompareCommand}" />
+                    <Button Content="Report"
+                            Height="36"
+                            MinWidth="92"
+                            Padding="12,0"
+                            Style="{DynamicResource PrimaryButtonStyle}"
+                            Command="{Binding ExportReportCommand}" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="460" />
+                <ColumnDefinition Width="16" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <Border Grid.Column="0" Padding="12"
+                    Background="{DynamicResource CardElevatedBrush}"
+                    CornerRadius="8"
+                    BorderThickness="1"
+                    BorderBrush="{DynamicResource BorderSubtleBrush}">
+                <DataGrid ItemsSource="{Binding CompareItems}"
+                          SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
+                          AutoGenerateColumns="False"
+                          CanUserAddRows="False"
+                          CanUserDeleteRows="False"
+                          CanUserResizeRows="False"
+                          HeadersVisibility="Column"
+                          SelectionMode="Single"
+                          SelectionUnit="FullRow"
+                          GridLinesVisibility="All"
+                          HorizontalGridLinesBrush="{DynamicResource BorderSubtleBrush}"
+                          VerticalGridLinesBrush="{DynamicResource BorderSubtleBrush}"
+                          Background="Transparent"
+                          BorderThickness="0"
+                          RowHeight="38"
+                          ColumnHeaderHeight="38"
+                          FontFamily="{DynamicResource AppFontFamily}"
+                          Foreground="{DynamicResource PrimaryTextBrush}"
+                          RowBackground="Transparent"
+                          AlternatingRowBackground="{DynamicResource ContentBackgroundBrush}"
+                          UseLayoutRounding="True">
+                    <DataGrid.ColumnHeaderStyle>
+                        <Style TargetType="DataGridColumnHeader">
+                            <Setter Property="FontWeight" Value="Bold" />
+                            <Setter Property="Background" Value="{DynamicResource CardElevatedBrush}" />
+                            <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+                            <Setter Property="BorderBrush" Value="{DynamicResource BorderSubtleBrush}" />
+                            <Setter Property="BorderThickness" Value="0,0,1,1" />
+                            <Setter Property="Padding" Value="12,8" />
+                            <Setter Property="HorizontalContentAlignment" Value="Left" />
+                        </Style>
+                    </DataGrid.ColumnHeaderStyle>
+                    <DataGrid.RowStyle>
+                        <Style TargetType="DataGridRow">
+                            <Setter Property="BorderThickness" Value="0" />
+                            <Setter Property="SnapsToDevicePixels" Value="True" />
+                            <Style.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Background" Value="{DynamicResource ButtonHoverGradientBrush}" />
+                                </Trigger>
+                                <Trigger Property="IsSelected" Value="True">
+                                    <Setter Property="Background" Value="{DynamicResource SelectedBrush}" />
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </DataGrid.RowStyle>
+                    <DataGrid.CellStyle>
+                        <Style TargetType="DataGridCell">
+                            <Setter Property="BorderThickness" Value="0" />
+                            <Setter Property="Padding" Value="10,6" />
+                            <Setter Property="VerticalAlignment" Value="Center" />
+                            <Setter Property="Background" Value="Transparent" />
+                            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+                        </Style>
+                    </DataGrid.CellStyle>
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="行番号" Width="72" Binding="{Binding RowIndex}" />
+                        <DataGridTextColumn Header="結果" Width="100" Binding="{Binding StatusText}" />
+                        <DataGridTextColumn Header="差異率" Width="120" Binding="{Binding DifferencePercentageText}" />
+                        <DataGridTextColumn Header="差異数" Width="80" Binding="{Binding DiffCount}" />
+                        <DataGridTextColumn Header="サイズ情報" Width="*" Binding="{Binding SizeInfo}" />
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Border>
+
+            <Border Grid.Column="2" Padding="12"
+                    Background="{DynamicResource CardElevatedBrush}"
+                    CornerRadius="8"
+                    BorderThickness="1"
+                    BorderBrush="{DynamicResource BorderSubtleBrush}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
+                        <Button Content="左画像"
+                                Height="30"
+                                MinWidth="70"
+                                Style="{DynamicResource ActionButtonStyle}"
+                                Command="{Binding ShowLeftImageCommand}" />
+                        <Button Content="右画像"
+                                Margin="8,0,0,0"
+                                Height="30"
+                                MinWidth="70"
+                                Style="{DynamicResource ActionButtonStyle}"
+                                Command="{Binding ShowRightImageCommand}" />
+                    </StackPanel>
+
+                    <Border Grid.Row="1"
+                            Background="{DynamicResource NavBackgroundBrush}"
+                            BorderThickness="1"
+                            BorderBrush="{DynamicResource BorderSubtleBrush}"
+                            CornerRadius="6">
+                        <Grid>
+                            <Image Source="{Binding PreviewImagePath}"
+                                   Stretch="Uniform"
+                                   ToolTip="画像をダブルクリックすると既定の画像ビューアで開きます"
+                                   PreviewMouseLeftButtonDown="OnPreviewImageMouseLeftButtonDown" />
+                            <TextBlock Text="左側の行を選択すると結果画像を表示します"
+                                       Foreground="{DynamicResource SecondaryTextBrush}"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding PreviewImagePath}" Value="{x:Null}">
+                                                <Setter Property="Visibility" Value="Visible" />
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding PreviewImagePath}" Value="">
+                                                <Setter Property="Visibility" Value="Visible" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </Grid>
+                    </Border>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <Border Grid.Row="2" Margin="0,16,0,0" Padding="16"
+                Background="{DynamicResource CardElevatedBrush}"
+                CornerRadius="8"
+                BorderThickness="1"
+                BorderBrush="{DynamicResource BorderSubtleBrush}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="200" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0"
+                           VerticalAlignment="Center"
+                           Foreground="{DynamicResource PrimaryTextBrush}"
+                           Text="{Binding StatusMessage}" />
+                <ProgressBar Grid.Column="1"
+                             Height="12"
+                             Minimum="0"
+                             Maximum="100"
+                             Value="{Binding ProgressValue}" />
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>
