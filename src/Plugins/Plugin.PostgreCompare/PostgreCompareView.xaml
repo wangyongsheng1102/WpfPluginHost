@@ -110,7 +110,93 @@
                             <TextBlock Text="CSV フォルダ選択"
                                        Style="{StaticResource SubtitleTextStyle}"
                                        Margin="0,0,0,8" />
-                            <!-- 这里可以按需继续细化：基準/旧/新フォルダ、エクスポート先など的行布局 -->
+
+                            <Grid Margin="0,8,0,0">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+
+                                <TextBlock Grid.Row="0" Grid.Column="0"
+                                           Text="基準フォルダ"
+                                           Margin="0,0,8,4"
+                                           VerticalAlignment="Center"
+                                           Style="{StaticResource BodyTextStyle}" />
+                                <TextBox Grid.Row="0" Grid.Column="1"
+                                         Text="{Binding CompareViewModel.BaseFolderPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                         Margin="0,0,8,4" />
+                                <Button Grid.Row="0" Grid.Column="2"
+                                        Content="参照..."
+                                        Style="{StaticResource ActionButtonStyle}"
+                                        Padding="12,4"
+                                        Command="{Binding CompareViewModel.SelectBaseFolderCommand}" />
+
+                                <TextBlock Grid.Row="1" Grid.Column="0"
+                                           Text="旧フォルダ"
+                                           Margin="0,0,8,4"
+                                           VerticalAlignment="Center"
+                                           Style="{StaticResource BodyTextStyle}" />
+                                <TextBox Grid.Row="1" Grid.Column="1"
+                                         Text="{Binding CompareViewModel.OldFolderPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                         Margin="0,0,8,4" />
+                                <Button Grid.Row="1" Grid.Column="2"
+                                        Content="参照..."
+                                        Style="{StaticResource ActionButtonStyle}"
+                                        Padding="12,4"
+                                        Command="{Binding CompareViewModel.SelectOldFolderCommand}" />
+
+                                <TextBlock Grid.Row="2" Grid.Column="0"
+                                           Text="新フォルダ"
+                                           Margin="0,0,8,4"
+                                           VerticalAlignment="Center"
+                                           Style="{StaticResource BodyTextStyle}" />
+                                <TextBox Grid.Row="2" Grid.Column="1"
+                                         Text="{Binding CompareViewModel.NewFolderPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                         Margin="0,0,8,4" />
+                                <Button Grid.Row="2" Grid.Column="2"
+                                        Content="参照..."
+                                        Style="{StaticResource ActionButtonStyle}"
+                                        Padding="12,4"
+                                        Command="{Binding CompareViewModel.SelectNewFolderCommand}" />
+
+                                <TextBlock Grid.Row="3" Grid.Column="0"
+                                           Text="Excel 出力先"
+                                           Margin="0,4,8,0"
+                                           VerticalAlignment="Center"
+                                           Style="{StaticResource BodyTextStyle}" />
+                                <TextBox Grid.Row="3" Grid.Column="1"
+                                         Text="{Binding CompareViewModel.ExportFilePath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                         Margin="0,4,8,0" />
+                            </Grid>
+
+                            <StackPanel Orientation="Horizontal"
+                                        Margin="0,12,0,0">
+                                <CheckBox Content="access_log.csv を含める"
+                                          IsChecked="{Binding CompareViewModel.AccessLogChecked}"
+                                          VerticalAlignment="Center"
+                                          Margin="0,0,16,0" />
+                                <Button Content="すべて選択"
+                                        Style="{StaticResource ActionButtonStyle}"
+                                        Padding="12,4"
+                                        Margin="0,0,8,0"
+                                        Command="{Binding CompareViewModel.SelectAllCsvFilesCommand}" />
+                                <Button Content="すべて解除"
+                                        Style="{StaticResource ActionButtonStyle}"
+                                        Padding="12,4"
+                                        Command="{Binding CompareViewModel.DeselectAllCsvFilesCommand}" />
+                                <Button Content="比較実行"
+                                        Style="{StaticResource PrimaryButtonStyle}"
+                                        Padding="16,4"
+                                        Margin="16,0,0,0"
+                                        Command="{Binding CompareViewModel.CompareCsvFilesCommand}" />
+                            </StackPanel>
                         </StackPanel>
                     </Border>
 
@@ -120,8 +206,31 @@
                             BorderBrush="{DynamicResource BorderSubtleBrush}"
                             BorderThickness="1"
                             Padding="16">
-                        <TextBlock Text="比較結果一覧（後で実装）"
-                                   Style="{StaticResource BodyTextStyle}" />
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Grid.Row="0"
+                                       Text="{Binding CompareViewModel.SelectedCsvFileCount, StringFormat='検出された CSV: {0} 件'}"
+                                       Style="{StaticResource BodyTextStyle}"
+                                       Margin="0,0,0,8" />
+
+                            <DataGrid Grid.Row="1"
+                                      ItemsSource="{Binding CompareViewModel.CsvFileInfos}"
+                                      AutoGenerateColumns="False"
+                                      CanUserAddRows="False"
+                                      CanUserDeleteRows="False"
+                                      HeadersVisibility="Column">
+                                <DataGrid.Columns>
+                                    <DataGridCheckBoxColumn Header="選択"
+                                                            Binding="{Binding IsSelected}" />
+                                    <DataGridTextColumn Header="ファイル名"
+                                                        Binding="{Binding FileName}" />
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </Grid>
                     </Border>
                 </Grid>
             </TabItem>
@@ -145,7 +254,86 @@
                             <TextBlock Text="テーブル選択とエクスポート/インポート"
                                        Style="{StaticResource SubtitleTextStyle}"
                                        Margin="0,0,0,8" />
-                            <!-- 这里可继续布置导出目录、导入目录、按钮等 -->
+
+                            <Grid Margin="0,8,0,0">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+
+                                <TextBlock Grid.Row="0" Grid.Column="0"
+                                           Text="接続"
+                                           Margin="0,0,8,4"
+                                           VerticalAlignment="Center"
+                                           Style="{StaticResource BodyTextStyle}" />
+                                <ComboBox Grid.Row="0" Grid.Column="1"
+                                          ItemsSource="{Binding Connections}"
+                                          SelectedItem="{Binding ImportExportViewModel.SelectedConnection}"
+                                          DisplayMemberPath="ConfigurationName"
+                                          Margin="0,0,8,4" />
+                                <Button Grid.Row="0" Grid.Column="2"
+                                        Content="テーブル取得"
+                                        Style="{StaticResource ActionButtonStyle}"
+                                        Padding="12,4"
+                                        Command="{Binding ImportExportViewModel.LoadTablesCommand}" />
+
+                                <TextBlock Grid.Row="1" Grid.Column="0"
+                                           Text="エクスポート先"
+                                           Margin="0,4,8,4"
+                                           VerticalAlignment="Center"
+                                           Style="{StaticResource BodyTextStyle}" />
+                                <TextBox Grid.Row="1" Grid.Column="1"
+                                         Text="{Binding ImportExportViewModel.ExportFolderPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                         Margin="0,4,8,4" />
+                                <Button Grid.Row="1" Grid.Column="2"
+                                        Content="参照..."
+                                        Style="{StaticResource ActionButtonStyle}"
+                                        Padding="12,4"
+                                        Command="{Binding ImportExportViewModel.SelectExportFolderCommand}" />
+
+                                <TextBlock Grid.Row="2" Grid.Column="0"
+                                           Text="インポート元"
+                                           Margin="0,4,8,0"
+                                           VerticalAlignment="Center"
+                                           Style="{StaticResource BodyTextStyle}" />
+                                <TextBox Grid.Row="2" Grid.Column="1"
+                                         Text="{Binding ImportExportViewModel.ImportFolderPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                         Margin="0,4,8,0" />
+                                <Button Grid.Row="2" Grid.Column="2"
+                                        Content="参照..."
+                                        Style="{StaticResource ActionButtonStyle}"
+                                        Padding="12,4"
+                                        Command="{Binding ImportExportViewModel.SelectImportFolderCommand}" />
+                            </Grid>
+
+                            <StackPanel Orientation="Horizontal"
+                                        Margin="0,12,0,0">
+                                <Button Content="すべて選択"
+                                        Style="{StaticResource ActionButtonStyle}"
+                                        Padding="12,4"
+                                        Margin="0,0,8,0"
+                                        Command="{Binding ImportExportViewModel.SelectAllTablesCommand}" />
+                                <Button Content="すべて解除"
+                                        Style="{StaticResource ActionButtonStyle}"
+                                        Padding="12,4"
+                                        Margin="0,0,8,0"
+                                        Command="{Binding ImportExportViewModel.DeselectAllTablesCommand}" />
+                                <Button Content="エクスポート"
+                                        Style="{StaticResource PrimaryButtonStyle}"
+                                        Padding="16,4"
+                                        Margin="16,0,8,0"
+                                        Command="{Binding ImportExportViewModel.ExportTablesCommand}" />
+                                <Button Content="インポート"
+                                        Style="{StaticResource PrimaryButtonStyle}"
+                                        Padding="16,4"
+                                        Command="{Binding ImportExportViewModel.ImportTablesCommand}" />
+                            </StackPanel>
                         </StackPanel>
                     </Border>
 
@@ -155,8 +343,35 @@
                             BorderBrush="{DynamicResource BorderSubtleBrush}"
                             BorderThickness="1"
                             Padding="16">
-                        <TextBlock Text="テーブル一覧（後で実装）"
-                                   Style="{StaticResource BodyTextStyle}" />
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Grid.Row="0"
+                                       Text="{Binding ImportExportViewModel.SelectedTableCount, StringFormat='選択中のテーブル: {0} 件'}"
+                                       Style="{StaticResource BodyTextStyle}"
+                                       Margin="0,0,0,8" />
+
+                            <DataGrid Grid.Row="1"
+                                      ItemsSource="{Binding ImportExportViewModel.Tables}"
+                                      AutoGenerateColumns="False"
+                                      CanUserAddRows="False"
+                                      CanUserDeleteRows="False"
+                                      HeadersVisibility="Column">
+                                <DataGrid.Columns>
+                                    <DataGridCheckBoxColumn Header="選択"
+                                                            Binding="{Binding IsSelected}" />
+                                    <DataGridTextColumn Header="スキーマ"
+                                                        Binding="{Binding SchemaName}" />
+                                    <DataGridTextColumn Header="テーブル名"
+                                                        Binding="{Binding TableName}" />
+                                    <DataGridTextColumn Header="行数"
+                                                        Binding="{Binding RowCount}" />
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </Grid>
                     </Border>
                 </Grid>
             </TabItem>
