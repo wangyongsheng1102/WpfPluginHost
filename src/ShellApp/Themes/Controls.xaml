@@ -178,8 +178,8 @@
                         <Border.RenderTransform>
                             <ScaleTransform ScaleX="1" ScaleY="1" />
                         </Border.RenderTransform>
-                        <Viewbox Width="22"
-                                 Height="22"
+                        <Viewbox Width="28"
+                                 Height="28"
                                  Stretch="Uniform"
                                  HorizontalAlignment="Center"
                                  VerticalAlignment="Center">
