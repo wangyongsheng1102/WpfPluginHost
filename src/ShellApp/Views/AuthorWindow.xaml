@@ -67,11 +67,25 @@
                                     <Line X1="53" Y1="19" X2="75" Y2="19" Stroke="#515570" StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
 
                                     <Path Fill="#393C54" Data="M70.41,56H82.59A2.41,2.41,0,0,1,85,58.41V62a6,6,0,0,1-6,6H74.57A6.57,6.57,0,0,1,68,61.43v-3A2.41,2.41,0,0,1,70.41,56Z"/>
-                                    <Path Fill="#393C54" Data="M49.57,56H54a6,6,0,0,1,6,6v3.56A2.41,2.41,0,0,1,57.59,68H45.41A2.41,2.41,0,0,1,43,65.59v-3A6.57,6.57,0,0,1,49.57,56Z"/>
+                                    <Path Fill="#393C54" Data="M49.57,56H54a6,6,0,0,1,6,6v3.56A2.41,2.41,0,0,1,57.59,68H45.41A2.41,2.41,0,0,1,43,65.59v-3A6.57,6.57,0,0,1,49.57,56Z">
+                                        <Path.RenderTransform>
+                                            <TransformGroup>
+                                                <TranslateTransform X="103" Y="124" />
+                                                <RotateTransform Angle="180" />
+                                            </TransformGroup>
+                                        </Path.RenderTransform>
+                                    </Path>
                                     <Path Data="M70.41,56H82.59A2.41,2.41,0,0,1,85,58.41V62a6,6,0,0,1-6,6H74.57A6.57,6.57,0,0,1,68,61.43v-3A2.41,2.41,0,0,1,70.41,56Z"
                                           Fill="Transparent" Stroke="#515570" StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"/>
                                     <Path Data="M49.57,56H54a6,6,0,0,1,6,6v3.56A2.41,2.41,0,0,1,57.59,68H45.41A2.41,2.41,0,0,1,43,65.59v-3A6.57,6.57,0,0,1,49.57,56Z"
-                                          Fill="Transparent" Stroke="#515570" StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"/>
+                                          Fill="Transparent" Stroke="#515570" StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round">
+                                        <Path.RenderTransform>
+                                            <TransformGroup>
+                                                <TranslateTransform X="103" Y="124" />
+                                                <RotateTransform Angle="180" />
+                                            </TransformGroup>
+                                        </Path.RenderTransform>
+                                    </Path>
                                     <Path Data="M60,62a4,4,0,0,1,8,0" Fill="Transparent" Stroke="#515570" StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
                                     <Line X1="85" Y1="58.41" X2="92.32" Y2="52.5" Stroke="#515570" StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
                                     <Line X1="43" Y1="58.41" X2="35.68" Y2="52.57" Stroke="#515570" StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
@@ -82,13 +96,19 @@
                                     <!-- 左侧工具 -->
                                     <Path Fill="#393C54" Data="M24.22,27H47.79a0,0,0,0,1,0,0v4.71A2.36,2.36,0,0,1,45.42,34H26.58a2.36,2.36,0,0,1-2.36-2.36V27a0,0,0,0,1,0,0Z">
                                         <Path.RenderTransform>
-                                            <RotateTransform Angle="-45" CenterX="36" CenterY="30.5" />
+                                            <TransformGroup>
+                                                <TranslateTransform X="-11.02" Y="34.39" />
+                                                <RotateTransform Angle="-45" />
+                                            </TransformGroup>
                                         </Path.RenderTransform>
                                     </Path>
                                     <Rectangle Width="28.28" Height="3.54" RadiusX="1.77" RadiusY="1.77"
                                                Canvas.Left="18.94" Canvas.Top="25.82" Fill="#F85565">
                                         <Rectangle.RenderTransform>
-                                            <RotateTransform Angle="-45" CenterX="33.08" CenterY="27.59" />
+                                            <TransformGroup>
+                                                <TranslateTransform X="-9.81" Y="31.47" />
+                                                <RotateTransform Angle="-45" />
+                                            </TransformGroup>
                                         </Rectangle.RenderTransform>
                                     </Rectangle>
                                     <Path Fill="#FF8475" Data="M30.77,20.73l-8.94,8.94a2.35,2.35,0,0,0,0,3.33l1.67,1.67L40.17,18l-.41-.41A2.36,2.36,0,0,0,37,17.2l-5.66,3.14A2.53,2.53,0,0,0,30.77,20.73Z"/>
@@ -96,13 +116,19 @@
                                     <!-- 右侧工具 -->
                                     <Path Fill="#393C54" Data="M82.58,27h18.84a2.36,2.36,0,0,1,2.36,2.36V34a0,0,0,0,1,0,0H80.21a0,0,0,0,1,0,0V29.33A2.36,2.36,0,0,1,82.58,27Z">
                                         <Path.RenderTransform>
-                                            <RotateTransform Angle="-135" CenterX="92" CenterY="30.5" />
+                                            <TransformGroup>
+                                                <TranslateTransform X="135.48" Y="117.12" />
+                                                <RotateTransform Angle="-135" />
+                                            </TransformGroup>
                                         </Path.RenderTransform>
                                     </Path>
                                     <Rectangle Width="28.28" Height="3.54" RadiusX="1.77" RadiusY="1.77"
                                                Canvas.Left="80.77" Canvas.Top="25.82" Fill="#F85565">
                                         <Rectangle.RenderTransform>
-                                            <RotateTransform Angle="-135" CenterX="94.91" CenterY="27.59" />
+                                            <TransformGroup>
+                                                <TranslateTransform X="142.53" Y="114.2" />
+                                                <RotateTransform Angle="-135" />
+                                            </TransformGroup>
                                         </Rectangle.RenderTransform>
                                     </Rectangle>
                                     <Path Fill="#FF8475" Data="M97.23,20.73l8.94,8.94a2.35,2.35,0,0,1,0,3.33l-1.67,1.67L87.83,18l.41-.41a2.36,2.36,0,0,1,2.81-.39l5.66,3.14A2.53,2.53,0,0,1,97.23,20.73Z"/>
