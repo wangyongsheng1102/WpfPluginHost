@@ -107,8 +107,8 @@
                             </Style.Triggers>
                         </Style>
                     </StackPanel.Style>
-                    <Viewbox Width="56"
-                             Height="56"
+                    <Viewbox Width="84"
+                             Height="84"
                              Stretch="Uniform"
                              HorizontalAlignment="Center"
                              Margin="0,0,0,16">
@@ -128,7 +128,11 @@
                                 <GradientStop Offset="1" Color="#176F3D" />
                             </LinearGradientBrush>
                         </Viewbox.Resources>
-                        <Canvas Width="32" Height="32" SnapsToDevicePixels="True">
+                        <Canvas Width="32" Height="32" SnapsToDevicePixels="True"
+                                RenderTransformOrigin="0.5,0.5">
+                            <Canvas.RenderTransform>
+                                <ScaleTransform ScaleX="1.16" ScaleY="1.16" />
+                            </Canvas.RenderTransform>
                             <Rectangle Canvas.Left="8"
                                        Canvas.Top="2"
                                        Width="24"
