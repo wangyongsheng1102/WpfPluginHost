@@ -1,4 +1,5 @@
 using System.Windows;
+using ShellApp.ViewModels;
 
 namespace ShellApp.Views;
 
@@ -7,10 +8,6 @@ public partial class AuthorWindow : Window
     public AuthorWindow()
     {
         InitializeComponent();
-    }
-
-    private void CloseButton_Click(object sender, RoutedEventArgs e)
-    {
-        Close();
+        DataContext = new AuthorWindowViewModel(Close);
     }
 }
