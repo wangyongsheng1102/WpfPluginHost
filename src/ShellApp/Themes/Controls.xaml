@@ -248,7 +248,7 @@
     </Style>
 
     <!-- ThemeIconToggleStyle と同様：40×40 のヒット領域。SVG ベクター＋ホバー時ワイヤのストローク描画アニメ -->
-    <sys:Double x:Key="ShutdownWireDashLength">1000</sys:Double>
+    <sys:Double x:Key="ShutdownWireDashLength">96</sys:Double>
     <Style x:Key="ExitAppStyle" TargetType="Button">
         <Setter Property="Height" Value="40" />
         <Setter Property="Width" Value="40" />
@@ -311,8 +311,8 @@
                                           Opacity="0.55"
                                           StrokeDashCap="Round"
                                           StrokeDashOffset="{StaticResource ShutdownWireDashLength}"
-                                          StrokeDashArray="1000 1000"
-                                          Data="M12,15 L12,20 C7.043,20 2.75,16.413 2.75,12.083 C2.75,6.923 6.897,2.75 12,2.75 C17.103,2.75 21.25,6.923 21.25,12.083 C21.25,15.78 19.121,18.973 16.034,20.485 L16.694,21.832" />
+                                          StrokeDashArray="96 96"
+                                          Data="M12,15 L12,20.1498 C11.5214,23.0394 10.6697,21.3355 9.86335,22.7023 C4.94577,21.7025 1.25,17.3253 1.25,12.0832 C1.25,6.10606 6.05709,1.25 12,1.25 C17.9429,1.25 22.75,6.10606 22.75,12.0832 C22.75,16.369 20.2798,20.0752 16.6941,21.8316" />
                                     <Path Stroke="{DynamicResource PrimaryTextBrush}"
                                           StrokeThickness="1.5"
                                           StrokeStartLineCap="Round"
@@ -348,9 +348,9 @@
                                                          Storyboard.TargetProperty="StrokeDashOffset"
                                                          From="{StaticResource ShutdownWireDashLength}"
                                                          To="0"
-                                                         Duration="0:0:1.05">
+                                                         Duration="0:0:2.4">
                                             <DoubleAnimation.EasingFunction>
-                                                <QuadraticEase EasingMode="EaseOut" />
+                                                <SineEase EasingMode="EaseInOut" />
                                             </DoubleAnimation.EasingFunction>
                                         </DoubleAnimation>
                                     </Storyboard>
@@ -362,7 +362,7 @@
                                         <DoubleAnimation Storyboard.TargetName="ShutdownWireStroke"
                                                          Storyboard.TargetProperty="StrokeDashOffset"
                                                          To="{StaticResource ShutdownWireDashLength}"
-                                                         Duration="0:0:0.28" />
+                                                         Duration="0:0:0.45" />
                                     </Storyboard>
                                 </BeginStoryboard>
                             </Trigger.ExitActions>
