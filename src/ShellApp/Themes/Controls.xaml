@@ -171,9 +171,10 @@
                             BorderBrush="Transparent"
                             BorderThickness="1"
                             CornerRadius="{StaticResource SmallRadius}"
-                            Padding="9"
+                            Padding="5"
                             Margin="0"
                             Opacity="1"
+                            ClipToBounds="False"
                             RenderTransformOrigin="0.5,0.5">
                         <Border.RenderTransform>
                             <ScaleTransform ScaleX="1" ScaleY="1" />
@@ -246,7 +247,8 @@
         </Setter>
     </Style>
 
-    <!-- ThemeIconToggleStyle と同様：40×40 のヒット領域、内側のアイコンは約 22px -->
+    <!-- ThemeIconToggleStyle と同様：40×40 のヒット領域。SVG ベクター＋ホバー時ワイヤのストローク描画アニメ -->
+    <sys:Double x:Key="ShutdownWireDashLength">68</sys:Double>
     <Style x:Key="ExitAppStyle" TargetType="Button">
         <Setter Property="Height" Value="40" />
         <Setter Property="Width" Value="40" />
@@ -267,69 +269,106 @@
                             CornerRadius="{StaticResource SmallRadius}"
                             Padding="9"
                             Margin="0"
-                            Opacity="1"
-                            RenderTransformOrigin="0.5,0.5">
-                        <Border.RenderTransform>
-                            <ScaleTransform ScaleX="1" ScaleY="1" />
-                        </Border.RenderTransform>
-                        <Image x:Name="CloseIcon"
-                               Width="22"
-                               Height="22"
-                               Stretch="Uniform"
-                               Source="/Assets/Images/shutdown_def.png" />
-                        <!-- ホバー時：わずかな拡大を繰り返す。MouseLeave で停止し、押下状態と競合しないようにする -->
-                        <Border.Triggers>
-                            <EventTrigger RoutedEvent="MouseEnter">
-                                <BeginStoryboard Name="CloseBreathingStoryboard">
-                                    <Storyboard RepeatBehavior="Forever" AutoReverse="True">
-                                        <DoubleAnimation Storyboard.TargetName="Root"
-                                                         Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)"
-                                                         From="1"
-                                                         To="1.08"
-                                                         Duration="0:0:0.9">
-                                            <DoubleAnimation.EasingFunction>
-                                                <SineEase EasingMode="EaseInOut" />
-                                            </DoubleAnimation.EasingFunction>
-                                        </DoubleAnimation>
-                                        <DoubleAnimation Storyboard.TargetName="Root"
-                                                         Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)"
-                                                         From="1"
-                                                         To="1.08"
-                                                         Duration="0:0:0.9">
-                                            <DoubleAnimation.EasingFunction>
-                                                <SineEase EasingMode="EaseInOut" />
-                                            </DoubleAnimation.EasingFunction>
-                                        </DoubleAnimation>
-                                    </Storyboard>
-                                </BeginStoryboard>
-                            </EventTrigger>
-                            <EventTrigger RoutedEvent="MouseLeave">
-                                <StopStoryboard BeginStoryboardName="CloseBreathingStoryboard" />
-                                <BeginStoryboard>
-                                    <Storyboard>
-                                        <DoubleAnimation Storyboard.TargetName="Root"
-                                                         Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)"
-                                                         To="1"
-                                                         Duration="0:0:0.12" />
-                                        <DoubleAnimation Storyboard.TargetName="Root"
-                                                         Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)"
-                                                         To="1"
-                                                         Duration="0:0:0.12" />
-                                    </Storyboard>
-                                </BeginStoryboard>
-                            </EventTrigger>
-                        </Border.Triggers>
+                            Opacity="1">
+                        <Viewbox Width="22"
+                                 Height="22"
+                                 Stretch="Uniform"
+                                 HorizontalAlignment="Center"
+                                 VerticalAlignment="Center"
+                                 SnapsToDevicePixels="True">
+                            <Grid Width="24"
+                                  Height="24">
+                                <!-- 通常：塗りつぶしアイコン（元 SVG） -->
+                                <Canvas x:Name="ShutdownNormal"
+                                        Width="24"
+                                        Height="24"
+                                        Visibility="Visible">
+                                    <Path Fill="{DynamicResource PrimaryTextBrush}"
+                                          Opacity="0.5">
+                                        <Path.Data>
+                                            <PathGeometry FillRule="EvenOdd"
+                                                          Figures="M12.7497,22 C17.9224,21.6161 22,17.2918 22,12.0139 L22,12.0069 L22,12 C22,6.47715 17.5228,2 12,2 C6.47715,2 2,6.47715 2,12 L2,12.0069 L2,12.0139 C2,17.2918 6.07759,21.6161 11.2503,22 L11.2503,21.9723 C6.07986,21.5891 2.00357,17.2744 2,12.0069 C2.00374,6.47961 6.47946,2 12,2 C17.5205,2 21.9963,6.47961 22,12.0069 C21.9964,17.2744 17.9201,21.5891 12.7497,21.9723 L12.7497,22 Z" />
+                                        </Path.Data>
+                                    </Path>
+                                    <Path Fill="{DynamicResource PrimaryTextBrush}"
+                                          Opacity="0.5"
+                                          Data="M11.2503,21.9723 C11.4978,21.9907 11.7478,22 12,22 C12.2522,22 12.5022,21.9907 12.7497,21.9723 C17.9201,21.5891 21.9964,17.2744 22,12.0069 C21.9963,6.47961 17.5205,2 12,2 C6.47946,2 2.00374,6.47961 2,12.0069 C2.00357,17.2744 6.07986,21.5891 11.2503,21.9723 Z" />
+                                    <Path Fill="{DynamicResource PrimaryTextBrush}"
+                                          Data="M8.5,12.5147 C8.5,14.1925 9.67737,15.595 11.2499,15.9389 L11.2503,21.9724 C11.4978,21.9908 11.7478,22.0001 12,22.0001 C12.2522,22.0001 12.5022,21.9908 12.7497,21.9724 L12.7499,15.9389 C14.3226,15.5951 15.5,14.1926 15.5,12.5147 L15.5,12.014 C15.5,11.4609 15.0523,11.0126 14.5,11.0126 L14.25,11.0126 L14.25,9.00983 C14.25,8.59504 13.9142,8.25879 13.5,8.25879 C13.0858,8.25879 12.75,8.59504 12.75,9.00983 L12.75,11.0126 L11.25,11.0126 L11.25,9.00983 C11.25,8.59504 10.9142,8.25879 10.5,8.25879 C10.0858,8.25879 9.75,8.59504 9.75,9.00983 L9.75,11.0126 L9.5,11.0126 C8.94772,11.0126 8.5,11.4609 8.5,12.014 L8.5,12.5147 Z" />
+                                </Canvas>
+                                <!-- ホバー：輪郭線＋コードをストロークで徐々に表示（プラグ付近から末端へ） -->
+                                <Canvas x:Name="ShutdownHover"
+                                        Width="24"
+                                        Height="24"
+                                        Visibility="Collapsed">
+                                    <Path x:Name="ShutdownWireStroke"
+                                          Stroke="{DynamicResource PrimaryTextBrush}"
+                                          StrokeThickness="1.35"
+                                          StrokeStartLineCap="Round"
+                                          StrokeEndLineCap="Round"
+                                          StrokeLineJoin="Round"
+                                          Fill="Transparent"
+                                          Opacity="0.55"
+                                          StrokeDashCap="Round"
+                                          StrokeDashOffset="{StaticResource ShutdownWireDashLength}"
+                                          StrokeDashArray="68 68"
+                                          Data="M10.0128,21.9673 L9.86335,22.7023 H9.86335 L10.0128,21.9673 Z M16.0342,20.4846 C15.6622,20.6668 15.5084,21.116 15.6906,21.488 C15.8728,21.86 16.3221,22.0138 16.6941,21.8316 L16.0342,20.4846 Z M10.1622,21.2324 C5.93808,20.3736 2.75,16.6065 2.75,12.0832 H1.25 C1.25,17.3253 4.94577,21.7025 9.86335,22.7023 L10.1622,21.2324 Z M2.75,12.0832 C2.75,6.92275 6.89721,2.75 12,2.75 V1.25 C6.05709,1.25 1.25,6.10606 1.25,12.0832 H2.75 Z M12,2.75 C17.1028,2.75 21.25,6.92275 21.25,12.0832 H22.75 C22.75,6.10606 17.9429,1.25 12,1.25 V2.75 Z M12.75,20.1498 V15.1082 H11.25 V20.1498 H12.75 Z M21.25,12.0832 C21.25,15.7797 19.1208,18.9726 16.0342,20.4846 L16.6941,21.8316 C20.2798,20.0752 22.75,16.369 22.75,12.0832 H21.25 Z M9.86335,22.7023 C11.5214,23.0394 12.75,21.618 12.75,20.1498 H11.25 C11.25,20.909 10.6697,21.3355 10.1622,21.2324 L9.86335,22.7023 Z" />
+                                    <Path Stroke="{DynamicResource PrimaryTextBrush}"
+                                          StrokeThickness="1.5"
+                                          StrokeStartLineCap="Round"
+                                          StrokeEndLineCap="Round"
+                                          StrokeLineJoin="Round"
+                                          Fill="Transparent"
+                                          Data="M9,11.8 C9,11.3582 9.35817,11 9.8,11 L14.2,11 C14.6418,11 15,11.3582 15,11.8 L15,12 C15,13.6569 13.6569,15 12,15 C10.3431,15 9,13.6569 9,12 L9,11.8 Z" />
+                                    <Path Stroke="{DynamicResource PrimaryTextBrush}"
+                                          StrokeThickness="1.5"
+                                          StrokeStartLineCap="Round"
+                                          StrokeEndLineCap="Round"
+                                          Data="M13.5,11 L13.5,9" />
+                                    <Path Stroke="{DynamicResource PrimaryTextBrush}"
+                                          StrokeThickness="1.5"
+                                          StrokeStartLineCap="Round"
+                                          StrokeEndLineCap="Round"
+                                          Data="M10.5,11 L10.5,9" />
+                                </Canvas>
+                            </Grid>
+                        </Viewbox>
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
                             <Setter TargetName="Root" Property="Background" Value="{DynamicResource ButtonHoverGradientBrush}" />
-                            <Setter TargetName="CloseIcon" Property="Source" Value="/Assets/Images/shutdown_mo.png" />
                             <Setter TargetName="Root" Property="BorderBrush" Value="{DynamicResource HoverBrush}" />
                             <Setter TargetName="Root" Property="BorderThickness" Value="1" />
+                            <Setter TargetName="ShutdownNormal" Property="Visibility" Value="Collapsed" />
+                            <Setter TargetName="ShutdownHover" Property="Visibility" Value="Visible" />
+                            <Trigger.EnterActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="ShutdownWireStroke"
+                                                         Storyboard.TargetProperty="StrokeDashOffset"
+                                                         From="{StaticResource ShutdownWireDashLength}"
+                                                         To="0"
+                                                         Duration="0:0:0.68">
+                                            <DoubleAnimation.EasingFunction>
+                                                <QuadraticEase EasingMode="EaseOut" />
+                                            </DoubleAnimation.EasingFunction>
+                                        </DoubleAnimation>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </Trigger.EnterActions>
+                            <Trigger.ExitActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="ShutdownWireStroke"
+                                                         Storyboard.TargetProperty="StrokeDashOffset"
+                                                         To="{StaticResource ShutdownWireDashLength}"
+                                                         Duration="0:0:0.16" />
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </Trigger.ExitActions>
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
                             <Setter TargetName="Root" Property="Background" Value="{DynamicResource ButtonPressedGradientBrush}" />
-                            <Setter TargetName="CloseIcon" Property="Source" Value="/Assets/Images/shutdown_mo.png" />
                             <Setter TargetName="Root" Property="BorderBrush" Value="{DynamicResource HoverBrush}" />
                             <Setter TargetName="Root" Property="BorderThickness" Value="1" />
                             <Setter TargetName="Root" Property="Opacity" Value="0.85" />
