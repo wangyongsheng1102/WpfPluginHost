@@ -267,11 +267,11 @@
                             BorderBrush="Transparent"
                             BorderThickness="1"
                             CornerRadius="{StaticResource SmallRadius}"
-                            Padding="9"
+                            Padding="7"
                             Margin="0"
                             Opacity="1">
-                        <Viewbox Width="22"
-                                 Height="22"
+                        <Viewbox Width="26"
+                                 Height="26"
                                  Stretch="Uniform"
                                  HorizontalAlignment="Center"
                                  VerticalAlignment="Center"
@@ -348,7 +348,7 @@
                                                          Storyboard.TargetProperty="StrokeDashOffset"
                                                          From="{StaticResource ShutdownWireDashLength}"
                                                          To="0"
-                                                         Duration="0:0:0.68">
+                                                         Duration="0:0:1.05">
                                             <DoubleAnimation.EasingFunction>
                                                 <QuadraticEase EasingMode="EaseOut" />
                                             </DoubleAnimation.EasingFunction>
@@ -362,7 +362,7 @@
                                         <DoubleAnimation Storyboard.TargetName="ShutdownWireStroke"
                                                          Storyboard.TargetProperty="StrokeDashOffset"
                                                          To="{StaticResource ShutdownWireDashLength}"
-                                                         Duration="0:0:0.16" />
+                                                         Duration="0:0:0.28" />
                                     </Storyboard>
                                 </BeginStoryboard>
                             </Trigger.ExitActions>
