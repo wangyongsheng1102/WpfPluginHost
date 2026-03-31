@@ -237,11 +237,17 @@
                                             Width="250"
                                             IsReadOnly="True"
                                             ElementStyle="{DynamicResource DataGridTextColumnElementStyle}" />
-                        <DataGridTextColumn Header="ステータス"
-                                            Binding="{Binding Status}"
-                                            Width="120"
-                                            IsReadOnly="True"
-                                            ElementStyle="{DynamicResource DataGridTextColumnElementStyle}" />
+                        <DataGridTemplateColumn Header="ステータス"
+                                                Width="120"
+                                                IsReadOnly="True">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Status}"
+                                               Style="{DynamicResource DataGridTextColumnElementStyle}"
+                                               ToolTip="{Binding StatusDetail}" />
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
                         <DataGridTextColumn Header="パス"
                                             Binding="{Binding FilePath}"
                                             Width="*"

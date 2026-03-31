@@ -22,6 +22,9 @@ public partial class ExcelFileItem : ObservableObject
 
     [ObservableProperty]
     private string _status = "待機中";
+
+    [ObservableProperty]
+    private string? _statusDetail;
 }
 
 public partial class SampleAViewModel : ObservableObject
@@ -168,14 +171,16 @@ public partial class SampleAViewModel : ObservableObject
                 System.Windows.Application.Current.Dispatcher.Invoke(() => 
                 {
                     item.Status = "処理中...";
+                    item.StatusDetail = null;
                     _context?.ReportProgress($"処理の進捗: {count}/{files.Count} - {item.FileName}", (double)count / files.Count * 100);
                 });
 
-                bool success = FormatSingleExcel(app, item.FilePath);
+                bool success = FormatSingleExcel(app, item.FilePath, out var failureReason);
 
                 System.Windows.Application.Current.Dispatcher.Invoke(() => 
                 {
                     item.Status = success ? "✅ 完了" : "❌ 失敗";
+                    item.StatusDetail = success ? null : failureReason;
                 });
             }
 
@@ -203,8 +208,9 @@ public partial class SampleAViewModel : ObservableObject
         }
     }
 
-    private bool FormatSingleExcel(Excel.Application app, string path)
+    private bool FormatSingleExcel(Excel.Application app, string path, out string? errorMessage)
     {
+        errorMessage = null;
         Excel.Workbook? wb = null;
         try
         {
@@ -290,8 +296,9 @@ public partial class SampleAViewModel : ObservableObject
             wb.Save();
             return true;
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            errorMessage = ex.Message;
             return false;
         }
         finally
