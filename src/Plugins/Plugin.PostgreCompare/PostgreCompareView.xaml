@@ -34,7 +34,9 @@
                                         BorderThickness="{TemplateBinding BorderThickness}"
                                         CornerRadius="6,6,0,0"
                                         Padding="{TemplateBinding Padding}">
-                                    <ContentPresenter HorizontalAlignment="Center"
+                                    <ContentPresenter ContentSource="Header"
+                                                      RecognizesAccessKey="True"
+                                                      HorizontalAlignment="Center"
                                                       VerticalAlignment="Center" />
                                 </Border>
                                 <ControlTemplate.Triggers>
@@ -83,6 +85,14 @@
                                         Height="40"
                                         Padding="24,0"
                                         Command="{Binding DbConfigViewModel.AddConnectionCommand}" />
+                                <Button Content="🗑 選択を削除"
+                                        Style="{StaticResource ActionButtonStyle}"
+                                        Margin="8,0,0,0"
+                                        MinWidth="130"
+                                        Height="40"
+                                        Padding="16,0"
+                                        Command="{Binding DbConfigViewModel.RemoveConnectionCommand}"
+                                        CommandParameter="{Binding DbConfigViewModel.SelectedConnection}" />
                             </StackPanel>
                         </DockPanel>
                     </Border>
@@ -107,6 +117,7 @@
 
                             <DataGrid Grid.Row="1"
                                       ItemsSource="{Binding DbConfigViewModel.Connections}"
+                                      SelectedItem="{Binding DbConfigViewModel.SelectedConnection, Mode=TwoWay}"
                                       AutoGenerateColumns="False"
                                       CanUserAddRows="False"
                                       CanUserDeleteRows="False"
@@ -186,46 +197,20 @@
                                     </Style>
                                 </DataGrid.CellStyle>
                                 <DataGrid.Columns>
-                                    <DataGridTemplateColumn Header="設定名" Width="*">
-                                        <DataGridTemplateColumn.CellTemplate>
-                                            <DataTemplate>
-                                                <TextBlock Style="{StaticResource PostgreCompareDbDataGridCellTextStyle}"
-                                                           Text="{Binding ConfigurationName}" />
-                                            </DataTemplate>
-                                        </DataGridTemplateColumn.CellTemplate>
-                                    </DataGridTemplateColumn>
-                                    <DataGridTemplateColumn Header="ホスト" Width="*">
-                                        <DataGridTemplateColumn.CellTemplate>
-                                            <DataTemplate>
-                                                <TextBlock Style="{StaticResource PostgreCompareDbDataGridCellTextStyle}"
-                                                           Text="{Binding Host}" />
-                                            </DataTemplate>
-                                        </DataGridTemplateColumn.CellTemplate>
-                                    </DataGridTemplateColumn>
-                                    <DataGridTemplateColumn Header="ポート" Width="90">
-                                        <DataGridTemplateColumn.CellTemplate>
-                                            <DataTemplate>
-                                                <TextBlock Style="{StaticResource PostgreCompareDbDataGridCellTextStyle}"
-                                                           Text="{Binding Port}" />
-                                            </DataTemplate>
-                                        </DataGridTemplateColumn.CellTemplate>
-                                    </DataGridTemplateColumn>
-                                    <DataGridTemplateColumn Header="データベース" Width="*">
-                                        <DataGridTemplateColumn.CellTemplate>
-                                            <DataTemplate>
-                                                <TextBlock Style="{StaticResource PostgreCompareDbDataGridCellTextStyle}"
-                                                           Text="{Binding Database}" />
-                                            </DataTemplate>
-                                        </DataGridTemplateColumn.CellTemplate>
-                                    </DataGridTemplateColumn>
-                                    <DataGridTemplateColumn Header="ユーザー" Width="*">
-                                        <DataGridTemplateColumn.CellTemplate>
-                                            <DataTemplate>
-                                                <TextBlock Style="{StaticResource PostgreCompareDbDataGridCellTextStyle}"
-                                                           Text="{Binding User}" />
-                                            </DataTemplate>
-                                        </DataGridTemplateColumn.CellTemplate>
-                                    </DataGridTemplateColumn>
+                                    <DataGridTextColumn Header="設定名" Width="*"
+                                                        Binding="{Binding ConfigurationName, UpdateSourceTrigger=PropertyChanged}" />
+                                    <DataGridTextColumn Header="ホスト" Width="*"
+                                                        Binding="{Binding Host, UpdateSourceTrigger=PropertyChanged}" />
+                                    <DataGridTextColumn Header="ポート" Width="90"
+                                                        Binding="{Binding Port, UpdateSourceTrigger=PropertyChanged}" />
+                                    <DataGridTextColumn Header="データベース" Width="*"
+                                                        Binding="{Binding Database, UpdateSourceTrigger=PropertyChanged}" />
+                                    <DataGridTextColumn Header="ユーザー" Width="*"
+                                                        Binding="{Binding User, UpdateSourceTrigger=PropertyChanged}" />
+                                    <DataGridTextColumn Header="パスワード" Width="*"
+                                                        Binding="{Binding Password, UpdateSourceTrigger=PropertyChanged}" />
+                                    <DataGridTextColumn Header="WSL" Width="*"
+                                                        Binding="{Binding WslDistro, UpdateSourceTrigger=PropertyChanged}" />
                                 </DataGrid.Columns>
                             </DataGrid>
                         </Grid>
