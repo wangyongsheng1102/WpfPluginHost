@@ -1,0 +1,40 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- プラグインと同バージョン。PluginHostSharedAssemblies と一致し、実行時はホスト出力ディレクトリから解決 -->
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+    <PackageReference Include="SharpVectors.Wpf" Version="1.8.5" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Plugin.Abstractions\Plugin.Abstractions.csproj" />
+    <!-- Shell ビルド時にプラグインを先にビルドし、リポジトリ直下の plugins に依存関係を揃える。プラグインアセンブリ自体は参照しない -->
+    <ProjectReference Include="..\Plugins\Plugin.SampleA\Plugin.SampleA.csproj" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\Plugins\Plugin.SampleB\Plugin.SampleB.csproj" ReferenceOutputAssembly="false" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Assets\Images\**\*.*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Resource Include="Assets\Fonts\**\*.ttf" />
+    <Resource Include="Assets\SVG\**\*.svg" />
+  </ItemGroup>
+
+  <!-- リポジトリ直下の plugins（プラグインプロジェクトの生成物）を Shell 出力に同期し、F5 時の bin\...\plugins をリポジトリと一致させる -->
+  <Target Name="CopyWorkspacePluginsToShellOutput" AfterTargets="Build">
+    <MakeDir Directories="$(OutDir)plugins" />
+    <ItemGroup>
+      <_PluginFiles Include="$(MSBuildThisFileDirectory)..\..\plugins\*.*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(_PluginFiles)" DestinationFolder="$(OutDir)plugins" SkipUnchangedFiles="true" />
+  </Target>
+</Project>
