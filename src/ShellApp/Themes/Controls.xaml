@@ -466,7 +466,7 @@
         <Setter Property="FontWeight" Value="SemiBold" />
     </Style>
 
-    <!-- 太陽／月の線画。ライト＝太陽、ダーク＝月（IsChecked はダークテーマ） -->
+    <!-- 太陽／月（SVG ベクター）。ライト＝太陽、ダーク＝月（IsChecked はダークテーマ） -->
     <Style x:Key="ThemeIconToggleStyle" TargetType="ToggleButton">
         <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}" />
         <Setter Property="Width" Value="40" />
@@ -490,23 +490,32 @@
                             <Grid Width="24" Height="24">
                                 <!-- ライトモード用の太陽（IsChecked = False） -->
                                 <Canvas x:Name="SunIcon" Visibility="Visible">
-                                    <Path Stroke="{DynamicResource PrimaryTextBrush}"
-                                          StrokeThickness="1.35"
-                                          StrokeLineJoin="Round"
-                                          StrokeStartLineCap="Round"
-                                          StrokeEndLineCap="Round"
-                                          Fill="Transparent"
-                                          Data="M 12,3 L 12,5 M 12,19 L 12,21 M 3,12 L 5,12 M 19,12 L 21,12 M 5.64,5.64 L 7.05,7.05 M 16.95,16.95 L 18.36,18.36 M 18.36,5.64 L 16.95,7.05 M 7.05,16.95 L 5.64,18.36 M 12,8 A 4,4 0 1 1 12,16 A 4,4 0 1 1 12,8 Z" />
+                                    <Path Data="{StaticResource ThemeSunCenterGeometry}"
+                                          Fill="{DynamicResource PrimaryTextBrush}" />
+                                    <Path Data="{StaticResource ThemeSunRaysGeometry}"
+                                          Fill="{DynamicResource PrimaryTextBrush}" />
+                                    <Path Data="{StaticResource ThemeSunCorner1Geometry}"
+                                          Fill="{DynamicResource PrimaryTextBrush}"
+                                          Opacity="0.5" />
+                                    <Path Data="{StaticResource ThemeSunCorner2Geometry}"
+                                          Fill="{DynamicResource PrimaryTextBrush}"
+                                          Opacity="0.5" />
+                                    <Path Data="{StaticResource ThemeSunCorner3Geometry}"
+                                          Fill="{DynamicResource PrimaryTextBrush}"
+                                          Opacity="0.5" />
+                                    <Path Data="{StaticResource ThemeSunCorner4Geometry}"
+                                          Fill="{DynamicResource PrimaryTextBrush}"
+                                          Opacity="0.5" />
                                 </Canvas>
                                 <!-- ダークモード用の月（IsChecked = True） -->
                                 <Canvas x:Name="MoonIcon" Visibility="Collapsed">
-                                    <Path Stroke="{DynamicResource PrimaryTextBrush}"
-                                          StrokeThickness="1.35"
-                                          StrokeLineJoin="Round"
-                                          StrokeStartLineCap="Round"
-                                          StrokeEndLineCap="Round"
-                                          Fill="Transparent"
-                                          Data="M 21 12.79 A 9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79 Z" />
+                                    <Path Data="{StaticResource ThemeMoonSparkleLargeGeometry}"
+                                          Fill="{DynamicResource PrimaryTextBrush}" />
+                                    <Path Data="{StaticResource ThemeMoonSparkleSmallGeometry}"
+                                          Fill="{DynamicResource PrimaryTextBrush}" />
+                                    <Path Data="{StaticResource ThemeMoonBodyGeometry}"
+                                          Fill="{DynamicResource PrimaryTextBrush}"
+                                          Opacity="0.5" />
                                 </Canvas>
                             </Grid>
                         </Viewbox>
