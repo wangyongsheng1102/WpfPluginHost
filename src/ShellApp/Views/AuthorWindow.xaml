@@ -58,6 +58,7 @@
 
                                     <Line X1="64" Y1="59.75" X2="64" Y2="72.25" Stroke="#FBC0AA" StrokeThickness="4" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
                                     <Line X1="66.5" Y1="71" X2="61.5" Y2="71" Stroke="#FBC0AA" StrokeThickness="4" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+                                    <Line X1="66" Y1="70" X2="67" Y2="70" Stroke="#F85565" StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" Opacity="0.3"/>
 
                                     <Rectangle Width="60" Height="15" RadiusX="2" RadiusY="2" Canvas.Left="34" Canvas.Top="31" Fill="#393C54"/>
                                     <Polygon Points="76,25.33 51.61,25.33 40.61,32.33 87,32.33" Fill="#393C54"/>
@@ -74,6 +75,49 @@
                                     <Path Data="M60,62a4,4,0,0,1,8,0" Fill="Transparent" Stroke="#515570" StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
                                     <Line X1="85" Y1="58.41" X2="92.32" Y2="52.5" Stroke="#515570" StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
                                     <Line X1="43" Y1="58.41" X2="35.68" Y2="52.57" Stroke="#515570" StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round"/>
+
+                                    <Path Fill="#515570" Opacity="0.1" Data="M91.61,66.29A9.71,9.71,0,0,0,83,76v9.83A38.42,38.42,0,0,0,91.61,66.29Z"/>
+                                    <Path Fill="#515570" Opacity="0.1" Data="M36.42,66.31C37.89,74.62,41,81.17,44.88,86V76A9.72,9.72,0,0,0,36.42,66.31Z"/>
+
+                                    <!-- 左侧工具 -->
+                                    <Path Fill="#393C54" Data="M24.22,27H47.79a0,0,0,0,1,0,0v4.71A2.36,2.36,0,0,1,45.42,34H26.58a2.36,2.36,0,0,1-2.36-2.36V27a0,0,0,0,1,0,0Z">
+                                        <Path.RenderTransform>
+                                            <RotateTransform Angle="-45" CenterX="36" CenterY="30.5" />
+                                        </Path.RenderTransform>
+                                    </Path>
+                                    <Rectangle Width="28.28" Height="3.54" RadiusX="1.77" RadiusY="1.77"
+                                               Canvas.Left="18.94" Canvas.Top="25.82" Fill="#F85565">
+                                        <Rectangle.RenderTransform>
+                                            <RotateTransform Angle="-45" CenterX="33.08" CenterY="27.59" />
+                                        </Rectangle.RenderTransform>
+                                    </Rectangle>
+                                    <Path Fill="#FF8475" Data="M30.77,20.73l-8.94,8.94a2.35,2.35,0,0,0,0,3.33l1.67,1.67L40.17,18l-.41-.41A2.36,2.36,0,0,0,37,17.2l-5.66,3.14A2.53,2.53,0,0,0,30.77,20.73Z"/>
+
+                                    <!-- 右侧工具 -->
+                                    <Path Fill="#393C54" Data="M82.58,27h18.84a2.36,2.36,0,0,1,2.36,2.36V34a0,0,0,0,1,0,0H80.21a0,0,0,0,1,0,0V29.33A2.36,2.36,0,0,1,82.58,27Z">
+                                        <Path.RenderTransform>
+                                            <RotateTransform Angle="-135" CenterX="92" CenterY="30.5" />
+                                        </Path.RenderTransform>
+                                    </Path>
+                                    <Rectangle Width="28.28" Height="3.54" RadiusX="1.77" RadiusY="1.77"
+                                               Canvas.Left="80.77" Canvas.Top="25.82" Fill="#F85565">
+                                        <Rectangle.RenderTransform>
+                                            <RotateTransform Angle="-135" CenterX="94.91" CenterY="27.59" />
+                                        </Rectangle.RenderTransform>
+                                    </Rectangle>
+                                    <Path Fill="#FF8475" Data="M97.23,20.73l8.94,8.94a2.35,2.35,0,0,1,0,3.33l-1.67,1.67L87.83,18l.41-.41a2.36,2.36,0,0,1,2.81-.39l5.66,3.14A2.53,2.53,0,0,1,97.23,20.73Z"/>
+
+                                    <Path Fill="#515570" Data="M95.38,51.81l-10-9.24,4.07-4.41,10,9.23a3,3,0,0,1,.18,4.24h0A3,3,0,0,1,95.38,51.81Z"/>
+                                    <Path Fill="#515570" Data="M32.38,51.81l10-9.24-4.07-4.41-10,9.23a3,3,0,0,0-.17,4.24h0A3,3,0,0,0,32.38,51.81Z"/>
+
+                                    <Polyline Points="48,48 59,50 71,49 82,48"
+                                              Stroke="#515570" StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" Opacity="0.1"/>
+                                    <Polyline Points="47,51 60,54 69,53 82,53"
+                                              Stroke="#515570" StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" Opacity="0.1"/>
+                                    <Line X1="56" Y1="43" X2="61" Y2="58"
+                                          Stroke="#515570" StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" Opacity="0.1"/>
+                                    <Line X1="65" Y1="43" X2="64" Y2="58"
+                                          Stroke="#515570" StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" Opacity="0.1"/>
 
                                     <Path Fill="#F2BC0F" Data="M37.69,96.5a14.18,14.18,0,0,0-3.08.34S36,106,44,110a19.32,19.32,0,0,1-4.87-13.5Z"/>
                                     <Path Fill="#F2BC0F" Data="M84,110c8-4,9.39-13.16,9.39-13.16a14.18,14.18,0,0,0-3.08-.34H88.87A19.32,19.32,0,0,1,84,110Z"/>
