@@ -56,6 +56,9 @@
                             WindowChrome.IsHitTestVisibleInChrome="True"
                             Padding="0"
                             Style="{StaticResource ThemeIconActionButtonStyle}">
+                        <Button.RenderTransform>
+                            <TranslateTransform X="4" />
+                        </Button.RenderTransform>
                         <Button.Triggers>
                             <EventTrigger RoutedEvent="MouseEnter">
                                 <BeginStoryboard Name="MenuToggleWiggleStoryboard">
@@ -158,6 +161,9 @@
                             Padding="10,8"
                             ToolTip="ホーム"
                             Command="{Binding ShowHomeCommand}">
+                        <Button.RenderTransform>
+                            <TranslateTransform X="4" />
+                        </Button.RenderTransform>
                         <Button.Style>
                             <Style TargetType="Button" BasedOn="{StaticResource ActionButtonStyle}">
                                 <Setter Property="HorizontalAlignment" Value="Stretch" />
@@ -265,6 +271,9 @@
                                 Orientation="Vertical"
                                 HorizontalAlignment="Center"
                                 VerticalAlignment="Bottom">
+                        <StackPanel.RenderTransform>
+                            <TranslateTransform X="4" />
+                        </StackPanel.RenderTransform>
                         <Button Width="40"
                                 Height="40"
                                 HorizontalAlignment="Center"
