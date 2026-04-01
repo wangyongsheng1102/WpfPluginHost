@@ -178,7 +178,7 @@
                         </Canvas>
                     </Viewbox>
                     <TextBlock Text="Excel ファイルまたはフォルダをこのエリアにドラッグ＆ドロップして、タスクキューを作成します" 
-                               FontSize="{StaticResource SubtitleFontSize}" FontWeight="SemiBold"
+                               Style="{StaticResource SubtitleTextStyle}"
                                Foreground="{DynamicResource SecondaryTextBrush}"
                                HorizontalAlignment="Center" />
                     <TextBlock Text="フォルダをドロップした場合、フォルダ内のすべての Excel ファイルを自動的にスキャンします" 
@@ -207,7 +207,8 @@
                           Foreground="{DynamicResource PrimaryTextBrush}"
                           RowBackground="Transparent"
                           AlternatingRowBackground="{DynamicResource ContentBackgroundBrush}"
-                          UseLayoutRounding="True">
+                          UseLayoutRounding="True"
+                          ColumnHeaderStyle="{StaticResource AppDataGridColumnHeaderStyle}">
                     <DataGrid.Resources>
                         <!-- DataGridTextColumn の生成要素はテーマによって下線っぽく見えることがあるため、
                              テンプレート列では TextBlock に直接 TextDecorations を付与する -->
@@ -241,19 +242,6 @@
                             </Style.Triggers>
                         </Style>
                     </DataGrid.Style>
-                    <DataGrid.ColumnHeaderStyle>
-                        <Style TargetType="DataGridColumnHeader">
-                            <Setter Property="FontFamily" Value="{DynamicResource AppFontFamily}" />
-                            <Setter Property="FontWeight" Value="Bold" />
-                            <Setter Property="Background" Value="{DynamicResource CardElevatedBrush}" />
-                            <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
-                            <Setter Property="BorderBrush" Value="{DynamicResource BorderSubtleBrush}" />
-                            <!-- 表頭：右・下の細線で Excel 風の区切り -->
-                            <Setter Property="BorderThickness" Value="0,0,1,1" />
-                            <Setter Property="Padding" Value="12,8" />
-                            <Setter Property="HorizontalContentAlignment" Value="Left" />
-                        </Style>
-                    </DataGrid.ColumnHeaderStyle>
                     <DataGrid.RowStyle>
                         <Style TargetType="DataGridRow">
                             <Setter Property="BorderThickness" Value="0" />
@@ -385,8 +373,7 @@
                 <!-- 中央：ステータス -->
                 <TextBlock Grid.Column="2"
                            Margin="24,0" VerticalAlignment="Center" HorizontalAlignment="Right"
-                           Foreground="{DynamicResource PrimaryTextBrush}"
-                           FontSize="{StaticResource BodyFontSize}" FontWeight="SemiBold"
+                           Style="{StaticResource KeyInfoTextStyle}"
                            Text="{Binding StatusMessage}" TextWrapping="Wrap" />
 
                 <!-- 右：書式設定の実行 -->
