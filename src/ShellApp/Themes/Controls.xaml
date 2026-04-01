@@ -810,20 +810,42 @@
                 <Setter Property="Foreground" Value="{DynamicResource DataGridRowSelectedTextBrush}" />
                 <Setter Property="TextElement.Foreground" Value="{DynamicResource DataGridRowSelectedTextBrush}" />
             </Trigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="IsSelected" Value="True" />
+                    <Condition Property="Selector.IsSelectionActive" Value="False" />
+                </MultiTrigger.Conditions>
+                <Setter Property="Background" Value="{DynamicResource DataGridRowSelectedBrush}" />
+                <Setter Property="BorderBrush" Value="{DynamicResource DataGridRowSelectedBorderBrush}" />
+                <Setter Property="BorderThickness" Value="0,0,0,1.5" />
+                <Setter Property="Foreground" Value="{DynamicResource DataGridRowSelectedTextBrush}" />
+                <Setter Property="TextElement.Foreground" Value="{DynamicResource DataGridRowSelectedTextBrush}" />
+            </MultiTrigger>
         </Style.Triggers>
     </Style>
 
     <Style TargetType="DataGridCell" BasedOn="{StaticResource {x:Type DataGridCell}}">
         <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
         <Setter Property="TextElement.Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+        <Setter Property="Background" Value="Transparent" />
         <Setter Property="HorizontalContentAlignment" Value="Center" />
         <Setter Property="VerticalContentAlignment" Value="Center" />
         <Setter Property="VerticalAlignment" Value="Center" />
         <Style.Triggers>
             <Trigger Property="IsSelected" Value="True">
+                <Setter Property="Background" Value="Transparent" />
                 <Setter Property="Foreground" Value="{DynamicResource DataGridRowSelectedTextBrush}" />
                 <Setter Property="TextElement.Foreground" Value="{DynamicResource DataGridRowSelectedTextBrush}" />
             </Trigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="IsSelected" Value="True" />
+                    <Condition Property="Selector.IsSelectionActive" Value="False" />
+                </MultiTrigger.Conditions>
+                <Setter Property="Background" Value="Transparent" />
+                <Setter Property="Foreground" Value="{DynamicResource DataGridRowSelectedTextBrush}" />
+                <Setter Property="TextElement.Foreground" Value="{DynamicResource DataGridRowSelectedTextBrush}" />
+            </MultiTrigger>
         </Style.Triggers>
     </Style>
 
