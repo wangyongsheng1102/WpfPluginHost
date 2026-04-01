@@ -46,12 +46,6 @@ public partial class PixelCompareViewModel : ObservableObject
     private CompareRowItem? _selectedItem;
 
     [ObservableProperty]
-    private string _statusMessage = "Excelファイルを選択してください。";
-
-    [ObservableProperty]
-    private double _progressValue;
-
-    [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CanStartCompare))]
     [NotifyCanExecuteChangedFor(nameof(StartCompareCommand))]
     [NotifyCanExecuteChangedFor(nameof(ExportReportCommand))]
@@ -137,15 +131,14 @@ public partial class PixelCompareViewModel : ObservableObject
     {
         if (!File.Exists(ExcelPath))
         {
-            StatusMessage = "Excelファイルが存在しません。";
+            _context?.ReportWarning("Excelファイルが存在しません。");
             return;
         }
 
         try
         {
             IsProcessing = true;
-            StatusMessage = "比較可能なシートを読み込み中です...";
-            _context?.ReportProgress(StatusMessage, 0, true);
+            _context?.ReportProgress("比較可能なシートを読み込み中です...", 0, true);
 
             var sheets = await _excelExtractorService.GetComparableSheetNamesAsync(ExcelPath, LeftColumnName, RightColumnName);
             AvailableSheets.Clear();
@@ -155,13 +148,12 @@ public partial class PixelCompareViewModel : ObservableObject
             }
 
             SelectedSheet = AvailableSheets.FirstOrDefault() ?? string.Empty;
-            StatusMessage = AvailableSheets.Count > 0 ? $"比較可能なシートを {AvailableSheets.Count} 件読み込みました。" : "比較可能なシートが見つかりません。";
-            _context?.ReportInfo(StatusMessage);
+            var msg = AvailableSheets.Count > 0 ? $"比較可能なシートを {AvailableSheets.Count} 件読み込みました。" : "比較可能なシートが見つかりません。";
+            _context?.ReportInfo(msg);
         }
         catch (Exception ex)
         {
-            StatusMessage = $"シートの読み込みに失敗しました: {ex.Message}";
-            _context?.ReportError(StatusMessage);
+            _context?.ReportError($"シートの読み込みに失敗しました: {ex.Message}");
         }
         finally
         {
@@ -175,19 +167,17 @@ public partial class PixelCompareViewModel : ObservableObject
         try
         {
             IsProcessing = true;
-            ProgressValue = 0;
             CleanupCurrentTempFiles();
             CompareItems.Clear();
             PreviewImagePath = null;
             OnPropertyChanged(nameof(HasItems));
             ExportReportCommand.NotifyCanExecuteChanged();
 
-            StatusMessage = "画像を抽出中です...";
-            _context?.ReportProgress(StatusMessage, 5, true);
+            _context?.ReportProgress("画像を抽出中です...", 5, true);
             var pairs = await _excelExtractorService.ExtractPairsAsync(ExcelPath, SelectedSheet, LeftColumnName, RightColumnName);
             if (pairs.Count == 0)
             {
-                StatusMessage = "このシートには比較対象データがありません。";
+                _context?.ReportWarning("このシートには比較対象データがありません。");
                 return;
             }
 
@@ -207,8 +197,7 @@ public partial class PixelCompareViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            StatusMessage = $"比較に失敗しました: {ex.Message}";
-            _context?.ReportError(StatusMessage);
+            _context?.ReportError($"比較に失敗しました: {ex.Message}");
         }
         finally
         {
@@ -233,8 +222,7 @@ public partial class PixelCompareViewModel : ObservableObject
         try
         {
             IsProcessing = true;
-            StatusMessage = "HTMLレポートを出力中です...";
-            _context?.ReportProgress(StatusMessage, 0, true);
+            _context?.ReportProgress("HTMLレポートを出力中です...", 0, true);
 
             var results = CompareItems
                 .Where(x => x.IsComparisonLoaded)
@@ -254,13 +242,11 @@ public partial class PixelCompareViewModel : ObservableObject
 
             await _htmlReportService.ExportAsync(dialog.FileName, ExcelPath, SelectedSheet, results);
             CleanupCurrentTempFiles();
-            StatusMessage = "レポートの出力が完了しました。";
-            _context?.ReportSuccess(StatusMessage);
+            _context?.ReportSuccess("レポートの出力が完了しました。");
         }
         catch (Exception ex)
         {
-            StatusMessage = $"レポートの出力に失敗しました: {ex.Message}";
-            _context?.ReportError(StatusMessage);
+            _context?.ReportError($"レポートの出力に失敗しました: {ex.Message}");
         }
         finally
         {
@@ -297,16 +283,14 @@ public partial class PixelCompareViewModel : ObservableObject
             finally
             {
                 completed++;
-                ProgressValue = total == 0 ? 0 : completed * 100.0 / total;
-                StatusMessage = $"比較処理中... {completed}/{total}";
-                _context?.ReportProgress(StatusMessage, ProgressValue);
+                var progress = total == 0 ? 0 : completed * 100.0 / total;
+                _context?.ReportProgress($"比較処理中... {completed}/{total}", progress);
                 semaphore.Release();
             }
         }).ToArray();
 
         await Task.WhenAll(tasks);
-        StatusMessage = $"比較が完了しました。合計 {total} 件です。";
-        _context?.ReportSuccess(StatusMessage);
+        _context?.ReportSuccess($"比較が完了しました。合計 {total} 件です。");
 
         SelectedItem = CompareItems.FirstOrDefault();
     }
@@ -342,7 +326,7 @@ public partial class PixelCompareViewModel : ObservableObject
             }
             catch
             {
-                // 他进程占用等场景下忽略删除异常，不影响主流程。
+                // 他プロセスがロックしている場合などは無視し、処理を継続する。
             }
         }
     }

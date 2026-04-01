@@ -7,14 +7,17 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
-            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <Border Grid.Row="0" Margin="0,0,0,16" Padding="16"
+        <Border Grid.Row="0" Margin="0,0,0,24" Padding="20"
                 Background="{DynamicResource CardElevatedBrush}"
-                CornerRadius="8"
+                CornerRadius="{StaticResource PanelRadius}"
                 BorderThickness="1"
                 BorderBrush="{DynamicResource BorderSubtleBrush}">
+            <StackPanel>
+                <TextBlock Text="画像ピクセル比較"
+                           Style="{StaticResource SubtitleTextStyle}"
+                           Margin="0,0,0,12" />
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
@@ -43,6 +46,8 @@
                 <ComboBox Grid.Column="2"
                           Width="170"
                           Margin="0,0,8,0"
+                          FontFamily="{DynamicResource AppFontFamily}"
+                          Foreground="{DynamicResource PrimaryTextBrush}"
                           ItemsSource="{Binding AvailableSheets}"
                           SelectedItem="{Binding SelectedSheet, Mode=TwoWay}" />
 
@@ -50,6 +55,8 @@
                           Width="74"
                           IsEditable="True"
                           Margin="0,0,8,0"
+                          FontFamily="{DynamicResource AppFontFamily}"
+                          Foreground="{DynamicResource PrimaryTextBrush}"
                           ItemsSource="{Binding AvailableColumns}"
                           Text="{Binding LeftColumnName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
 
@@ -63,6 +70,8 @@
                           Width="74"
                           IsEditable="True"
                           Margin="0,0,8,0"
+                          FontFamily="{DynamicResource AppFontFamily}"
+                          Foreground="{DynamicResource PrimaryTextBrush}"
                           ItemsSource="{Binding AvailableColumns}"
                           Text="{Binding RightColumnName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
 
@@ -81,7 +90,7 @@
                             Margin="0,0,8,0"
                             Style="{DynamicResource PrimaryButtonStyle}"
                             Command="{Binding StartCompareCommand}" />
-                    <Button Content="Report"
+                    <Button Content="レポート"
                             Height="36"
                             MinWidth="92"
                             Padding="12,0"
@@ -89,21 +98,32 @@
                             Command="{Binding ExportReportCommand}" />
                 </StackPanel>
             </Grid>
+            </StackPanel>
         </Border>
 
-        <Grid Grid.Row="1">
+        <Grid Grid.Row="1" Margin="0,0,0,0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="460" />
                 <ColumnDefinition Width="16" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
-            <Border Grid.Column="0" Padding="12"
+            <Border Grid.Column="0" Padding="16"
                     Background="{DynamicResource CardElevatedBrush}"
-                    CornerRadius="8"
+                    CornerRadius="{StaticResource PanelRadius}"
                     BorderThickness="1"
                     BorderBrush="{DynamicResource BorderSubtleBrush}">
-                <DataGrid ItemsSource="{Binding CompareItems}"
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Row="0"
+                               Text="比較一覧"
+                               Style="{StaticResource BodyTextStyle}"
+                               Margin="0,0,0,10" />
+                <DataGrid Grid.Row="1"
+                          ItemsSource="{Binding CompareItems}"
                           SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
                           AutoGenerateColumns="False"
                           CanUserAddRows="False"
@@ -166,20 +186,27 @@
                         <DataGridTextColumn Header="サイズ情報" Width="*" Binding="{Binding SizeInfo}" />
                     </DataGrid.Columns>
                 </DataGrid>
+                </Grid>
             </Border>
 
-            <Border Grid.Column="2" Padding="12"
+            <Border Grid.Column="2" Padding="16"
                     Background="{DynamicResource CardElevatedBrush}"
-                    CornerRadius="8"
+                    CornerRadius="{StaticResource PanelRadius}"
                     BorderThickness="1"
                     BorderBrush="{DynamicResource BorderSubtleBrush}">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
 
-                    <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
+                    <TextBlock Grid.Row="0"
+                               Text="結果プレビュー"
+                               Style="{StaticResource BodyTextStyle}"
+                               Margin="0,0,0,8" />
+
+                    <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,10">
                         <Button Content="左画像"
                                 Height="30"
                                 MinWidth="70"
@@ -193,11 +220,11 @@
                                 Command="{Binding ShowRightImageCommand}" />
                     </StackPanel>
 
-                    <Border Grid.Row="1"
+                    <Border Grid.Row="2"
                             Background="{DynamicResource NavBackgroundBrush}"
                             BorderThickness="1"
                             BorderBrush="{DynamicResource BorderSubtleBrush}"
-                            CornerRadius="6">
+                            CornerRadius="{StaticResource PanelRadius}">
                         <Grid>
                             <Image Source="{Binding PreviewImagePath}"
                                    Stretch="Uniform"
@@ -226,27 +253,5 @@
                 </Grid>
             </Border>
         </Grid>
-
-        <Border Grid.Row="2" Margin="0,16,0,0" Padding="16"
-                Background="{DynamicResource CardElevatedBrush}"
-                CornerRadius="8"
-                BorderThickness="1"
-                BorderBrush="{DynamicResource BorderSubtleBrush}">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="200" />
-                </Grid.ColumnDefinitions>
-                <TextBlock Grid.Column="0"
-                           VerticalAlignment="Center"
-                           Foreground="{DynamicResource PrimaryTextBrush}"
-                           Text="{Binding StatusMessage}" />
-                <ProgressBar Grid.Column="1"
-                             Height="12"
-                             Minimum="0"
-                             Maximum="100"
-                             Value="{Binding ProgressValue}" />
-            </Grid>
-        </Border>
     </Grid>
 </UserControl>
