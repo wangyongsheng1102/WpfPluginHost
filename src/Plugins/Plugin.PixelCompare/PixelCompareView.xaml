@@ -281,7 +281,7 @@
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center">
                                 <TextBlock.Style>
-                                    <Style TargetType="TextBlock" BasedOn="{DynamicResource CaptionTextStyle}">
+                                    <Style TargetType="TextBlock" BasedOn="{StaticResource CaptionTextStyle}">
                                         <Setter Property="Visibility" Value="Collapsed" />
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding PreviewImagePath}" Value="{x:Null}">
