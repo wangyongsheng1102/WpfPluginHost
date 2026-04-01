@@ -25,17 +25,30 @@ public sealed class HtmlReportService
         html.AppendLine(".warn{background:#fff3cd;padding:8px;border-radius:4px;}");
         html.AppendLine(".err{background:#f8d7da;padding:8px;border-radius:4px;}");
         html.AppendLine(".ok{background:#d4edda;padding:8px;border-radius:4px;}");
+        html.AppendLine(".toc{margin:20px 0;padding:14px 16px;background:#f8f9ff;border:1px solid #d9def0;border-radius:8px;}");
+        html.AppendLine(".toc h2{margin:0 0 10px 0;font-size:18px;}");
+        html.AppendLine(".toc ul{margin:0;padding-left:20px;columns:2;column-gap:28px;}");
+        html.AppendLine(".toc li{margin:4px 0;break-inside:avoid;}");
+        html.AppendLine(".toc a{text-decoration:none;color:#1f4a9d;}");
+        html.AppendLine(".toc a:hover{text-decoration:underline;}");
         html.AppendLine("</style></head><body><div class=\"container\">");
         html.AppendLine("<h1>PixelCompare レポート</h1>");
         html.AppendLine($"<p><strong>作成日時:</strong> {DateTime.Now:yyyy-MM-dd HH:mm:ss}</p>");
         html.AppendLine($"<p><strong>Excel:</strong> {excelPath}</p>");
         html.AppendLine($"<p><strong>シート:</strong> {sheetName}</p>");
+        html.AppendLine("<div class=\"toc\"><h2>目次</h2><ul>");
+        foreach (var entry in results.OrderBy(x => x.RowIndex))
+        {
+            var rowIndex = entry.RowIndex;
+            html.AppendLine($"<li><a href=\"#row-{rowIndex}\">{rowIndex} 行目</a></li>");
+        }
+        html.AppendLine("</ul></div>");
 
         foreach (var entry in results.OrderBy(x => x.RowIndex))
         {
             var rowIndex = entry.RowIndex;
             var result = entry.Result;
-            html.AppendLine($"<div class=\"section\"><h3>{rowIndex} 行目</h3>");
+            html.AppendLine($"<div class=\"section\" id=\"row-{rowIndex}\"><h3>{rowIndex} 行目</h3>");
 
             if (result.IsSizeMismatch)
             {
