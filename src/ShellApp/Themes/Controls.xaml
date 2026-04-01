@@ -828,12 +828,17 @@
         <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
         <Setter Property="TextElement.Foreground" Value="{DynamicResource PrimaryTextBrush}" />
         <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="BorderBrush" Value="Transparent" />
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
         <Setter Property="HorizontalContentAlignment" Value="Center" />
         <Setter Property="VerticalContentAlignment" Value="Center" />
         <Setter Property="VerticalAlignment" Value="Center" />
         <Style.Triggers>
             <Trigger Property="IsSelected" Value="True">
                 <Setter Property="Background" Value="Transparent" />
+                <Setter Property="BorderThickness" Value="0" />
+                <Setter Property="BorderBrush" Value="Transparent" />
                 <Setter Property="Foreground" Value="{DynamicResource DataGridRowSelectedTextBrush}" />
                 <Setter Property="TextElement.Foreground" Value="{DynamicResource DataGridRowSelectedTextBrush}" />
             </Trigger>
@@ -843,6 +848,8 @@
                     <Condition Property="Selector.IsSelectionActive" Value="False" />
                 </MultiTrigger.Conditions>
                 <Setter Property="Background" Value="Transparent" />
+                <Setter Property="BorderThickness" Value="0" />
+                <Setter Property="BorderBrush" Value="Transparent" />
                 <Setter Property="Foreground" Value="{DynamicResource DataGridRowSelectedTextBrush}" />
                 <Setter Property="TextElement.Foreground" Value="{DynamicResource DataGridRowSelectedTextBrush}" />
             </MultiTrigger>
