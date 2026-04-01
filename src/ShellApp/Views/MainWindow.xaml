@@ -431,9 +431,16 @@
                             </Border.Style>
 
                             <Grid>
-                                <Border Background="{DynamicResource ContentBackgroundBrush}"
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="170" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+
+                                <Border Grid.ColumnSpan="2"
+                                        Background="{DynamicResource ContentBackgroundBrush}"
                                         CornerRadius="6" />
-                                <Border CornerRadius="6"
+                                <Border Grid.ColumnSpan="2"
+                                        CornerRadius="6"
                                         Opacity="0"
                                         IsHitTestVisible="False">
                                     <Border.Style>
@@ -469,11 +476,6 @@
                                         </Style>
                                     </Border.Style>
                                 </Border>
-
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="170" />
-                                    <ColumnDefinition Width="Auto" />
-                                </Grid.ColumnDefinitions>
 
                                 <ProgressBar Grid.Column="0"
                                              Value="{Binding GlobalStatus.ProgressValue}"
