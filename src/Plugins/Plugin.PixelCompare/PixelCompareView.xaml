@@ -165,15 +165,29 @@
                         <Style TargetType="DataGridRow">
                             <Setter Property="BorderThickness" Value="0" />
                             <Setter Property="SnapsToDevicePixels" Value="True" />
+                            <Setter Property="Background" Value="Transparent" />
+                            <Setter Property="BorderBrush" Value="{DynamicResource BorderSubtleBrush}" />
+                            <Setter Property="BorderThickness" Value="0,0,0,1" />
                             <Style.Triggers>
                                 <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter Property="Background" Value="{DynamicResource ButtonHoverGradientBrush}" />
+                                    <Setter Property="Background" Value="{DynamicResource DataGridRowHoverBrush}" />
                                 </Trigger>
                                 <Trigger Property="IsSelected" Value="True">
                                     <Setter Property="Background" Value="{DynamicResource DataGridRowSelectedBrush}" />
+                                    <Setter Property="BorderBrush" Value="{DynamicResource DataGridRowSelectedBorderBrush}" />
+                                    <Setter Property="BorderThickness" Value="0,0,0,2" />
                                     <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
                                     <Setter Property="TextElement.Foreground" Value="{DynamicResource PrimaryTextBrush}" />
                                 </Trigger>
+                                <MultiTrigger>
+                                    <MultiTrigger.Conditions>
+                                        <Condition Property="IsSelected" Value="True" />
+                                        <Condition Property="Selector.IsSelectionActive" Value="False" />
+                                    </MultiTrigger.Conditions>
+                                    <Setter Property="Background" Value="{DynamicResource DataGridRowSelectedBrush}" />
+                                    <Setter Property="BorderBrush" Value="{DynamicResource DataGridRowSelectedBorderBrush}" />
+                                    <Setter Property="BorderThickness" Value="0,0,0,2" />
+                                </MultiTrigger>
                             </Style.Triggers>
                         </Style>
                     </DataGrid.RowStyle>
@@ -193,6 +207,7 @@
                                     <Setter Property="Background" Value="Transparent" />
                                     <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
                                     <Setter Property="TextElement.Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+                                    <Setter Property="FontWeight" Value="SemiBold" />
                                 </Trigger>
                             </Style.Triggers>
                         </Style>
