@@ -127,6 +127,7 @@
                           ItemsSource="{Binding CompareItems}"
                           SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
                           IsEnabled="{Binding IsProcessing, Converter={StaticResource InverseBooleanConverter}}"
+                          IsReadOnly="True"
                           AutoGenerateColumns="False"
                           CanUserAddRows="False"
                           CanUserDeleteRows="False"
@@ -189,19 +190,19 @@
                         <DataGridTextColumn Header="行番号"
                                             Width="SizeToCells"
                                             MinWidth="128"
-                                            Binding="{Binding RowIndex}" />
+                                            Binding="{Binding RowIndex, Mode=OneWay}" />
                         <DataGridTextColumn Header="結果"
                                             Width="SizeToCells"
                                             MinWidth="176"
-                                            Binding="{Binding StatusText}" />
+                                            Binding="{Binding StatusText, Mode=OneWay}" />
                         <DataGridTextColumn Header="差異率"
                                             Width="SizeToCells"
                                             MinWidth="240"
-                                            Binding="{Binding DifferencePercentageText}" />
+                                            Binding="{Binding DifferencePercentageText, Mode=OneWay}" />
                         <DataGridTextColumn Header="差異数"
                                             Width="*"
                                             MinWidth="144"
-                                            Binding="{Binding DiffCountDisplay}">
+                                            Binding="{Binding DiffCountDisplay, Mode=OneWay}">
                             <DataGridTextColumn.ElementStyle>
                                 <Style TargetType="TextBlock">
                                     <Setter Property="VerticalAlignment" Value="Center" />
