@@ -2,7 +2,7 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              Background="{DynamicResource ContentBackgroundBrush}">
-    <Grid Margin="36"
+    <Grid Margin="30"
           Background="{DynamicResource ContentBackgroundBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -11,15 +11,15 @@
         </Grid.RowDefinitions>
 
         <!-- 書式設定オプション -->
-        <Border Grid.Row="0" Margin="0,0,0,14" Padding="12"
+        <Border Grid.Row="0" Margin="0,0,0,12" Padding="10"
                 Background="{DynamicResource CardElevatedBrush}"
                 CornerRadius="8" BorderThickness="1" BorderBrush="{DynamicResource BorderSubtleBrush}">
             <StackPanel>
                 <TextBlock Text="書式設定オプション"
-                           Margin="0,0,0,16"
+                           Margin="0,0,0,8"
                            Style="{StaticResource SubtitleTextStyle}"/>
                 
-                <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
                     <CheckBox Content="すべてのシートのズーム倍率をリセットする：" 
                               IsChecked="{Binding EnableZoomFormat}"
                               Foreground="{DynamicResource PrimaryTextBrush}"
@@ -27,7 +27,7 @@
                     <Border Background="{DynamicResource NavBackgroundBrush}"
                             BorderBrush="{DynamicResource BorderSubtleBrush}"
                             BorderThickness="1" CornerRadius="4"
-                            Margin="8,0,0,0" Width="60" Height="28">
+                            Margin="4,0,0,0" Width="30" Height="14">
                         <TextBox Text="{Binding ZoomLevel, UpdateSourceTrigger=PropertyChanged}"
                                  IsEnabled="{Binding EnableZoomFormat}"
                                  Foreground="{DynamicResource PrimaryTextBrush}"
@@ -37,18 +37,18 @@
                                  HorizontalContentAlignment="Center"/>
                     </Border>
                     <TextBlock Text="%" Foreground="{DynamicResource PrimaryTextBrush}" 
-                               VerticalAlignment="Center" Margin="6,0,0,0" FontSize="{StaticResource BodyFontSize}"/>
+                               VerticalAlignment="Center" Margin="3,0,0,0" FontSize="{StaticResource BodyFontSize}"/>
                 </StackPanel>
                           
                 <CheckBox Content="すべてのシートのカーソルを A1 セルに移動する" 
                           IsChecked="{Binding FormatFocusA1}"
                           Foreground="{DynamicResource PrimaryTextBrush}"
-                          Margin="0,0,0,12" FontSize="{StaticResource BodyFontSize}" />
+                          Margin="0,0,0,6" FontSize="{StaticResource BodyFontSize}" />
                           
                 <CheckBox Content="処理完了後、デフォルトで最初のシートをアクティブにする" 
                           IsChecked="{Binding FormatActiveFirstSheet}"
                           Foreground="{DynamicResource PrimaryTextBrush}"
-                          Margin="0,0,0,12" FontSize="{StaticResource BodyFontSize}" />
+                          Margin="0,0,0,6" FontSize="{StaticResource BodyFontSize}" />
 
                 <TextBlock Text="処理時に自動実行：フィルター解除・数式を値に固定・行列の自動調整・外部リンク切断"
                            Foreground="{DynamicResource SecondaryTextBrush}"
@@ -58,7 +58,7 @@
         </Border>
 
         <!-- 一覧／ドロップ領域 -->
-        <Border Grid.Row="1" Margin="0,0,0,14"
+        <Border Grid.Row="1" Margin="0,0,0,12"
                 CornerRadius="8"
                 AllowDrop="True"
                 PreviewDrop="OnDropZonePreviewDrop"
@@ -107,11 +107,11 @@
                             </Style.Triggers>
                         </Style>
                     </StackPanel.Style>
-                    <Viewbox Width="50"
-                             Height="50"
+                    <Viewbox Width="42"
+                             Height="42"
                              Stretch="Uniform"
                              HorizontalAlignment="Center"
-                             Margin="0,0,0,16">
+                             Margin="0,0,0,8">
                         <Viewbox.Resources>
                             <LinearGradientBrush x:Key="SampleADropExcelPaint0"
                                                  MappingMode="Absolute"
@@ -183,7 +183,7 @@
                                HorizontalAlignment="Center" />
                     <TextBlock Text="フォルダをドロップした場合、フォルダ内のすべての Excel ファイルを自動的にスキャンします" 
                                FontSize="{StaticResource CaptionFontSize}" Foreground="{DynamicResource SecondaryTextBrush}"
-                               Margin="0,8,0,0" Opacity="0.7"
+                               Margin="0,4,0,0" Opacity="0.7"
                                HorizontalAlignment="Center" />
                 </StackPanel>
 
@@ -201,8 +201,8 @@
                           VerticalGridLinesBrush="{DynamicResource BorderSubtleBrush}"
                           Background="Transparent"
                           BorderThickness="0"
-                          RowHeight="48"
-                          ColumnHeaderHeight="48"
+                          RowHeight="40"
+                          ColumnHeaderHeight="40"
                           FontFamily="{DynamicResource AppFontFamily}"
                           Foreground="{DynamicResource PrimaryTextBrush}"
                           RowBackground="Transparent"
@@ -263,7 +263,7 @@
                             <!-- セル本体の枠は付けず、DataGrid の GridLines で Excel 風の罫線のみ -->
                             <Setter Property="BorderThickness" Value="0" />
                             <!-- 行罫線と文字の距離を空け、罫線が下線に見えないようにする -->
-                            <Setter Property="Padding" Value="7,5" />
+                            <Setter Property="Padding" Value="6,4" />
                             <Setter Property="VerticalAlignment" Value="Center" />
                             <Setter Property="Background" Value="Transparent" />
                             <Setter Property="FocusVisualStyle" Value="{x:Null}" />
@@ -281,7 +281,7 @@
                     </DataGrid.CellStyle>
                     <DataGrid.Columns>
                         <DataGridTemplateColumn Header="ファイル名"
-                                                Width="150"
+                                                Width="125"
                                                 IsReadOnly="True">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
@@ -291,11 +291,11 @@
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
                         <DataGridTemplateColumn Header="ステータス"
-                                                Width="72"
+                                                Width="60"
                                                 IsReadOnly="True">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
-                                    <Border Padding="5,2"
+                                    <Border Padding="4,2"
                                             CornerRadius="10"
                                             HorizontalAlignment="Left">
                                         <Border.Style>
@@ -346,7 +346,7 @@
         </Border>
 
         <!-- 下部のアクションバー -->
-        <Border Grid.Row="2" Padding="12,10"
+        <Border Grid.Row="2" Padding="10,8"
                 Background="{DynamicResource CardElevatedBrush}"
                 BorderBrush="{DynamicResource BorderSubtleBrush}"
                 BorderThickness="1" CornerRadius="8">
@@ -360,25 +360,25 @@
 
                 <!-- 左：追加・クリア -->
                 <Button Grid.Column="0" Content="+ 手動追加..." 
-                        MinWidth="144" Height="43" Padding="19,0"
+                        MinWidth="120" Height="36" Padding="16,0"
                         Style="{DynamicResource ActionButtonStyle}"
                         Command="{Binding SelectExcelFallbackCommand}" />
                         
                 <Button Grid.Column="1" Content="🗑 キューをクリア"
-                        MinWidth="120" Height="43" Margin="14,0,0,0" Padding="19,0"
+                        MinWidth="100" Height="36" Margin="12,0,0,0" Padding="16,0"
                         Style="{DynamicResource ActionButtonStyle}"
                         Command="{Binding ClearFilesCommand}"
                         IsEnabled="{Binding HasPendingFiles}" />
 
                 <!-- 中央：ステータス -->
                 <TextBlock Grid.Column="2"
-                           Margin="14,0" VerticalAlignment="Center" HorizontalAlignment="Right"
+                           Margin="12,0" VerticalAlignment="Center" HorizontalAlignment="Right"
                            Style="{StaticResource KeyInfoTextStyle}"
                            Text="{Binding StatusMessage}" TextWrapping="Wrap" />
 
                 <!-- 右：書式設定の実行 -->
                 <Button Grid.Column="3" Content="🚀 書式設定を実行"
-                        MinWidth="192" Height="48" Padding="29,0"
+                        MinWidth="160" Height="40" Padding="24,0"
                         Style="{DynamicResource PrimaryButtonStyle}"
                         Command="{Binding ExecuteFormatCommand}"
                         IsEnabled="{Binding HasPendingFiles}" />

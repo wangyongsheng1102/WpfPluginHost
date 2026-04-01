@@ -13,7 +13,7 @@ public sealed class ImageAnnotationService
         var rectColor = Color.Red;
         var textColor = Color.DarkSlateGray;
         const int lineWidth = 2;
-        const float fontSize = 30f;
+        const float fontSize = 25f;
         var font = SystemFonts.CreateFont("Arial", fontSize, FontStyle.Bold);
 
         image.Mutate(ctx =>

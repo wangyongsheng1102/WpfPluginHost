@@ -8,7 +8,7 @@ namespace ShellApp.Views;
 
 public partial class MainWindow : Window
 {
-    private const double ExpandedMenuWidth = 312;
+    private const double ExpandedMenuWidth = 260;
     private const double CollapsedMenuWidth = 84;
 
     public MainWindow()

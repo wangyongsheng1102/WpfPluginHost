@@ -18,7 +18,6 @@ public sealed class HtmlReportService
         html.AppendLine("<head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1.0\">");
         html.AppendLine("<title>PixelCompare Report</title>");
         html.AppendLine("<style>");
-        html.AppendLine("html{font-size:120%;}");
         html.AppendLine("body{font-family:Arial,sans-serif;margin:0;padding:20px;background:#f5f5f5;}");
         html.AppendLine(".container{max-width:1400px;margin:0 auto;background:#fff;padding:20px;border-radius:8px;}");
         html.AppendLine(".section{margin:28px 0;padding:16px;background:#fafafa;border:1px solid #e0e0e0;border-radius:8px;}");

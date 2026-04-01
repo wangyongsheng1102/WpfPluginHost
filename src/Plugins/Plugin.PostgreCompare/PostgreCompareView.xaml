@@ -5,7 +5,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d"
              Background="{DynamicResource ContentBackgroundBrush}">
-    <Grid Margin="36"
+    <Grid Margin="30"
           Background="{DynamicResource ContentBackgroundBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
@@ -81,16 +81,16 @@
                                         DockPanel.Dock="Right">
                                 <Button Content="➕ 接続を追加"
                                         Style="{StaticResource PrimaryButtonStyle}"
-                                        MinWidth="96"
-                                        Height="24"
-                                        Padding="14,0"
+                                        MinWidth="80"
+                                        Height="20"
+                                        Padding="12,0"
                                         Command="{Binding DbConfigViewModel.AddConnectionCommand}" />
                                 <Button Content="🗑 選択を削除"
                                         Style="{StaticResource ActionButtonStyle}"
                                         Margin="8,0,0,0"
-                                        MinWidth="78"
-                                        Height="24"
-                                        Padding="10,0"
+                                        MinWidth="65"
+                                        Height="20"
+                                        Padding="8,0"
                                         Command="{Binding DbConfigViewModel.RemoveConnectionCommand}"
                                         CommandParameter="{Binding DbConfigViewModel.SelectedConnection}" />
                             </StackPanel>
@@ -130,8 +130,8 @@
                                       VerticalGridLinesBrush="{DynamicResource BorderSubtleBrush}"
                                       Background="Transparent"
                                       BorderThickness="0"
-                                      RowHeight="48"
-                                      ColumnHeaderHeight="48"
+                                      RowHeight="40"
+                                      ColumnHeaderHeight="40"
                                       FontFamily="{DynamicResource AppFontFamily}"
                                       Foreground="{DynamicResource PrimaryTextBrush}"
                                       RowBackground="Transparent"
@@ -173,7 +173,7 @@
                                 <DataGrid.CellStyle>
                                     <Style TargetType="DataGridCell">
                                         <Setter Property="BorderThickness" Value="0" />
-                                        <Setter Property="Padding" Value="7,5" />
+                                        <Setter Property="Padding" Value="6,4" />
                                         <Setter Property="VerticalAlignment" Value="Center" />
                                         <Setter Property="Background" Value="Transparent" />
                                         <Setter Property="FocusVisualStyle" Value="{x:Null}" />
@@ -194,7 +194,7 @@
                                                         Binding="{Binding ConfigurationName, UpdateSourceTrigger=PropertyChanged}" />
                                     <DataGridTextColumn Header="ホスト" Width="*"
                                                         Binding="{Binding Host, UpdateSourceTrigger=PropertyChanged}" />
-                                    <DataGridTextColumn Header="ポート" Width="54"
+                                    <DataGridTextColumn Header="ポート" Width="45"
                                                         Binding="{Binding Port, UpdateSourceTrigger=PropertyChanged}" />
                                     <DataGridTextColumn Header="データベース" Width="*"
                                                         Binding="{Binding Database, UpdateSourceTrigger=PropertyChanged}" />
@@ -350,7 +350,7 @@
                                        Margin="0,0,0,8" />
 
                             <ProgressBar Grid.Row="2"
-                                         Height="7"
+                                         Height="6"
                                          Margin="0,4,0,0"
                                          Minimum="0"
                                          Maximum="100"
@@ -493,8 +493,8 @@
                                       VerticalGridLinesBrush="{DynamicResource BorderSubtleBrush}"
                                       Background="Transparent"
                                       BorderThickness="0"
-                                      RowHeight="48"
-                                      ColumnHeaderHeight="48"
+                                      RowHeight="40"
+                                      ColumnHeaderHeight="40"
                                       FontFamily="{DynamicResource AppFontFamily}"
                                       Foreground="{DynamicResource PrimaryTextBrush}"
                                       RowBackground="Transparent"
@@ -520,7 +520,7 @@
                                 <DataGrid.CellStyle>
                                     <Style TargetType="DataGridCell">
                                         <Setter Property="BorderThickness" Value="0" />
-                                        <Setter Property="Padding" Value="7,5" />
+                                        <Setter Property="Padding" Value="6,4" />
                                         <Setter Property="VerticalAlignment" Value="Center" />
                                         <Setter Property="Background" Value="Transparent" />
                                         <Setter Property="FocusVisualStyle" Value="{x:Null}" />
