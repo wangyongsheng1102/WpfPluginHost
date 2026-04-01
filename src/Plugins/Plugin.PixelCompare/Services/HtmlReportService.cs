@@ -9,8 +9,7 @@ public sealed class HtmlReportService
     public async Task ExportAsync(
         string reportPath,
         string excelPath,
-        string sheetName,
-        IReadOnlyList<(int RowIndex, ComparisonResult Result)> results)
+        IReadOnlyList<(string SheetName, int RowIndex, ComparisonResult Result)> results)
     {
         var lightFontBase64 = TryLoadFontBase64("LXGWWenKai-Light.ttf");
         var boldFontBase64 = TryLoadFontBase64("LXGWWenKai-Bold.ttf");
@@ -49,22 +48,26 @@ public sealed class HtmlReportService
         html.AppendLine("<h1>PixelCompare レポート</h1>");
         html.AppendLine($"<p><strong>作成日時:</strong> {DateTime.Now:yyyy-MM-dd HH:mm:ss}</p>");
         html.AppendLine($"<p><strong>Excel:</strong> {excelPath}</p>");
-        html.AppendLine($"<p><strong>シート:</strong> {sheetName}</p>");
+        html.AppendLine($"<p><strong>シート数:</strong> {results.Select(x => x.SheetName).Distinct(StringComparer.Ordinal).Count()} 件</p>");
         html.AppendLine("<div class=\"toc\" id=\"toc\"><h2>目次</h2><ul>");
-        foreach (var entry in results.OrderBy(x => x.RowIndex))
+        foreach (var entry in results.OrderBy(x => x.SheetName, StringComparer.Ordinal).ThenBy(x => x.RowIndex))
         {
+            var anchorId = BuildAnchorId(entry.SheetName, entry.RowIndex);
             var rowIndex = entry.RowIndex;
+            var sheetName = entry.SheetName;
             var result = entry.Result;
             var diffCountText = result.IsSizeMismatch ? "∞" : result.HasError ? "-" : result.DiffCount.ToString();
-            html.AppendLine($"<li><a href=\"#row-{rowIndex}\">{rowIndex} 行目（差異数: {diffCountText}）</a></li>");
+            html.AppendLine($"<li><a href=\"#{anchorId}\">{EscapeHtml(sheetName)} / {rowIndex} 行目（差異数: {diffCountText}）</a></li>");
         }
         html.AppendLine("</ul></div>");
 
-        foreach (var entry in results.OrderBy(x => x.RowIndex))
+        foreach (var entry in results.OrderBy(x => x.SheetName, StringComparer.Ordinal).ThenBy(x => x.RowIndex))
         {
+            var anchorId = BuildAnchorId(entry.SheetName, entry.RowIndex);
             var rowIndex = entry.RowIndex;
+            var sheetName = entry.SheetName;
             var result = entry.Result;
-            html.AppendLine($"<div class=\"section\" id=\"row-{rowIndex}\"><h3>{rowIndex} 行目</h3>");
+            html.AppendLine($"<div class=\"section\" id=\"{anchorId}\"><h3>{EscapeHtml(sheetName)} / {rowIndex} 行目</h3>");
 
             if (result.IsSizeMismatch)
             {
@@ -98,6 +101,28 @@ public sealed class HtmlReportService
         var base64 = Convert.ToBase64String(File.ReadAllBytes(path));
         html.AppendLine($"<p><strong>{title}</strong></p>");
         html.AppendLine($"<img src=\"data:image/png;base64,{base64}\" alt=\"{title}\" />");
+    }
+
+    private static string BuildAnchorId(string sheetName, int rowIndex)
+    {
+        var normalized = string.Concat((sheetName ?? string.Empty)
+            .Select(c => char.IsLetterOrDigit(c) ? c : '_'));
+        if (string.IsNullOrWhiteSpace(normalized))
+        {
+            normalized = "sheet";
+        }
+
+        return $"row-{normalized}-{rowIndex}";
+    }
+
+    private static string EscapeHtml(string value)
+    {
+        return (value ?? string.Empty)
+            .Replace("&", "&amp;", StringComparison.Ordinal)
+            .Replace("<", "&lt;", StringComparison.Ordinal)
+            .Replace(">", "&gt;", StringComparison.Ordinal)
+            .Replace("\"", "&quot;", StringComparison.Ordinal)
+            .Replace("'", "&#39;", StringComparison.Ordinal);
     }
 
     private static string? TryLoadFontBase64(string fileName)
