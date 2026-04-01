@@ -380,29 +380,92 @@
                 <!-- Global Status Bar -->
                 <Border Grid.Row="2"
                         Margin="0,0,12,12"
-                        Height="40"
+                        Height="48"
                         Background="{DynamicResource NavBackgroundBrush}"
-                        CornerRadius="8"
+                        CornerRadius="10"
                         BorderBrush="{DynamicResource BorderSubtleBrush}"
                         BorderThickness="1">
                     <Grid>
-                        <!-- Status Icon & Text -->
-                        <TextBlock Text="{Binding GlobalStatus.Message}" 
-                                   VerticalAlignment="Center" Margin="16,0,0,0"
-                                   Foreground="{Binding GlobalStatus.TextColor}" 
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Grid.Column="0"
+                                   Text="{Binding GlobalStatus.Message}"
+                                   VerticalAlignment="Center"
+                                   Margin="16,0,12,0"
+                                   Foreground="{Binding GlobalStatus.TextColor}"
                                    FontSize="13"
+                                   TextTrimming="CharacterEllipsis"
                                    FontFamily="{DynamicResource AppFontFamilyBold}"
                                    FontWeight="Normal" />
-                        
-                        <!-- Progress Bar -->
-                        <ProgressBar Value="{Binding GlobalStatus.ProgressValue}" 
-                                     IsIndeterminate="{Binding GlobalStatus.IsIndeterminate}"
-                                     Visibility="{Binding GlobalStatus.ShowProgress, Converter={StaticResource BooleanToVisibilityConverter}}"
-                                     VerticalAlignment="Center" HorizontalAlignment="Right" 
-                                     Margin="0,0,16,0" Width="180" Height="6"
-                                     Foreground="{DynamicResource IndicatorBrush}" 
-                                     Background="{DynamicResource ShellBackgroundBrush}" 
-                                     BorderThickness="0" />
+
+                        <Border Grid.Column="1"
+                                Margin="0,8,12,8"
+                                Padding="10,6"
+                                MinWidth="250"
+                                CornerRadius="7"
+                                Background="{DynamicResource ContentBackgroundBrush}"
+                                BorderBrush="{DynamicResource BorderSubtleBrush}"
+                                BorderThickness="1"
+                                Visibility="{Binding GlobalStatus.ShowProgress, Converter={StaticResource BooleanToVisibilityConverter}}">
+                            <Border.Style>
+                                <Style TargetType="Border">
+                                    <Setter Property="Opacity" Value="1" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding GlobalStatus.ShowProgress}" Value="True">
+                                            <DataTrigger.EnterActions>
+                                                <BeginStoryboard>
+                                                    <Storyboard RepeatBehavior="Forever" AutoReverse="True">
+                                                        <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                                                         From="0.85"
+                                                                         To="1"
+                                                                         Duration="0:0:0.8" />
+                                                    </Storyboard>
+                                                </BeginStoryboard>
+                                            </DataTrigger.EnterActions>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="170" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+
+                                <ProgressBar Grid.Column="0"
+                                             Value="{Binding GlobalStatus.ProgressValue}"
+                                             IsIndeterminate="{Binding GlobalStatus.IsIndeterminate}"
+                                             VerticalAlignment="Center"
+                                             Height="10"
+                                             Foreground="{DynamicResource IndicatorBrush}"
+                                             Background="{DynamicResource ShellBackgroundBrush}"
+                                             BorderThickness="0"
+                                             Minimum="0"
+                                             Maximum="100" />
+
+                                <TextBlock Grid.Column="1"
+                                           Margin="10,0,0,0"
+                                           VerticalAlignment="Center"
+                                           FontFamily="{DynamicResource AppFontFamilyBold}"
+                                           FontSize="12"
+                                           Foreground="{DynamicResource PrimaryTextBrush}"
+                                           Text="{Binding GlobalStatus.ProgressValue, StringFormat={}{0:0}%}">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding GlobalStatus.IsIndeterminate}" Value="True">
+                                                    <Setter Property="Text" Value="..." />
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </Grid>
+                        </Border>
                     </Grid>
                 </Border>
             </Grid>

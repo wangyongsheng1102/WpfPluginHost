@@ -6,7 +6,7 @@ namespace Plugin.PostgreCompare;
 public sealed class PostgreComparePlugin : IPluginModule
 {
     public string Id => "postgreCompare";
-    public string Title => "Postgre データ比較";
+    public string Title => "データ比較";
     public string Description => "PostgreSQL の DB設定・CSV比較・インポート/エクスポートを行います。";
     public string IconKey => "🗄️";
     public int Order => 30;
