@@ -84,7 +84,7 @@ public sealed class HtmlReportService
             html.AppendLine("</div>");
         }
 
-        html.AppendLine("</div><a class=\"back-to-toc\" href=\"#toc\" title=\"目次にもどる\" aria-label=\"目次にもどる\">目次にもどる</a></body></html>");
+        html.AppendLine("</div><a class=\"back-to-toc\" href=\"#toc\" title=\"目次へ戻る\" aria-label=\"目次へ戻る\">目次へ戻る</a></body></html>");
         await File.WriteAllTextAsync(reportPath, html.ToString(), Encoding.UTF8);
     }
 
