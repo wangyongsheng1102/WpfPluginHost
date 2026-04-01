@@ -2,7 +2,6 @@ using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media.Animation;
 using System.ComponentModel;
-using ShellApp.Services;
 using ShellApp.ViewModels;
 
 namespace ShellApp.Views;
@@ -15,7 +14,6 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
-        AppIconLoader.ApplyTo(this);
         DataContextChanged += OnDataContextChanged;
     }
 

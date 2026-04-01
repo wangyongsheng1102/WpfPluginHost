@@ -6,7 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
-    <ApplicationIcon>Assets\Icons\toolbox_repair_box_tool_box_toolboxes_toolkit_icon_189326.ico</ApplicationIcon>
+    <ApplicationIcon>toolbox_repair_box_tool_box_toolboxes_toolkit_icon_189326.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
@@ -28,10 +28,6 @@
     </Content>
     <Resource Include="Assets\Fonts\**\*.ttf" />
     <Resource Include="Assets\SVG\**\*.svg" />
-    <!-- 窗口 Icon 从磁盘加载；同时复制到输出目录，避免仅 pack 资源时 .ico 不显示 -->
-    <Content Include="Assets\Icons\**\*.ico">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
 
   <!-- リポジトリ直下の plugins（プラグインプロジェクトの生成物）を Shell 出力に同期し、F5 時の bin\...\plugins をリポジトリと一致させる -->
