@@ -91,6 +91,7 @@
                             Padding="12,0"
                             Margin="0,0,8,0"
                             Style="{DynamicResource ActionButtonStyle}"
+                            IsEnabled="{Binding CanReloadSheetNames}"
                             Command="{Binding ReloadSheetNamesCommand}" />
                     <Button Content="レポート"
                             Height="36"
@@ -124,7 +125,8 @@
                                Text="比較一覧"
                                Style="{DynamicResource SubtitleTextStyle}"
                                Margin="0,0,0,10" />
-                <DataGrid Grid.Row="1"
+                <DataGrid x:Name="CompareListDataGrid"
+                          Grid.Row="1"
                           ItemsSource="{Binding CompareItems}"
                           SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
                           IsEnabled="{Binding IsProcessing, Converter={StaticResource InverseBooleanConverter}}"

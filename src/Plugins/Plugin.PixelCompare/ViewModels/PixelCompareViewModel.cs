@@ -26,7 +26,10 @@ public partial class PixelCompareViewModel : ObservableObject
     public ObservableCollection<string> AvailableColumns { get; } = new();
     public ObservableCollection<CompareRowItem> CompareItems { get; } = new();
 
+    public event EventHandler? CompareCompleted;
+
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CanReloadSheetNames))]
     private string _excelPath = string.Empty;
 
     [ObservableProperty]
@@ -47,6 +50,7 @@ public partial class PixelCompareViewModel : ObservableObject
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CanStartCompare))]
     [NotifyCanExecuteChangedFor(nameof(ExportReportCommand))]
+    [NotifyPropertyChangedFor(nameof(CanReloadSheetNames))]
     private bool _isProcessing;
 
     [ObservableProperty]
@@ -62,6 +66,10 @@ public partial class PixelCompareViewModel : ObservableObject
         !string.IsNullOrWhiteSpace(SelectedSheet) &&
         !string.IsNullOrWhiteSpace(LeftColumnName) &&
         !string.IsNullOrWhiteSpace(RightColumnName);
+    public bool CanReloadSheetNames =>
+        !IsProcessing &&
+        File.Exists(ExcelPath) &&
+        AvailableSheets.Count > 0;
 
     public PixelCompareViewModel(IPluginContext? context)
     {
@@ -72,6 +80,7 @@ public partial class PixelCompareViewModel : ObservableObject
         }
 
         CompareItems.CollectionChanged += OnCompareItemsCollectionChanged;
+        AvailableSheets.CollectionChanged += OnAvailableSheetsCollectionChanged;
     }
 
     partial void OnSelectedItemChanged(CompareRowItem? value)
@@ -321,6 +330,7 @@ public partial class PixelCompareViewModel : ObservableObject
         {
             _context?.ReportSuccess($"比較が完了しました。合計 {total} 件です。");
             SelectedItem = CompareItems.FirstOrDefault();
+            CompareCompleted?.Invoke(this, EventArgs.Empty);
         });
     }
 
@@ -342,6 +352,11 @@ public partial class PixelCompareViewModel : ObservableObject
     private void OnCompareItemsCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
         ExportReportCommand.NotifyCanExecuteChanged();
+    }
+
+    private void OnAvailableSheetsCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        OnPropertyChanged(nameof(CanReloadSheetNames));
     }
 
     private void CleanupCurrentTempFiles()
