@@ -788,7 +788,7 @@
         </Setter>
     </Style>
 
-    <!-- DataGrid：選択行の背景・文字色を明示（システムの白文字／薄いハイライト問題を避ける） -->
+    <!-- DataGrid：選択は下線のみで示し、行背景は変えない -->
     <Style TargetType="DataGridRow" BasedOn="{StaticResource {x:Type DataGridRow}}">
         <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
         <Setter Property="TextElement.Foreground" Value="{DynamicResource PrimaryTextBrush}" />
@@ -796,15 +796,7 @@
         <Setter Property="BorderThickness" Value="0,0,0,1" />
         <Setter Property="BorderBrush" Value="{DynamicResource BorderSubtleBrush}" />
         <Style.Triggers>
-            <MultiTrigger>
-                <MultiTrigger.Conditions>
-                    <Condition Property="IsMouseOver" Value="True" />
-                    <Condition Property="IsSelected" Value="False" />
-                </MultiTrigger.Conditions>
-                <Setter Property="Background" Value="{DynamicResource DataGridRowHoverBrush}" />
-            </MultiTrigger>
             <Trigger Property="IsSelected" Value="True">
-                <Setter Property="Background" Value="{DynamicResource DataGridRowSelectedBrush}" />
                 <Setter Property="BorderBrush" Value="{DynamicResource DataGridRowSelectedBorderBrush}" />
                 <Setter Property="BorderThickness" Value="0,0,0,1.5" />
                 <Setter Property="Foreground" Value="{DynamicResource DataGridRowSelectedTextBrush}" />
@@ -815,7 +807,6 @@
                     <Condition Property="IsSelected" Value="True" />
                     <Condition Property="Selector.IsSelectionActive" Value="False" />
                 </MultiTrigger.Conditions>
-                <Setter Property="Background" Value="{DynamicResource DataGridRowSelectedBrush}" />
                 <Setter Property="BorderBrush" Value="{DynamicResource DataGridRowSelectedBorderBrush}" />
                 <Setter Property="BorderThickness" Value="0,0,0,1.5" />
                 <Setter Property="Foreground" Value="{DynamicResource DataGridRowSelectedTextBrush}" />

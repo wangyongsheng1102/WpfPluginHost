@@ -25,7 +25,6 @@
     <SolidColorBrush x:Key="HoverBrush" Color="{StaticResource HoverColor}" />
     <SolidColorBrush x:Key="SelectedBrush" Color="{StaticResource SelectedColor}" />
     <!-- DataGrid 行ホバー／選択：明暗どちらでも判別できるようコントラストを確保 -->
-    <SolidColorBrush x:Key="DataGridRowHoverBrush" Color="#F2F7FF" />
     <SolidColorBrush x:Key="DataGridRowSelectedBrush" Color="#DDEBFA" />
     <SolidColorBrush x:Key="DataGridRowSelectedBorderBrush" Color="#AAC8E8" />
     <SolidColorBrush x:Key="DataGridRowSelectedTextBrush" Color="#E4000000" />
