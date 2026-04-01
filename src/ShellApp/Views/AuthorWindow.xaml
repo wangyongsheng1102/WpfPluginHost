@@ -8,6 +8,7 @@
         WindowStartupLocation="CenterOwner"
         AllowsTransparency="False"
         WindowStyle="SingleBorderWindow"
+        Icon="/Assets/Icons/toolbox_repair_box_tool_box_toolboxes_toolkit_icon_189326.ico"
         Background="{DynamicResource ShellBackgroundBrush}">
     <WindowChrome.WindowChrome>
         <WindowChrome GlassFrameThickness="0,0,0,1" CornerRadius="0" CaptionHeight="52" ResizeBorderThickness="8" UseAeroCaptionButtons="False" />

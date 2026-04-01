@@ -6,6 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <ApplicationIcon>Assets\Icons\toolbox_repair_box_tool_box_toolboxes_toolkit_icon_189326.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
@@ -26,6 +27,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Resource Include="Assets\Fonts\**\*.ttf" />
+    <Resource Include="Assets\Icons\**\*.ico" />
     <Resource Include="Assets\SVG\**\*.svg" />
   </ItemGroup>
 
