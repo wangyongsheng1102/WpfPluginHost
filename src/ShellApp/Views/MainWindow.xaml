@@ -34,6 +34,9 @@
             <Grid x:Name="NavPanel"
                   HorizontalAlignment="Left"
                   Width="260">
+                <Grid.RenderTransform>
+                    <TranslateTransform x:Name="NavPanelTranslate" X="0" />
+                </Grid.RenderTransform>
                 <Border Background="{DynamicResource NavBackgroundBrush}"
                         CornerRadius="8,0,0,8" />
 

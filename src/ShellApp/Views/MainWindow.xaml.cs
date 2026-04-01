@@ -1,5 +1,6 @@
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.ComponentModel;
 using ShellApp.ViewModels;
@@ -65,13 +66,36 @@ public partial class MainWindow : Window
     private void AnimateMenu(bool isCollapsed)
     {
         var targetWidth = isCollapsed ? CollapsedMenuWidth : ExpandedMenuWidth;
-        var animation = new DoubleAnimation
+        var widthAnimation = new DoubleAnimation
         {
             To = targetWidth,
-            Duration = TimeSpan.FromMilliseconds(220),
-            EasingFunction = new CubicEase { EasingMode = EasingMode.EaseInOut }
+            Duration = TimeSpan.FromMilliseconds(300),
+            EasingFunction = new QuarticEase { EasingMode = EasingMode.EaseInOut }
+        };
+        Timeline.SetDesiredFrameRate(widthAnimation, 120);
+
+        var shiftAnimation = new DoubleAnimation
+        {
+            From = isCollapsed ? 0 : -6,
+            To = isCollapsed ? -6 : 0,
+            Duration = TimeSpan.FromMilliseconds(240),
+            EasingFunction = new SineEase { EasingMode = EasingMode.EaseOut }
         };
 
-        NavPanel.BeginAnimation(WidthProperty, animation, HandoffBehavior.SnapshotAndReplace);
+        var opacityAnimation = new DoubleAnimation
+        {
+            From = 0.94,
+            To = 1,
+            Duration = TimeSpan.FromMilliseconds(220),
+            EasingFunction = new SineEase { EasingMode = EasingMode.EaseOut }
+        };
+
+        NavPanel.BeginAnimation(WidthProperty, widthAnimation, HandoffBehavior.SnapshotAndReplace);
+        NavPanel.BeginAnimation(OpacityProperty, opacityAnimation, HandoffBehavior.SnapshotAndReplace);
+
+        if (NavPanel.RenderTransform is TranslateTransform translate)
+        {
+            translate.BeginAnimation(TranslateTransform.XProperty, shiftAnimation, HandoffBehavior.SnapshotAndReplace);
+        }
     }
 }
