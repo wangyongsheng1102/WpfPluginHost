@@ -263,7 +263,7 @@
                                     <Setter Property="Background" Value="{DynamicResource ButtonHoverGradientBrush}" />
                                 </Trigger>
                                 <Trigger Property="IsSelected" Value="True">
-                                    <Setter Property="Background" Value="{DynamicResource SelectedBrush}" />
+                                    <Setter Property="Background" Value="{DynamicResource DataGridRowSelectedBrush}" />
                                     <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
                                     <Setter Property="TextElement.Foreground" Value="{DynamicResource PrimaryTextBrush}" />
                                 </Trigger>
