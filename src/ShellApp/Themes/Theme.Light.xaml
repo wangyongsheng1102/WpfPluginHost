@@ -28,6 +28,7 @@
     <SolidColorBrush x:Key="DataGridRowHoverBrush" Color="#EAF3FF" />
     <SolidColorBrush x:Key="DataGridRowSelectedBrush" Color="#3D8FD6" />
     <SolidColorBrush x:Key="DataGridRowSelectedBorderBrush" Color="#1E6FB5" />
+    <SolidColorBrush x:Key="DataGridRowSelectedTextBrush" Color="#FFFFFF" />
     <SolidColorBrush x:Key="IndicatorBrush" Color="{StaticResource IndicatorColor}" />
     <SolidColorBrush x:Key="PrimaryTextBrush" Color="{StaticResource PrimaryTextColor}" />
     <SolidColorBrush x:Key="SecondaryTextBrush" Color="{StaticResource SecondaryTextColor}" />

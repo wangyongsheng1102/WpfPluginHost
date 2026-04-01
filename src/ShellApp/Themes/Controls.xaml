@@ -807,8 +807,8 @@
                 <Setter Property="Background" Value="{DynamicResource DataGridRowSelectedBrush}" />
                 <Setter Property="BorderBrush" Value="{DynamicResource DataGridRowSelectedBorderBrush}" />
                 <Setter Property="BorderThickness" Value="0,0,0,1.5" />
-                <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
-                <Setter Property="TextElement.Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+                <Setter Property="Foreground" Value="{DynamicResource DataGridRowSelectedTextBrush}" />
+                <Setter Property="TextElement.Foreground" Value="{DynamicResource DataGridRowSelectedTextBrush}" />
             </Trigger>
         </Style.Triggers>
     </Style>
@@ -816,10 +816,13 @@
     <Style TargetType="DataGridCell" BasedOn="{StaticResource {x:Type DataGridCell}}">
         <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
         <Setter Property="TextElement.Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+        <Setter Property="HorizontalContentAlignment" Value="Center" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="VerticalAlignment" Value="Center" />
         <Style.Triggers>
             <Trigger Property="IsSelected" Value="True">
-                <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
-                <Setter Property="TextElement.Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+                <Setter Property="Foreground" Value="{DynamicResource DataGridRowSelectedTextBrush}" />
+                <Setter Property="TextElement.Foreground" Value="{DynamicResource DataGridRowSelectedTextBrush}" />
             </Trigger>
         </Style.Triggers>
     </Style>
