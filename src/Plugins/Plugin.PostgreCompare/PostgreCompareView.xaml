@@ -5,7 +5,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d"
              Background="{DynamicResource ContentBackgroundBrush}">
-    <Grid Margin="30"
+    <Grid Margin="60"
           Background="{DynamicResource ContentBackgroundBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
@@ -130,8 +130,8 @@
                                       VerticalGridLinesBrush="{DynamicResource BorderSubtleBrush}"
                                       Background="Transparent"
                                       BorderThickness="0"
-                                      RowHeight="40"
-                                      ColumnHeaderHeight="40"
+                                      RowHeight="80"
+                                      ColumnHeaderHeight="80"
                                       FontFamily="{DynamicResource AppFontFamily}"
                                       Foreground="{DynamicResource PrimaryTextBrush}"
                                       RowBackground="Transparent"
@@ -493,8 +493,8 @@
                                       VerticalGridLinesBrush="{DynamicResource BorderSubtleBrush}"
                                       Background="Transparent"
                                       BorderThickness="0"
-                                      RowHeight="40"
-                                      ColumnHeaderHeight="40"
+                                      RowHeight="80"
+                                      ColumnHeaderHeight="80"
                                       FontFamily="{DynamicResource AppFontFamily}"
                                       Foreground="{DynamicResource PrimaryTextBrush}"
                                       RowBackground="Transparent"
