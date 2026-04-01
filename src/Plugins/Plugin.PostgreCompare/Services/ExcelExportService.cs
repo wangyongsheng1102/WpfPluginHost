@@ -25,7 +25,7 @@ public class ExcelExportService
         worksheet.Cell(1, 1).Value = "[自動採番]、[登録/更新/削除日時]、[登録/更新/削除者]、[登録/更新/削除機能]のデータ比較結果が「FALSE」の場合、補足説明が必要がない。";
         worksheet.Cell(1, 1).Style.Font.FontColor = XLColor.Red;
         worksheet.Cell(1, 1).Style.Font.Bold = true;
-        worksheet.Cell(1, 1).Style.Font.FontSize = 11;
+        worksheet.Cell(1, 1).Style.Font.FontSize = 13;
         worksheet.Cell(1, 1).Style.Font.SetFontName("MS PGothic");
 
         var builder = new DbConnectionStringBuilder

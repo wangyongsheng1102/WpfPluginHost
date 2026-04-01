@@ -3,48 +3,48 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"
         Title="{Binding WindowTitle}"
-        Height="1240" Width="1040"
-        MinHeight="1240" MinWidth="1040"
+        Height="744" Width="624"
+        MinHeight="744" MinWidth="624"
         WindowStartupLocation="CenterOwner"
         AllowsTransparency="False"
         WindowStyle="SingleBorderWindow"
         Background="{DynamicResource ShellBackgroundBrush}">
     <WindowChrome.WindowChrome>
-        <WindowChrome GlassFrameThickness="0,0,0,1" CornerRadius="0" CaptionHeight="104" ResizeBorderThickness="8" UseAeroCaptionButtons="False" />
+        <WindowChrome GlassFrameThickness="0,0,0,1" CornerRadius="0" CaptionHeight="62" ResizeBorderThickness="8" UseAeroCaptionButtons="False" />
     </WindowChrome.WindowChrome>
 
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="104" />
+            <RowDefinition Height="62" />
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
         <TextBlock Text="{Binding TitleBarText}"
-                   VerticalAlignment="Center" Margin="48,0,0,0"
+                   VerticalAlignment="Center" Margin="29,0,0,0"
                    Style="{StaticResource SubtitleTextStyle}"
                    Foreground="{DynamicResource PrimaryTextBrush}"
                    IsHitTestVisible="False" />
 
-        <ScrollViewer Grid.Row="1" Margin="48,0,64,24"
-                      Padding="0,0,16,0"
+        <ScrollViewer Grid.Row="1" Margin="29,0,38,14"
+                      Padding="0,0,10,0"
                       VerticalScrollBarVisibility="Auto"
                       HorizontalScrollBarVisibility="Disabled">
             <StackPanel>
                 <Border Background="{DynamicResource ContentBackgroundBrush}"
                         BorderBrush="{DynamicResource BorderSubtleBrush}"
                         BorderThickness="1" CornerRadius="8"
-                        Padding="48" Margin="0,0,0,48">
+                        Padding="29" Margin="0,0,0,29">
                     <StackPanel>
-                        <TextBlock Text="{Binding ProductName}" Style="{StaticResource TitleTextStyle}" FontSize="52" />
-                        <TextBlock Text="{Binding VersionDisplay}" Style="{StaticResource BodyTextStyle}" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,8,0,40" />
+                        <TextBlock Text="{Binding ProductName}" Style="{StaticResource TitleTextStyle}" FontSize="31" />
+                        <TextBlock Text="{Binding VersionDisplay}" Style="{StaticResource BodyTextStyle}" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,5,0,24" />
 
                         <StackPanel Orientation="Horizontal">
                             <svgc:SvgViewbox Source="/Assets/SVG/avatar-bad-breaking-svgrepo-com.svg"
-                                             Width="88" Height="88"
+                                             Width="53" Height="53"
                                              Stretch="Uniform"
                                              VerticalAlignment="Center"
-                                             Margin="0,0,32,0" />
+                                             Margin="0,0,19,0" />
                             <StackPanel VerticalAlignment="Center">
                                 <TextBlock Text="{Binding DeveloperName}" Style="{StaticResource SubtitleTextStyle}" />
                                 <TextBlock Text="{Binding DeveloperTeam}" Style="{StaticResource BodyTextStyle}" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,4,0,0" />
@@ -55,16 +55,16 @@
 
                 <TextBlock Text="{Binding ReleaseNotesHeading}"
                            Style="{StaticResource SubtitleTextStyle}"
-                           Margin="8,0,0,32" />
+                           Margin="5,0,0,19" />
 
                 <ItemsControl ItemsSource="{Binding ReleaseNotes}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <Border Margin="0,0,0,32"
+                            <Border Margin="0,0,0,19"
                                     Background="{DynamicResource NavBackgroundBrush}"
                                     BorderBrush="{DynamicResource BorderSubtleBrush}"
                                     CornerRadius="8"
-                                    Padding="40">
+                                    Padding="24">
                                 <Border.Style>
                                     <Style TargetType="Border">
                                         <Setter Property="BorderThickness" Value="1" />
@@ -76,14 +76,14 @@
                                     </Style>
                                 </Border.Style>
                                 <StackPanel>
-                                    <Grid Margin="0,0,0,24">
+                                    <Grid Margin="0,0,0,14">
                                         <TextBlock Text="{Binding VersionTitle}"
                                                    FontFamily="{DynamicResource AppFontFamilyBold}"
-                                                   FontWeight="Normal" FontSize="30" Foreground="{DynamicResource PrimaryTextBrush}" HorizontalAlignment="Left" />
+                                                   FontWeight="Normal" FontSize="18" Foreground="{DynamicResource PrimaryTextBrush}" HorizontalAlignment="Left" />
                                         <TextBlock Text="{Binding DateLabel}" Style="{StaticResource CaptionTextStyle}" HorizontalAlignment="Right" />
                                     </Grid>
                                     <TextBlock Text="{Binding Notes}"
-                                               Style="{StaticResource CaptionTextStyle}" Foreground="{DynamicResource PrimaryTextBrush}" LineHeight="44" TextWrapping="Wrap" />
+                                               Style="{StaticResource CaptionTextStyle}" Foreground="{DynamicResource PrimaryTextBrush}" LineHeight="26" TextWrapping="Wrap" />
                                 </StackPanel>
                             </Border>
                         </DataTemplate>
@@ -95,9 +95,9 @@
 
         <Button Grid.Row="2"
                 Content="{Binding CloseButtonText}"
-                Width="280"
-                Height="80"
-                Margin="0,0,0,36"
+                Width="168"
+                Height="48"
+                Margin="0,0,0,22"
                 Style="{DynamicResource PrimaryButtonStyle}"
                 Command="{Binding CloseCommand}"
                 HorizontalAlignment="Center"

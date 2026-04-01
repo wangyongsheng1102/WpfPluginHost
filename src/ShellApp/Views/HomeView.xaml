@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              Background="{DynamicResource ContentBackgroundBrush}">
     <ScrollViewer VerticalScrollBarVisibility="Auto"
-                  Padding="48,40,48,56">
+                  Padding="29,24,29,34">
         <StackPanel>
             <TextBlock Text="ホーム"
                        Margin="0,0,0,16"
@@ -12,7 +12,7 @@
                        Style="{StaticResource BodyTextStyle}"
                        Foreground="{DynamicResource SecondaryTextBrush}"
                        TextWrapping="Wrap"
-                       Margin="0,0,0,48" />
+                       Margin="0,0,0,29" />
 
             <ItemsControl ItemsSource="{Binding MenuItems}">
                 <ItemsControl.ItemsPanel>
@@ -22,9 +22,9 @@
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <Button Width="600"
-                                MinHeight="336"
-                                Margin="0,0,32,32"
+                        <Button Width="360"
+                                MinHeight="202"
+                                Margin="0,0,19,19"
                                 Padding="0"
                                 HorizontalContentAlignment="Stretch"
                                 VerticalContentAlignment="Stretch"
@@ -32,7 +32,7 @@
                                 Command="{Binding DataContext.NavigateToPluginCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                 CommandParameter="{Binding}"
                                 Style="{StaticResource PluginCardButtonStyle}">
-                            <Border Padding="36,32"
+                            <Border Padding="22,19"
                                     Background="Transparent">
                                 <Grid>
                                     <Grid.RowDefinitions>
@@ -41,8 +41,8 @@
                                         <RowDefinition Height="*" />
                                     </Grid.RowDefinitions>
                                     <Grid Grid.Row="0" Margin="0,0,0,24">
-                                        <Image Width="200"
-                                               Height="200"
+                                        <Image Width="120"
+                                               Height="120"
                                                HorizontalAlignment="Left"
                                                Stretch="Uniform"
                                                Source="{Binding IconImagePath}">
@@ -58,7 +58,7 @@
                                             </Image.Style>
                                         </Image>
                                         <TextBlock Text="{Binding IconGlyph}"
-                                                   FontSize="64"
+                                                   FontSize="38"
                                                    HorizontalAlignment="Left"
                                                    VerticalAlignment="Center"
                                                    Foreground="{DynamicResource PrimaryTextBrush}">
@@ -83,8 +83,8 @@
                                                Text="{Binding Description}"
                                                Style="{StaticResource CaptionTextStyle}"
                                                TextWrapping="Wrap"
-                                               LineHeight="40"
-                                               MaxHeight="160"
+                                               LineHeight="24"
+                                               MaxHeight="96"
                                                TextTrimming="CharacterEllipsis" />
                                 </Grid>
                             </Border>
@@ -93,7 +93,7 @@
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
 
-            <TextBlock Margin="0,64,0,0"
+            <TextBlock Margin="0,38,0,0"
                        HorizontalAlignment="Center"
                        Foreground="{DynamicResource SecondaryTextBrush}"
                        TextWrapping="Wrap"
