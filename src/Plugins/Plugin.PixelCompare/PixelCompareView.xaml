@@ -154,6 +154,13 @@
                           ColumnHeaderStyle="{DynamicResource AppDataGridColumnHeaderStyle}"
                           ScrollViewer.HorizontalScrollBarVisibility="Auto"
                           ScrollViewer.VerticalScrollBarVisibility="Auto">
+                    <DataGrid.Resources>
+                        <Style x:Key="CenteredDataGridHeaderStyle"
+                               TargetType="DataGridColumnHeader"
+                               BasedOn="{DynamicResource AppDataGridColumnHeaderStyle}">
+                            <Setter Property="HorizontalContentAlignment" Value="Center" />
+                        </Style>
+                    </DataGrid.Resources>
                     <DataGrid.RowStyle>
                         <Style TargetType="DataGridRow">
                             <Setter Property="BorderThickness" Value="0" />
@@ -195,6 +202,7 @@
                         <DataGridTextColumn Header="行番号"
                                             Width="SizeToCells"
                                             MinWidth="64"
+                                            HeaderStyle="{StaticResource CenteredDataGridHeaderStyle}"
                                             Binding="{Binding RowIndex, Mode=OneWay}">
                             <DataGridTextColumn.ElementStyle>
                                 <Style TargetType="TextBlock">
@@ -206,6 +214,7 @@
                         <DataGridTextColumn Header="結果"
                                             Width="SizeToCells"
                                             MinWidth="88"
+                                            HeaderStyle="{StaticResource CenteredDataGridHeaderStyle}"
                                             Binding="{Binding StatusText, Mode=OneWay}">
                             <DataGridTextColumn.ElementStyle>
                                 <Style TargetType="TextBlock">
@@ -217,6 +226,7 @@
                         <DataGridTextColumn Header="差異数"
                                             Width="*"
                                             MinWidth="72"
+                                            HeaderStyle="{StaticResource CenteredDataGridHeaderStyle}"
                                             Binding="{Binding DiffCountDisplay, Mode=OneWay}">
                             <DataGridTextColumn.ElementStyle>
                                 <Style TargetType="TextBlock">
@@ -241,6 +251,7 @@
                         <DataGridTextColumn Header="差異率"
                                             Width="SizeToCells"
                                             MinWidth="120"
+                                            HeaderStyle="{StaticResource CenteredDataGridHeaderStyle}"
                                             Binding="{Binding DifferencePercentageText, Mode=OneWay}">
                             <DataGridTextColumn.ElementStyle>
                                 <Style TargetType="TextBlock">
