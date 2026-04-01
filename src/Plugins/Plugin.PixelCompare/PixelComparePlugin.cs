@@ -6,7 +6,7 @@ namespace Plugin.PixelCompare;
 public sealed class PixelComparePlugin : IPluginModule
 {
     public string Id => "pixelCompare";
-    public string Title => "Pixel Compare";
+    public string Title => "画像比較";
     public string Description => "Excel に埋め込まれた画像を列指定で比較し、差分を赤枠で可視化します。";
     public string IconKey => "🧪";
     public int Order => 40;

@@ -5,6 +5,8 @@
              Background="{DynamicResource ContentBackgroundBrush}">
     <UserControl.Resources>
         <converters:InverseBooleanConverter x:Key="InverseBooleanConverter" />
+        <!-- サイズ不一致時の差異数（∞）用、ErrorBrush より濃い赤 -->
+        <SolidColorBrush x:Key="PixelCompareInfinityForegroundBrush" Color="#7F0D0D" />
     </UserControl.Resources>
     <Grid Margin="30"
           Background="{DynamicResource ContentBackgroundBrush}">
@@ -89,13 +91,6 @@
                             Margin="0,0,8,0"
                             Style="{DynamicResource ActionButtonStyle}"
                             Command="{Binding ReloadSheetNamesCommand}" />
-                    <Button Content="読込/比較"
-                            Height="36"
-                            MinWidth="100"
-                            Padding="12,0"
-                            Margin="0,0,8,0"
-                            Style="{DynamicResource PrimaryButtonStyle}"
-                            Command="{Binding StartCompareCommand}" />
                     <Button Content="レポート"
                             Height="36"
                             MinWidth="92"
@@ -108,9 +103,10 @@
 
         <Grid Grid.Row="1" Margin="0,0,0,0">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="3*" />
+                <!-- 一覧を優先：小さいウィンドウでも表が読めるよう左を広く（従来 3:7 は左が狭すぎた） -->
+                <ColumnDefinition Width="2*" MinWidth="260" />
                 <ColumnDefinition Width="16" />
-                <ColumnDefinition Width="7*" />
+                <ColumnDefinition Width="*" MinWidth="200" />
             </Grid.ColumnDefinitions>
 
             <Border Grid.Column="0" Padding="16"
@@ -150,7 +146,9 @@
                           RowBackground="Transparent"
                           AlternatingRowBackground="{DynamicResource ContentBackgroundBrush}"
                           UseLayoutRounding="True"
-                          ColumnHeaderStyle="{StaticResource AppDataGridColumnHeaderStyle}">
+                          ColumnHeaderStyle="{StaticResource AppDataGridColumnHeaderStyle}"
+                          ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                          ScrollViewer.VerticalScrollBarVisibility="Auto">
                     <DataGrid.RowStyle>
                         <Style TargetType="DataGridRow">
                             <Setter Property="BorderThickness" Value="0" />
@@ -187,10 +185,40 @@
                         </Style>
                     </DataGrid.CellStyle>
                     <DataGrid.Columns>
-                        <DataGridTextColumn Header="行番号" Width="72" Binding="{Binding RowIndex}" />
-                        <DataGridTextColumn Header="結果" Width="100" Binding="{Binding StatusText}" />
-                        <DataGridTextColumn Header="差異率" Width="120" Binding="{Binding DifferencePercentageText}" />
-                        <DataGridTextColumn Header="差異数" Width="*" Binding="{Binding DiffCount}" />
+                        <!-- 合計が表示幅を超える場合は DataGrid 内で横スクロール -->
+                        <DataGridTextColumn Header="行番号"
+                                            Width="SizeToCells"
+                                            MinWidth="64"
+                                            Binding="{Binding RowIndex}" />
+                        <DataGridTextColumn Header="結果"
+                                            Width="SizeToCells"
+                                            MinWidth="88"
+                                            Binding="{Binding StatusText}" />
+                        <DataGridTextColumn Header="差異率"
+                                            Width="SizeToCells"
+                                            MinWidth="120"
+                                            Binding="{Binding DifferencePercentageText}" />
+                        <DataGridTextColumn Header="差異数"
+                                            Width="*"
+                                            MinWidth="72"
+                                            Binding="{Binding DiffCountDisplay}">
+                            <DataGridTextColumn.ElementStyle>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="VerticalAlignment" Value="Center" />
+                                    <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsSizeMismatch}" Value="True">
+                                            <Setter Property="Foreground" Value="{StaticResource PixelCompareInfinityForegroundBrush}" />
+                                            <Setter Property="FontSize" Value="18" />
+                                            <Setter Property="FontWeight" Value="SemiBold" />
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding HasNonZeroDiffCount}" Value="True">
+                                            <Setter Property="Foreground" Value="{DynamicResource ErrorBrush}" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
                     </DataGrid.Columns>
                 </DataGrid>
                 </Grid>

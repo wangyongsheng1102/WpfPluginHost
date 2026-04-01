@@ -31,17 +31,14 @@ public partial class PixelCompareViewModel : ObservableObject
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CanStartCompare))]
-    [NotifyCanExecuteChangedFor(nameof(StartCompareCommand))]
     private string _selectedSheet = string.Empty;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CanStartCompare))]
-    [NotifyCanExecuteChangedFor(nameof(StartCompareCommand))]
     private string _leftColumnName = "B";
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CanStartCompare))]
-    [NotifyCanExecuteChangedFor(nameof(StartCompareCommand))]
     private string _rightColumnName = "P";
 
     [ObservableProperty]
@@ -49,7 +46,6 @@ public partial class PixelCompareViewModel : ObservableObject
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(CanStartCompare))]
-    [NotifyCanExecuteChangedFor(nameof(StartCompareCommand))]
     [NotifyCanExecuteChangedFor(nameof(ExportReportCommand))]
     private bool _isProcessing;
 
@@ -97,6 +93,21 @@ public partial class PixelCompareViewModel : ObservableObject
         }
     }
 
+    partial void OnSelectedSheetChanged(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value) || IsProcessing)
+        {
+            return;
+        }
+
+        if (!File.Exists(ExcelPath) || string.IsNullOrWhiteSpace(LeftColumnName) || string.IsNullOrWhiteSpace(RightColumnName))
+        {
+            return;
+        }
+
+        _ = RunCompareAsync();
+    }
+
     [RelayCommand]
     private void ShowLeftImage()
     {
@@ -137,6 +148,7 @@ public partial class PixelCompareViewModel : ObservableObject
             return;
         }
 
+        var loadOk = false;
         try
         {
             IsProcessing = true;
@@ -152,6 +164,7 @@ public partial class PixelCompareViewModel : ObservableObject
             SelectedSheet = AvailableSheets.FirstOrDefault() ?? string.Empty;
             var msg = AvailableSheets.Count > 0 ? $"比較可能なシートを {AvailableSheets.Count} 件読み込みました。" : "比較可能なシートが見つかりません。";
             _context?.ReportInfo(msg);
+            loadOk = AvailableSheets.Count > 0;
         }
         catch (Exception ex)
         {
@@ -161,11 +174,20 @@ public partial class PixelCompareViewModel : ObservableObject
         {
             IsProcessing = false;
         }
+
+        if (loadOk)
+        {
+            await RunCompareAsync();
+        }
     }
 
-    [RelayCommand(CanExecute = nameof(CanStartCompare))]
-    private async Task StartCompareAsync()
+    private async Task RunCompareAsync()
     {
+        if (!CanStartCompare)
+        {
+            return;
+        }
+
         try
         {
             IsProcessing = true;

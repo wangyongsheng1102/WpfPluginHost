@@ -14,6 +14,7 @@ public partial class CompareRowItem : ObservableObject
     private string _image2Path = string.Empty;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(DiffCountDisplay), nameof(HasNonZeroDiffCount))]
     private int _diffCount;
 
     [ObservableProperty]
@@ -21,7 +22,7 @@ public partial class CompareRowItem : ObservableObject
     private double _differencePercentage;
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(DifferencePercentageText))]
+    [NotifyPropertyChangedFor(nameof(DifferencePercentageText), nameof(DiffCountDisplay), nameof(HasNonZeroDiffCount))]
     private bool _isSizeMismatch;
 
     [ObservableProperty]
@@ -83,4 +84,10 @@ public partial class CompareRowItem : ObservableObject
             return IsComparisonLoaded ? "完了" : "待機中";
         }
     }
+
+    /// <summary>サイズ不一致時は一覧上で差異数を ∞（深紅）で示す。</summary>
+    public string DiffCountDisplay => IsSizeMismatch ? "\u221E" : DiffCount.ToString();
+
+    /// <summary>ピクセル差異数が 0 より大きい（サイズ不一致は除く）。</summary>
+    public bool HasNonZeroDiffCount => !IsSizeMismatch && DiffCount > 0;
 }
