@@ -1,7 +1,11 @@
 <UserControl x:Class="Plugin.PixelCompare.PixelCompareView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:converters="clr-namespace:Plugin.PixelCompare.Converters"
              Background="{DynamicResource ContentBackgroundBrush}">
+    <UserControl.Resources>
+        <converters:InverseBooleanConverter x:Key="InverseBooleanConverter" />
+    </UserControl.Resources>
     <Grid Margin="30"
           Background="{DynamicResource ContentBackgroundBrush}">
         <Grid.RowDefinitions>
@@ -126,6 +130,7 @@
                 <DataGrid Grid.Row="1"
                           ItemsSource="{Binding CompareItems}"
                           SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
+                          IsEnabled="{Binding IsProcessing, Converter={StaticResource InverseBooleanConverter}}"
                           AutoGenerateColumns="False"
                           CanUserAddRows="False"
                           CanUserDeleteRows="False"

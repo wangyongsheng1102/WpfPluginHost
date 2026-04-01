@@ -9,6 +9,8 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Windows;
+using System.Windows.Threading;
 
 namespace Plugin.PixelCompare.ViewModels;
 
@@ -260,39 +262,59 @@ public partial class PixelCompareViewModel : ObservableObject
     {
         var itemList = items.ToList();
         var total = itemList.Count;
-        var completed = 0;
+        var completedCount = 0;
         using var semaphore = new SemaphoreSlim(5);
         var tasks = itemList.Select(async item =>
         {
             await semaphore.WaitAsync();
             try
             {
-                item.IsLoading = true;
+                await RunOnUiAsync(() => item.IsLoading = true);
                 var result = await _imageComparisonService.CompareAsync(item.Image1Path, item.Image2Path, item.RowIndex, _options);
-                item.IsLoading = false;
-                item.IsComparisonLoaded = true;
-                item.DiffCount = result.DiffCount;
-                item.DifferencePercentage = result.DifferencePercentage;
-                item.IsSizeMismatch = result.IsSizeMismatch;
-                item.SizeInfo = result.SizeInfo;
-                item.ErrorMessage = result.HasError ? result.ErrorMessage : null;
-                item.DifferenceImagePath = result.DifferenceImagePath;
-                item.MarkedImage1Path = result.MarkedImage1Path;
-                item.MarkedImage2Path = result.MarkedImage2Path;
+                await RunOnUiAsync(() =>
+                {
+                    item.IsLoading = false;
+                    item.IsComparisonLoaded = true;
+                    item.DiffCount = result.DiffCount;
+                    item.DifferencePercentage = result.DifferencePercentage;
+                    item.IsSizeMismatch = result.IsSizeMismatch;
+                    item.SizeInfo = result.SizeInfo;
+                    item.ErrorMessage = result.HasError ? result.ErrorMessage : null;
+                    item.DifferenceImagePath = result.DifferenceImagePath;
+                    item.MarkedImage1Path = result.MarkedImage1Path;
+                    item.MarkedImage2Path = result.MarkedImage2Path;
+                });
             }
             finally
             {
-                completed++;
-                var progress = total == 0 ? 0 : completed * 100.0 / total;
-                _context?.ReportProgress($"比較処理中... {completed}/{total}", progress);
+                var done = Interlocked.Increment(ref completedCount);
+                var progress = total == 0 ? 0 : done * 100.0 / total;
+                await RunOnUiAsync(() => _context?.ReportProgress($"比較処理中... {done}/{total}", progress));
                 semaphore.Release();
             }
         }).ToArray();
 
         await Task.WhenAll(tasks);
-        _context?.ReportSuccess($"比較が完了しました。合計 {total} 件です。");
+        await RunOnUiAsync(() =>
+        {
+            _context?.ReportSuccess($"比較が完了しました。合計 {total} 件です。");
+            SelectedItem = CompareItems.FirstOrDefault();
+        });
+    }
 
-        SelectedItem = CompareItems.FirstOrDefault();
+    /// <summary>
+    /// 行の INotifyPropertyChanged とホストの進捗表示は UI スレッド必須。バックグラウンドから触ると DataGrid 操作時にクラッシュする。
+    /// </summary>
+    private static Task RunOnUiAsync(Action action)
+    {
+        var dispatcher = Application.Current?.Dispatcher;
+        if (dispatcher is null || dispatcher.CheckAccess())
+        {
+            action();
+            return Task.CompletedTask;
+        }
+
+        return dispatcher.InvokeAsync(action, DispatcherPriority.DataBind).Task;
     }
 
     private void OnCompareItemsCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
