@@ -7,16 +7,16 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
         Title="WPF プラグインシェル"
-        Height="900"
-        Width="1250"
-        MinHeight="700"
-        MinWidth="950"
+        Height="1800"
+        Width="2500"
+        MinHeight="1400"
+        MinWidth="1900"
         AllowsTransparency="False"
         WindowStyle="SingleBorderWindow"
         WindowStartupLocation="CenterScreen"
         Background="{DynamicResource ShellBackgroundBrush}">
     <WindowChrome.WindowChrome>
-        <WindowChrome GlassFrameThickness="0,0,0,1" CornerRadius="0" CaptionHeight="52" ResizeBorderThickness="8" UseAeroCaptionButtons="False" />
+        <WindowChrome GlassFrameThickness="0,0,0,1" CornerRadius="0" CaptionHeight="104" ResizeBorderThickness="8" UseAeroCaptionButtons="False" />
     </WindowChrome.WindowChrome>
 
     <Window.Resources>
@@ -33,7 +33,7 @@
 
             <Grid x:Name="NavPanel"
                   HorizontalAlignment="Left"
-                  Width="260">
+                  Width="520">
                 <Border Background="{DynamicResource NavBackgroundBrush}"
                         CornerRadius="8,0,0,8" />
 
@@ -45,9 +45,9 @@
                         <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
 
-                    <Button Margin="10,10,10,4"
-                            Width="40"
-                            Height="40"
+                    <Button Margin="20,20,20,8"
+                            Width="80"
+                            Height="80"
                             HorizontalAlignment="Center"
                             Command="{Binding ToggleMenuCommand}"
                             WindowChrome.IsHitTestVisibleInChrome="True"
@@ -102,16 +102,16 @@
                             </EventTrigger>
                         </Button.Triggers>
                         <!-- 矢量三横（フォント glyph 依存を排除） -->
-                        <Grid Width="22"
-                              Height="22">
+                        <Grid Width="44"
+                              Height="44">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="1*" />
                                 <RowDefinition Height="1*" />
                                 <RowDefinition Height="1*" />
                             </Grid.RowDefinitions>
                             <Rectangle Grid.Row="0"
-                                       Width="16"
-                                       Height="2"
+                                       Width="32"
+                                       Height="4"
                                        RadiusX="1"
                                        RadiusY="1"
                                        Fill="{DynamicResource PrimaryTextBrush}"
@@ -122,8 +122,8 @@
                                 </Rectangle.RenderTransform>
                             </Rectangle>
                             <Rectangle Grid.Row="1"
-                                       Width="16"
-                                       Height="2"
+                                       Width="32"
+                                       Height="4"
                                        RadiusX="1"
                                        RadiusY="1"
                                        Fill="{DynamicResource PrimaryTextBrush}"
@@ -134,8 +134,8 @@
                                 </Rectangle.RenderTransform>
                             </Rectangle>
                             <Rectangle Grid.Row="2"
-                                       Width="16"
-                                       Height="2"
+                                       Width="32"
+                                       Height="4"
                                        RadiusX="1"
                                        RadiusY="1"
                                        Fill="{DynamicResource PrimaryTextBrush}"
@@ -149,23 +149,23 @@
                     </Button>
 
                     <Button Grid.Row="1"
-                            Margin="10,0,10,8"
-                            Height="40"
+                            Margin="20,0,20,16"
+                            Height="80"
                             HorizontalAlignment="Center"
                             Padding="0"
                             ToolTip="ホーム"
                             Command="{Binding ShowHomeCommand}">
                         <Button.Style>
                             <Style TargetType="Button" BasedOn="{StaticResource ActionButtonStyle}">
-                                <Setter Property="Width" Value="40" />
+                                <Setter Property="Width" Value="80" />
                                 <Setter Property="HorizontalAlignment" Value="Center" />
                                 <Setter Property="Padding" Value="0" />
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding DataContext.IsMenuCollapsed, ElementName=RootWindow}"
                                                  Value="False">
-                                        <Setter Property="Width" Value="120" />
+                                        <Setter Property="Width" Value="240" />
                                         <Setter Property="HorizontalAlignment" Value="Stretch" />
-                                        <Setter Property="Padding" Value="10,8" />
+                                        <Setter Property="Padding" Value="20,16" />
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
@@ -173,8 +173,8 @@
                         <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
                             <Image x:Name="HomeIcon"
                                    Source="/Assets/Images/icons8-eclipse-50.png"
-                                   Width="32"
-                                   Height="32"
+                                   Width="64"
+                                   Height="64"
                                    Stretch="Uniform"
                                    HorizontalAlignment="Center"
                                    VerticalAlignment="Center"
@@ -184,7 +184,7 @@
                                        Text="ホーム"
                                        FontFamily="{DynamicResource AppFontFamilyBold}"
                                        FontWeight="Normal"
-                                       FontSize="16"
+                                       FontSize="32"
                                        Foreground="{DynamicResource PrimaryTextBrush}"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center"
@@ -271,8 +271,8 @@
                                 Orientation="Vertical"
                                 HorizontalAlignment="Center"
                                 VerticalAlignment="Bottom">
-                        <Button Width="40"
-                                Height="40"
+                        <Button Width="80"
+                                Height="80"
                                 HorizontalAlignment="Center"
                                 Style="{StaticResource ThemeIconActionButtonStyle}"
                                 Command="{Binding ReloadPluginsCommand}"
@@ -303,34 +303,34 @@
                                 </EventTrigger>
                             </Button.Triggers>
 
-                            <Grid Width="22"
-                                  Height="22"
+                            <Grid Width="44"
+                                  Height="44"
                                   HorizontalAlignment="Center"
                                   VerticalAlignment="Center"
                                   ClipToBounds="True">
                                 <!-- 外枠は固定、双矢印のみ回転 -->
-                                <Canvas Width="24"
-                                        Height="24"
+                                <Canvas Width="48"
+                                        Height="48"
                                         HorizontalAlignment="Center"
                                         VerticalAlignment="Center">
                                     <Path Data="{StaticResource RefreshFrameOutlineGeometry}"
                                           Stroke="{DynamicResource PrimaryTextBrush}"
-                                          StrokeThickness="1.5"
+                                          StrokeThickness="3"
                                           StrokeStartLineCap="Round"
                                           StrokeEndLineCap="Round"
                                           StrokeLineJoin="Round"
                                           Fill="Transparent"
                                           Opacity="0.5" />
                                 </Canvas>
-                                <Canvas Width="24"
-                                        Height="24"
+                                <Canvas Width="48"
+                                        Height="48"
                                         HorizontalAlignment="Center"
                                         VerticalAlignment="Center">
                                     <Canvas.RenderTransform>
                                         <RotateTransform x:Name="RefreshRotate"
                                                           Angle="0"
-                                                          CenterX="12"
-                                                          CenterY="12" />
+                                                          CenterX="24"
+                                                          CenterY="24" />
                                     </Canvas.RenderTransform>
                                     <Path Data="{StaticResource RefreshArrowLeftGeometry}"
                                           Fill="{DynamicResource PrimaryTextBrush}" />
@@ -345,9 +345,9 @@
                                       IsChecked="{Binding IsDarkTheme, Mode=TwoWay}"
                                       Style="{StaticResource ThemeIconToggleStyle}" />
 
-                        <TextBlock Margin="0,12,0,0"
+                        <TextBlock Margin="0,24,0,0"
                                    HorizontalAlignment="Center"
-                                   MaxWidth="248"
+                                   MaxWidth="496"
                                    Text="{Binding PluginCountNavDisplay}"
                                    ToolTip="{Binding PluginCountText}"
                                    TextAlignment="Center"
@@ -359,7 +359,7 @@
 
             <Grid Grid.Column="1">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="52" />
+                    <RowDefinition Height="104" />
                     <RowDefinition Height="*" />
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
@@ -380,7 +380,7 @@
                 <!-- Global Status Bar -->
                 <Border Grid.Row="2"
                         Margin="0,0,12,12"
-                        Height="40"
+                        Height="80"
                         Background="{DynamicResource NavBackgroundBrush}"
                         CornerRadius="8"
                         BorderBrush="{DynamicResource BorderSubtleBrush}"
@@ -388,9 +388,9 @@
                     <Grid>
                         <!-- Status Icon & Text -->
                         <TextBlock Text="{Binding GlobalStatus.Message}" 
-                                   VerticalAlignment="Center" Margin="16,0,0,0"
+                                   VerticalAlignment="Center" Margin="32,0,0,0"
                                    Foreground="{Binding GlobalStatus.TextColor}" 
-                                   FontSize="13"
+                                   FontSize="26"
                                    FontFamily="{DynamicResource AppFontFamilyBold}"
                                    FontWeight="Normal" />
                         
@@ -399,7 +399,7 @@
                                      IsIndeterminate="{Binding GlobalStatus.IsIndeterminate}"
                                      Visibility="{Binding GlobalStatus.ShowProgress, Converter={StaticResource BooleanToVisibilityConverter}}"
                                      VerticalAlignment="Center" HorizontalAlignment="Right" 
-                                     Margin="0,0,16,0" Width="180" Height="6"
+                                     Margin="0,0,32,0" Width="360" Height="12"
                                      Foreground="{DynamicResource IndicatorBrush}" 
                                      Background="{DynamicResource ShellBackgroundBrush}" 
                                      BorderThickness="0" />
