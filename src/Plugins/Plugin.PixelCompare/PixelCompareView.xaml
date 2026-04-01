@@ -14,10 +14,6 @@
                 CornerRadius="{StaticResource PanelRadius}"
                 BorderThickness="1"
                 BorderBrush="{DynamicResource BorderSubtleBrush}">
-            <StackPanel>
-                <TextBlock Text="画像ピクセル比較"
-                           Style="{StaticResource SubtitleTextStyle}"
-                           Margin="0,0,0,12" />
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
@@ -43,22 +39,26 @@
                            Foreground="{DynamicResource PrimaryTextBrush}"
                            Text="{Binding ExcelPath}" />
 
-                <ComboBox Grid.Column="2"
-                          Width="170"
-                          Margin="0,0,8,0"
-                          FontFamily="{DynamicResource AppFontFamily}"
-                          Foreground="{DynamicResource PrimaryTextBrush}"
-                          ItemsSource="{Binding AvailableSheets}"
-                          SelectedItem="{Binding SelectedSheet, Mode=TwoWay}" />
+                <Border Grid.Column="2"
+                        Style="{DynamicResource AppInputChromeBorderStyle}"
+                        Height="36"
+                        Width="170"
+                        Margin="0,0,8,0">
+                    <ComboBox Style="{DynamicResource AppComboBoxFlatStyle}"
+                              ItemsSource="{Binding AvailableSheets}"
+                              SelectedItem="{Binding SelectedSheet, Mode=TwoWay}" />
+                </Border>
 
-                <ComboBox Grid.Column="3"
-                          Width="74"
-                          IsEditable="True"
-                          Margin="0,0,8,0"
-                          FontFamily="{DynamicResource AppFontFamily}"
-                          Foreground="{DynamicResource PrimaryTextBrush}"
-                          ItemsSource="{Binding AvailableColumns}"
-                          Text="{Binding LeftColumnName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                <Border Grid.Column="3"
+                        Style="{DynamicResource AppInputChromeBorderStyle}"
+                        Height="36"
+                        Width="74"
+                        Margin="0,0,8,0">
+                    <ComboBox Style="{DynamicResource AppComboBoxFlatStyle}"
+                              IsEditable="True"
+                              ItemsSource="{Binding AvailableColumns}"
+                              Text="{Binding LeftColumnName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                </Border>
 
                 <TextBlock Grid.Column="4"
                            Margin="0,0,8,0"
@@ -66,14 +66,16 @@
                            Foreground="{DynamicResource SecondaryTextBrush}"
                            Text="vs" />
 
-                <ComboBox Grid.Column="5"
-                          Width="74"
-                          IsEditable="True"
-                          Margin="0,0,8,0"
-                          FontFamily="{DynamicResource AppFontFamily}"
-                          Foreground="{DynamicResource PrimaryTextBrush}"
-                          ItemsSource="{Binding AvailableColumns}"
-                          Text="{Binding RightColumnName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                <Border Grid.Column="5"
+                        Style="{DynamicResource AppInputChromeBorderStyle}"
+                        Height="36"
+                        Width="74"
+                        Margin="0,0,8,0">
+                    <ComboBox Style="{DynamicResource AppComboBoxFlatStyle}"
+                              IsEditable="True"
+                              ItemsSource="{Binding AvailableColumns}"
+                              Text="{Binding RightColumnName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                </Border>
 
                 <StackPanel Grid.Column="6" Orientation="Horizontal">
                     <Button Content="シートを再読込"
@@ -98,14 +100,13 @@
                             Command="{Binding ExportReportCommand}" />
                 </StackPanel>
             </Grid>
-            </StackPanel>
         </Border>
 
         <Grid Grid.Row="1" Margin="0,0,0,0">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="460" />
+                <ColumnDefinition Width="3*" />
                 <ColumnDefinition Width="16" />
-                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="7*" />
             </Grid.ColumnDefinitions>
 
             <Border Grid.Column="0" Padding="16"
@@ -194,8 +195,7 @@
                         <DataGridTextColumn Header="行番号" Width="72" Binding="{Binding RowIndex}" />
                         <DataGridTextColumn Header="結果" Width="100" Binding="{Binding StatusText}" />
                         <DataGridTextColumn Header="差異率" Width="120" Binding="{Binding DifferencePercentageText}" />
-                        <DataGridTextColumn Header="差異数" Width="80" Binding="{Binding DiffCount}" />
-                        <DataGridTextColumn Header="サイズ情報" Width="*" Binding="{Binding SizeInfo}" />
+                        <DataGridTextColumn Header="差異数" Width="*" Binding="{Binding DiffCount}" />
                     </DataGrid.Columns>
                 </DataGrid>
                 </Grid>
