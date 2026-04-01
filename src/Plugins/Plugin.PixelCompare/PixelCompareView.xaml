@@ -2,6 +2,7 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:converters="clr-namespace:Plugin.PixelCompare.Converters"
+             FontSize="{DynamicResource BodyFontSize}"
              Background="{DynamicResource ContentBackgroundBrush}">
     <UserControl.Resources>
         <converters:InverseBooleanConverter x:Key="InverseBooleanConverter" />
@@ -42,7 +43,7 @@
                 <TextBlock Grid.Column="1"
                            Margin="12,0,16,0"
                            VerticalAlignment="Center"
-                           Foreground="{DynamicResource PrimaryTextBrush}"
+                           Style="{DynamicResource BodyTextStyle}"
                            Text="{Binding ExcelPath}" />
 
                 <Border Grid.Column="2"
@@ -69,7 +70,7 @@
                 <TextBlock Grid.Column="4"
                            Margin="0,0,8,0"
                            VerticalAlignment="Center"
-                           Foreground="{DynamicResource SecondaryTextBrush}"
+                           Style="{DynamicResource CaptionTextStyle}"
                            Text="vs" />
 
                 <Border Grid.Column="5"
@@ -121,7 +122,7 @@
                     </Grid.RowDefinitions>
                     <TextBlock Grid.Row="0"
                                Text="比較一覧"
-                               Style="{StaticResource SubtitleTextStyle}"
+                               Style="{DynamicResource SubtitleTextStyle}"
                                Margin="0,0,0,10" />
                 <DataGrid Grid.Row="1"
                           ItemsSource="{Binding CompareItems}"
@@ -142,12 +143,13 @@
                           BorderThickness="0"
                           RowHeight="38"
                           ColumnHeaderHeight="38"
+                          FontSize="{DynamicResource BodyFontSize}"
                           FontFamily="{DynamicResource AppFontFamily}"
                           Foreground="{DynamicResource PrimaryTextBrush}"
                           RowBackground="Transparent"
                           AlternatingRowBackground="{DynamicResource ContentBackgroundBrush}"
                           UseLayoutRounding="True"
-                          ColumnHeaderStyle="{StaticResource AppDataGridColumnHeaderStyle}"
+                          ColumnHeaderStyle="{DynamicResource AppDataGridColumnHeaderStyle}"
                           ScrollViewer.HorizontalScrollBarVisibility="Auto"
                           ScrollViewer.VerticalScrollBarVisibility="Auto">
                     <DataGrid.RowStyle>
@@ -205,12 +207,13 @@
                                             Binding="{Binding DiffCountDisplay, Mode=OneWay}">
                             <DataGridTextColumn.ElementStyle>
                                 <Style TargetType="TextBlock">
+                                    <Setter Property="FontSize" Value="{DynamicResource BodyFontSize}" />
                                     <Setter Property="VerticalAlignment" Value="Center" />
                                     <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding IsSizeMismatch}" Value="True">
                                             <Setter Property="Foreground" Value="{StaticResource PixelCompareInfinityForegroundBrush}" />
-                                            <Setter Property="FontSize" Value="18" />
+                                            <Setter Property="FontSize" Value="{DynamicResource SubtitleFontSize}" />
                                             <Setter Property="FontWeight" Value="SemiBold" />
                                         </DataTrigger>
                                         <DataTrigger Binding="{Binding HasNonZeroDiffCount}" Value="True">
@@ -239,7 +242,7 @@
 
                     <TextBlock Grid.Row="0"
                                Text="結果プレビュー"
-                               Style="{StaticResource SubtitleTextStyle}"
+                               Style="{DynamicResource SubtitleTextStyle}"
                                Margin="0,0,0,8" />
 
                     <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,10">
@@ -264,14 +267,21 @@
                         <Grid>
                             <Image Source="{Binding PreviewImagePath}"
                                    Stretch="Uniform"
-                                   ToolTip="画像をダブルクリックすると既定の画像ビューアで開きます"
-                                   PreviewMouseLeftButtonDown="OnPreviewImageMouseLeftButtonDown" />
+                                   PreviewMouseLeftButtonDown="OnPreviewImageMouseLeftButtonDown">
+                                <Image.ToolTip>
+                                    <ToolTip>
+                                        <TextBlock Style="{DynamicResource BodyTextStyle}"
+                                                   Text="画像をダブルクリックすると既定の画像ビューアで開きます"
+                                                   TextWrapping="Wrap"
+                                                   MaxWidth="280" />
+                                    </ToolTip>
+                                </Image.ToolTip>
+                            </Image>
                             <TextBlock Text="左側の行を選択すると結果画像を表示します"
-                                       Foreground="{DynamicResource SecondaryTextBrush}"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center">
                                 <TextBlock.Style>
-                                    <Style TargetType="TextBlock">
+                                    <Style TargetType="TextBlock" BasedOn="{DynamicResource CaptionTextStyle}">
                                         <Setter Property="Visibility" Value="Collapsed" />
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding PreviewImagePath}" Value="{x:Null}">

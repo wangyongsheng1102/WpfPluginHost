@@ -2,9 +2,9 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:sys="clr-namespace:System;assembly=mscorlib">
     <sys:Double x:Key="TitleFontSize">28</sys:Double>
-    <sys:Double x:Key="SubtitleFontSize">18</sys:Double>
-    <sys:Double x:Key="BodyFontSize">14</sys:Double>
-    <sys:Double x:Key="CaptionFontSize">13</sys:Double>
+    <sys:Double x:Key="SubtitleFontSize">20</sys:Double>
+    <sys:Double x:Key="BodyFontSize">16</sys:Double>
+    <sys:Double x:Key="CaptionFontSize">15</sys:Double>
     <CornerRadius x:Key="SmallRadius">4</CornerRadius>
     <CornerRadius x:Key="PanelRadius">8</CornerRadius>
     <CornerRadius x:Key="CardRadius">10</CornerRadius>

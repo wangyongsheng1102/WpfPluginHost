@@ -45,7 +45,7 @@
                         <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
 
-                    <Button Margin="10,10,10,4"
+                    <Button Margin="10,14,10,4"
                             Width="40"
                             Height="40"
                             HorizontalAlignment="Center"
@@ -267,7 +267,7 @@
                     </ListBox>
 
                     <StackPanel Grid.Row="3"
-                                Margin="3,4,3,6"
+                                Margin="3,4,3,14"
                                 Orientation="Vertical"
                                 HorizontalAlignment="Center"
                                 VerticalAlignment="Bottom">
@@ -411,7 +411,7 @@
         <StackPanel Orientation="Horizontal"
                     HorizontalAlignment="Right"
                     VerticalAlignment="Top"
-                    Margin="0,7,7,0"
+                    Margin="0,12,14,0"
                     WindowChrome.IsHitTestVisibleInChrome="True">
             <Button Style="{StaticResource AboutAppStyle}"
                     Command="{Binding ShowAuthorCommand}" />
