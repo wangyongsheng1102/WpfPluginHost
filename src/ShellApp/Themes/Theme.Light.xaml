@@ -24,8 +24,10 @@
     <SolidColorBrush x:Key="NavBackgroundBrush" Color="{StaticResource NavBackgroundColor}" />
     <SolidColorBrush x:Key="HoverBrush" Color="{StaticResource HoverColor}" />
     <SolidColorBrush x:Key="SelectedBrush" Color="{StaticResource SelectedColor}" />
-    <!-- DataGrid 行選択：背景と差がつくようナビより濃いアクセント（文字は PrimaryText のまま） -->
+    <!-- DataGrid 行ホバー／選択：明暗どちらでも判別できるようコントラストを確保 -->
+    <SolidColorBrush x:Key="DataGridRowHoverBrush" Color="#EAF3FF" />
     <SolidColorBrush x:Key="DataGridRowSelectedBrush" Color="#3D8FD6" />
+    <SolidColorBrush x:Key="DataGridRowSelectedBorderBrush" Color="#1E6FB5" />
     <SolidColorBrush x:Key="IndicatorBrush" Color="{StaticResource IndicatorColor}" />
     <SolidColorBrush x:Key="PrimaryTextBrush" Color="{StaticResource PrimaryTextColor}" />
     <SolidColorBrush x:Key="SecondaryTextBrush" Color="{StaticResource SecondaryTextColor}" />
