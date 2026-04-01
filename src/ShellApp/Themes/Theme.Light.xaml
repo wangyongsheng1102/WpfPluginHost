@@ -4,8 +4,8 @@
     <Color x:Key="ShellBackgroundColor">#F3F3F3</Color>
     <Color x:Key="NavBackgroundColor">#F3F3F3</Color>
     <Color x:Key="HoverColor">#E0E0E0</Color>
-    <!-- 純白だとカード背景と同化し、DataGrid の HighlightText（白）と組み合わせて文字が消えるため淡いアクセントにする -->
-    <Color x:Key="SelectedColor">#B6D9F5</Color>
+    <!-- ナビ等の汎用選択（白すぎない程度） -->
+    <Color x:Key="SelectedColor">#C5E0F7</Color>
     <Color x:Key="IndicatorColor">#005FB8</Color>
     <Color x:Key="PrimaryTextColor">#E4000000</Color>
     <Color x:Key="SecondaryTextColor">#99000000</Color>
@@ -24,6 +24,8 @@
     <SolidColorBrush x:Key="NavBackgroundBrush" Color="{StaticResource NavBackgroundColor}" />
     <SolidColorBrush x:Key="HoverBrush" Color="{StaticResource HoverColor}" />
     <SolidColorBrush x:Key="SelectedBrush" Color="{StaticResource SelectedColor}" />
+    <!-- DataGrid 行選択：背景と差がつくようナビより濃いアクセント（文字は PrimaryText のまま） -->
+    <SolidColorBrush x:Key="DataGridRowSelectedBrush" Color="#3D8FD6" />
     <SolidColorBrush x:Key="IndicatorBrush" Color="{StaticResource IndicatorColor}" />
     <SolidColorBrush x:Key="PrimaryTextBrush" Color="{StaticResource PrimaryTextColor}" />
     <SolidColorBrush x:Key="SecondaryTextBrush" Color="{StaticResource SecondaryTextColor}" />

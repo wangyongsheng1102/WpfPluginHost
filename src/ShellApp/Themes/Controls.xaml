@@ -765,12 +765,13 @@
         </Setter>
     </Style>
 
-    <!-- DataGrid：選択時にテーマの HighlightText（白）が当たり、ライトテーマで文字が見えなくなるのを防ぐ -->
+    <!-- DataGrid：選択行の背景・文字色を明示（システムの白文字／薄いハイライト問題を避ける） -->
     <Style TargetType="DataGridRow" BasedOn="{StaticResource {x:Type DataGridRow}}">
         <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
         <Setter Property="TextElement.Foreground" Value="{DynamicResource PrimaryTextBrush}" />
         <Style.Triggers>
             <Trigger Property="IsSelected" Value="True">
+                <Setter Property="Background" Value="{DynamicResource DataGridRowSelectedBrush}" />
                 <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
                 <Setter Property="TextElement.Foreground" Value="{DynamicResource PrimaryTextBrush}" />
             </Trigger>
