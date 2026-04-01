@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System;
+using System.Threading.Tasks;
 using System.Windows.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -18,6 +19,7 @@ public partial class MainWindowViewModel : ObservableObject
     /// <summary>プラグイン Id ごとにビューを再利用し、メニュー切り替え時に各ページの状態を保持する。プラグイン再読み込み後は必ず Clear する。</summary>
     private readonly Dictionary<string, UserControl> _pluginViewCache = new(StringComparer.OrdinalIgnoreCase);
     private UserControl? _homeView;
+    private bool _isReloadingPlugins;
 
     public MainWindowViewModel(PluginManager pluginManager, ThemeService themeService, GlobalStatusService globalStatusService)
     {
@@ -28,7 +30,7 @@ public partial class MainWindowViewModel : ObservableObject
         _pluginManager.PluginsChanged += OnPluginsChanged;
 
         ToggleMenuCommand = new RelayCommand(ToggleMenu);
-        ReloadPluginsCommand = new RelayCommand(ReloadPlugins);
+        ReloadPluginsCommand = new AsyncRelayCommand(ReloadPluginsAsync, CanReloadPlugins);
         MenuItems = new ObservableCollection<PluginMenuItemViewModel>();
         IsDarkTheme = _themeService.IsDarkTheme;
 
@@ -63,7 +65,7 @@ public partial class MainWindowViewModel : ObservableObject
     public string HomeNavCaption => IsMenuCollapsed ? "🏠" : "ホーム";
 
     public IRelayCommand ToggleMenuCommand { get; }
-    public IRelayCommand ReloadPluginsCommand { get; }
+    public IAsyncRelayCommand ReloadPluginsCommand { get; }
 
     partial void OnSelectedMenuItemChanged(PluginMenuItemViewModel? value)
     {
@@ -152,9 +154,37 @@ public partial class MainWindowViewModel : ObservableObject
         SelectedMenuItem = item;
     }
 
-    private void ReloadPlugins()
+    private bool CanReloadPlugins() => !_isReloadingPlugins;
+
+    private async Task ReloadPluginsAsync()
     {
-        _pluginManager.ReloadAll();
+        if (_isReloadingPlugins)
+        {
+            return;
+        }
+
+        _isReloadingPlugins = true;
+        ReloadPluginsCommand.NotifyCanExecuteChanged();
+
+        // クリック時に前回メッセージを消し、UI を先に返して体感の引っかかりを減らす。
+        _globalStatus.ClearStatus();
+        await Task.Yield();
+        _globalStatus.ReportProgress("プラグインを再読み込み中です...", 0, true);
+
+        try
+        {
+            await Task.Run(_pluginManager.ReloadAll);
+            _globalStatus.ReportInfo("プラグインの再読み込みを完了しました。");
+        }
+        catch (Exception ex)
+        {
+            _globalStatus.ReportError($"プラグイン再読み込みに失敗しました: {ex.Message}");
+        }
+        finally
+        {
+            _isReloadingPlugins = false;
+            ReloadPluginsCommand.NotifyCanExecuteChanged();
+        }
     }
 
     private void OnPluginsChanged(object? sender, EventArgs e)
