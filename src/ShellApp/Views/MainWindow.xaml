@@ -406,7 +406,7 @@
                                 Padding="10,6"
                                 MinWidth="250"
                                 CornerRadius="7"
-                                Background="{DynamicResource ContentBackgroundBrush}"
+                                Background="Transparent"
                                 BorderBrush="{DynamicResource BorderSubtleBrush}"
                                 BorderThickness="1"
                                 Visibility="{Binding GlobalStatus.ShowProgress, Converter={StaticResource BooleanToVisibilityConverter}}">
@@ -431,6 +431,45 @@
                             </Border.Style>
 
                             <Grid>
+                                <Border Background="{DynamicResource ContentBackgroundBrush}"
+                                        CornerRadius="6" />
+                                <Border CornerRadius="6"
+                                        Opacity="0"
+                                        IsHitTestVisible="False">
+                                    <Border.Style>
+                                        <Style TargetType="Border">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding GlobalStatus.IsSuccessState}" Value="True">
+                                                    <Setter Property="Background" Value="#FF2ECC71" />
+                                                    <DataTrigger.EnterActions>
+                                                        <BeginStoryboard>
+                                                            <Storyboard>
+                                                                <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                                                                 From="0.75"
+                                                                                 To="0"
+                                                                                 Duration="0:0:0.55" />
+                                                            </Storyboard>
+                                                        </BeginStoryboard>
+                                                    </DataTrigger.EnterActions>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding GlobalStatus.IsErrorState}" Value="True">
+                                                    <Setter Property="Background" Value="#FFFF5A5A" />
+                                                    <DataTrigger.EnterActions>
+                                                        <BeginStoryboard>
+                                                            <Storyboard>
+                                                                <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                                                                 From="0.75"
+                                                                                 To="0"
+                                                                                 Duration="0:0:0.55" />
+                                                            </Storyboard>
+                                                        </BeginStoryboard>
+                                                    </DataTrigger.EnterActions>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+                                </Border>
+
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="170" />
                                     <ColumnDefinition Width="Auto" />

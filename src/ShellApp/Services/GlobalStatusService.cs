@@ -33,6 +33,12 @@ public partial class GlobalStatusService : ObservableObject, IPluginContext
     [ObservableProperty]
     private Brush _textColor = Brushes.Transparent;
 
+    [ObservableProperty]
+    private bool _isSuccessState;
+
+    [ObservableProperty]
+    private bool _isErrorState;
+
     public GlobalStatusService()
     {
         ApplyLevelStyle(StatusLevel.Info, "準備完了", includePrefix: false);
@@ -87,6 +93,8 @@ public partial class GlobalStatusService : ObservableObject, IPluginContext
         ProgressValue = progressValue;
         IsIndeterminate = isIndeterminate;
         TextColor = ResolveLevelBrush(level);
+        IsSuccessState = level == StatusLevel.Success;
+        IsErrorState = level == StatusLevel.Error;
     }
 
     public void ReportProgress(string message, double percentage = 0, bool isIndeterminate = false)
