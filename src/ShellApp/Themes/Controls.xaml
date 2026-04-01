@@ -200,6 +200,26 @@
         </Setter>
     </Style>
 
+    <!-- プレビュー左右切替：選択側を Primary 系に。BasedOn は StaticResource のみ（プラグイン XAML で DynamicResource BasedOn は解析エラーになりやすい） -->
+    <Style x:Key="PreviewLeftToggleButtonStyle" TargetType="Button" BasedOn="{StaticResource ActionButtonStyle}">
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding ShowLeftPreview}" Value="True">
+                <Setter Property="Background" Value="{DynamicResource IndicatorBrush}" />
+                <Setter Property="Foreground" Value="{DynamicResource PrimaryButtonTextBrush}" />
+                <Setter Property="BorderThickness" Value="0" />
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+    <Style x:Key="PreviewRightToggleButtonStyle" TargetType="Button" BasedOn="{StaticResource ActionButtonStyle}">
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding ShowLeftPreview}" Value="False">
+                <Setter Property="Background" Value="{DynamicResource IndicatorBrush}" />
+                <Setter Property="Foreground" Value="{DynamicResource PrimaryButtonTextBrush}" />
+                <Setter Property="BorderThickness" Value="0" />
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+
     <Style x:Key="AboutAppStyle" TargetType="Button">
         <Setter Property="Height" Value="40" />
         <Setter Property="Width" Value="40" />
