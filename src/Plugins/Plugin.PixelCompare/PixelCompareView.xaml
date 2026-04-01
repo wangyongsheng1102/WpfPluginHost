@@ -5,6 +5,25 @@
              Background="{DynamicResource ContentBackgroundBrush}">
     <UserControl.Resources>
         <converters:InverseBooleanConverter x:Key="InverseBooleanConverter" />
+        <!-- プレビュー左右切替：選択中は Primary と同系の「押下」見た目 -->
+        <Style x:Key="PreviewLeftToggleButtonStyle" TargetType="Button" BasedOn="{DynamicResource ActionButtonStyle}">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding ShowLeftPreview}" Value="True">
+                    <Setter Property="Background" Value="{DynamicResource IndicatorBrush}" />
+                    <Setter Property="Foreground" Value="{DynamicResource PrimaryButtonTextBrush}" />
+                    <Setter Property="BorderThickness" Value="0" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="PreviewRightToggleButtonStyle" TargetType="Button" BasedOn="{DynamicResource ActionButtonStyle}">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding ShowLeftPreview}" Value="False">
+                    <Setter Property="Background" Value="{DynamicResource IndicatorBrush}" />
+                    <Setter Property="Foreground" Value="{DynamicResource PrimaryButtonTextBrush}" />
+                    <Setter Property="BorderThickness" Value="0" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
     </UserControl.Resources>
     <Grid Margin="30"
           Background="{DynamicResource ContentBackgroundBrush}">
@@ -227,13 +246,13 @@
                         <Button Content="左画像"
                                 Height="30"
                                 MinWidth="70"
-                                Style="{DynamicResource ActionButtonStyle}"
+                                Style="{DynamicResource PreviewLeftToggleButtonStyle}"
                                 Command="{Binding ShowLeftImageCommand}" />
                         <Button Content="右画像"
                                 Margin="8,0,0,0"
                                 Height="30"
                                 MinWidth="70"
-                                Style="{DynamicResource ActionButtonStyle}"
+                                Style="{DynamicResource PreviewRightToggleButtonStyle}"
                                 Command="{Binding ShowRightImageCommand}" />
                     </StackPanel>
 
