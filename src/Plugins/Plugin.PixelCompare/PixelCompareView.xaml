@@ -8,14 +8,14 @@
         <!-- サイズ不一致時の差異数（∞）用、ErrorBrush より濃い赤 -->
         <SolidColorBrush x:Key="PixelCompareInfinityForegroundBrush" Color="#7F0D0D" />
     </UserControl.Resources>
-    <Grid Margin="30"
+    <Grid Margin="60"
           Background="{DynamicResource ContentBackgroundBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <Border Grid.Row="0" Margin="0,0,0,24" Padding="20"
+        <Border Grid.Row="0" Margin="0,0,0,48" Padding="40"
                 Background="{DynamicResource CardElevatedBrush}"
                 CornerRadius="{StaticResource PanelRadius}"
                 BorderThickness="1"
@@ -33,23 +33,23 @@
 
                 <Button Grid.Column="0"
                         Content="Excelを選択"
-                        Height="36"
-                        MinWidth="110"
-                        Padding="16,0"
+                        Height="72"
+                        MinWidth="220"
+                        Padding="32,0"
                         Style="{DynamicResource ActionButtonStyle}"
                         Command="{Binding SelectExcelCommand}" />
 
                 <TextBlock Grid.Column="1"
-                           Margin="12,0,16,0"
+                           Margin="24,0,32,0"
                            VerticalAlignment="Center"
                            Foreground="{DynamicResource PrimaryTextBrush}"
                            Text="{Binding ExcelPath}" />
 
                 <Border Grid.Column="2"
                         Style="{DynamicResource AppInputChromeBorderStyle}"
-                        Height="36"
-                        Width="170"
-                        Margin="0,0,8,0">
+                        Height="72"
+                        Width="340"
+                        Margin="0,0,16,0">
                     <ComboBox Style="{DynamicResource AppComboBoxFlatStyle}"
                               ItemsSource="{Binding AvailableSheets}"
                               SelectedItem="{Binding SelectedSheet, Mode=TwoWay}" />
@@ -57,9 +57,9 @@
 
                 <Border Grid.Column="3"
                         Style="{DynamicResource AppInputChromeBorderStyle}"
-                        Height="36"
-                        Width="74"
-                        Margin="0,0,8,0">
+                        Height="72"
+                        Width="148"
+                        Margin="0,0,16,0">
                     <ComboBox Style="{DynamicResource AppComboBoxFlatStyle}"
                               IsEditable="True"
                               ItemsSource="{Binding AvailableColumns}"
@@ -67,16 +67,16 @@
                 </Border>
 
                 <TextBlock Grid.Column="4"
-                           Margin="0,0,8,0"
+                           Margin="0,0,16,0"
                            VerticalAlignment="Center"
                            Foreground="{DynamicResource SecondaryTextBrush}"
                            Text="vs" />
 
                 <Border Grid.Column="5"
                         Style="{DynamicResource AppInputChromeBorderStyle}"
-                        Height="36"
-                        Width="74"
-                        Margin="0,0,8,0">
+                        Height="72"
+                        Width="148"
+                        Margin="0,0,16,0">
                     <ComboBox Style="{DynamicResource AppComboBoxFlatStyle}"
                               IsEditable="True"
                               ItemsSource="{Binding AvailableColumns}"
@@ -85,16 +85,16 @@
 
                 <StackPanel Grid.Column="6" Orientation="Horizontal">
                     <Button Content="シートを再読込"
-                            Height="36"
-                            MinWidth="100"
-                            Padding="12,0"
-                            Margin="0,0,8,0"
+                            Height="72"
+                            MinWidth="200"
+                            Padding="24,0"
+                            Margin="0,0,16,0"
                             Style="{DynamicResource ActionButtonStyle}"
                             Command="{Binding ReloadSheetNamesCommand}" />
                     <Button Content="レポート"
-                            Height="36"
-                            MinWidth="92"
-                            Padding="12,0"
+                            Height="72"
+                            MinWidth="184"
+                            Padding="24,0"
                             Style="{DynamicResource PrimaryButtonStyle}"
                             Command="{Binding ExportReportCommand}" />
                 </StackPanel>
@@ -103,13 +103,13 @@
 
         <Grid Grid.Row="1" Margin="0,0,0,0">
             <Grid.ColumnDefinitions>
-                <!-- 一覧を優先：小さいウィンドウでも表が読めるよう左を広く（従来 3:7 は左が狭すぎた） -->
-                <ColumnDefinition Width="2*" MinWidth="260" />
-                <ColumnDefinition Width="16" />
-                <ColumnDefinition Width="*" MinWidth="200" />
+                <!-- 比較一覧 : プレビュー = 4 : 6 -->
+                <ColumnDefinition Width="4*" MinWidth="520" />
+                <ColumnDefinition Width="32" />
+                <ColumnDefinition Width="6*" MinWidth="400" />
             </Grid.ColumnDefinitions>
 
-            <Border Grid.Column="0" Padding="16"
+            <Border Grid.Column="0" Padding="32"
                     Background="{DynamicResource CardElevatedBrush}"
                     CornerRadius="{StaticResource PanelRadius}"
                     BorderThickness="1"
@@ -122,7 +122,7 @@
                     <TextBlock Grid.Row="0"
                                Text="比較一覧"
                                Style="{StaticResource SubtitleTextStyle}"
-                               Margin="0,0,0,10" />
+                               Margin="0,0,0,20" />
                 <DataGrid Grid.Row="1"
                           ItemsSource="{Binding CompareItems}"
                           SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
@@ -139,8 +139,8 @@
                           VerticalGridLinesBrush="{DynamicResource BorderSubtleBrush}"
                           Background="Transparent"
                           BorderThickness="0"
-                          RowHeight="38"
-                          ColumnHeaderHeight="38"
+                          RowHeight="76"
+                          ColumnHeaderHeight="76"
                           FontFamily="{DynamicResource AppFontFamily}"
                           Foreground="{DynamicResource PrimaryTextBrush}"
                           RowBackground="Transparent"
@@ -168,7 +168,7 @@
                     <DataGrid.CellStyle>
                         <Style TargetType="DataGridCell">
                             <Setter Property="BorderThickness" Value="0" />
-                            <Setter Property="Padding" Value="10,6" />
+                            <Setter Property="Padding" Value="20,12" />
                             <Setter Property="VerticalAlignment" Value="Center" />
                             <Setter Property="Background" Value="Transparent" />
                             <Setter Property="FocusVisualStyle" Value="{x:Null}" />
@@ -188,19 +188,19 @@
                         <!-- 合計が表示幅を超える場合は DataGrid 内で横スクロール -->
                         <DataGridTextColumn Header="行番号"
                                             Width="SizeToCells"
-                                            MinWidth="64"
+                                            MinWidth="128"
                                             Binding="{Binding RowIndex}" />
                         <DataGridTextColumn Header="結果"
                                             Width="SizeToCells"
-                                            MinWidth="88"
+                                            MinWidth="176"
                                             Binding="{Binding StatusText}" />
                         <DataGridTextColumn Header="差異率"
                                             Width="SizeToCells"
-                                            MinWidth="120"
+                                            MinWidth="240"
                                             Binding="{Binding DifferencePercentageText}" />
                         <DataGridTextColumn Header="差異数"
                                             Width="*"
-                                            MinWidth="72"
+                                            MinWidth="144"
                                             Binding="{Binding DiffCountDisplay}">
                             <DataGridTextColumn.ElementStyle>
                                 <Style TargetType="TextBlock">
@@ -209,7 +209,7 @@
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding IsSizeMismatch}" Value="True">
                                             <Setter Property="Foreground" Value="{StaticResource PixelCompareInfinityForegroundBrush}" />
-                                            <Setter Property="FontSize" Value="18" />
+                                            <Setter Property="FontSize" Value="36" />
                                             <Setter Property="FontWeight" Value="SemiBold" />
                                         </DataTrigger>
                                         <DataTrigger Binding="{Binding HasNonZeroDiffCount}" Value="True">
@@ -224,7 +224,7 @@
                 </Grid>
             </Border>
 
-            <Border Grid.Column="2" Padding="16"
+            <Border Grid.Column="2" Padding="32"
                     Background="{DynamicResource CardElevatedBrush}"
                     CornerRadius="{StaticResource PanelRadius}"
                     BorderThickness="1"
@@ -238,19 +238,19 @@
 
                     <TextBlock Grid.Row="0"
                                Text="結果プレビュー"
-                               Style="{StaticResource BodyTextStyle}"
-                               Margin="0,0,0,8" />
+                               Style="{StaticResource SubtitleTextStyle}"
+                               Margin="0,0,0,16" />
 
-                    <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,10">
+                    <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,20">
                         <Button Content="左画像"
-                                Height="30"
-                                MinWidth="70"
+                                Height="60"
+                                MinWidth="140"
                                 Style="{DynamicResource PreviewLeftToggleButtonStyle}"
                                 Command="{Binding ShowLeftImageCommand}" />
                         <Button Content="右画像"
-                                Margin="8,0,0,0"
-                                Height="30"
-                                MinWidth="70"
+                                Margin="16,0,0,0"
+                                Height="60"
+                                MinWidth="140"
                                 Style="{DynamicResource PreviewRightToggleButtonStyle}"
                                 Command="{Binding ShowRightImageCommand}" />
                     </StackPanel>
