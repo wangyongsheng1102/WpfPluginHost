@@ -429,8 +429,15 @@
     <!-- DataGridTextColumn のセル内 TextBlock はアプリの暗黙スタイルが効かないため、ElementStyle 用 -->
     <Style x:Key="DataGridTextColumnElementStyle" TargetType="TextBlock">
         <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}" />
+        <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
         <Setter Property="VerticalAlignment" Value="Center" />
         <Setter Property="TextTrimming" Value="CharacterEllipsis" />
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=DataGridRow}, Path=IsSelected}"
+                         Value="True">
+                <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+            </DataTrigger>
+        </Style.Triggers>
     </Style>
 
     <Style x:Key="NavListBoxStyle" TargetType="ListBox">
@@ -756,6 +763,29 @@
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
+    </Style>
+
+    <!-- DataGrid：選択時にテーマの HighlightText（白）が当たり、ライトテーマで文字が見えなくなるのを防ぐ -->
+    <Style TargetType="DataGridRow" BasedOn="{StaticResource {x:Type DataGridRow}}">
+        <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+        <Setter Property="TextElement.Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+        <Style.Triggers>
+            <Trigger Property="IsSelected" Value="True">
+                <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+                <Setter Property="TextElement.Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style TargetType="DataGridCell" BasedOn="{StaticResource {x:Type DataGridCell}}">
+        <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+        <Setter Property="TextElement.Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+        <Style.Triggers>
+            <Trigger Property="IsSelected" Value="True">
+                <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+                <Setter Property="TextElement.Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+            </Trigger>
+        </Style.Triggers>
     </Style>
 
     <!-- プラグイン等の UserControl は既定でコンテンツ領域の背景色を使用し、Transparent による下層の既定の白の透けを防ぐ -->
