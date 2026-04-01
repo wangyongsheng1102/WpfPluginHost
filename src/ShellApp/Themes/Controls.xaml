@@ -582,6 +582,15 @@
         <Setter Property="FontWeight" Value="Normal" />
     </Style>
 
+    <Style x:Key="AppStatusProgressBarStyle" TargetType="ProgressBar">
+        <Setter Property="Foreground" Value="{DynamicResource IndicatorBrush}" />
+        <Setter Property="Background" Value="{DynamicResource ShellBackgroundBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderSubtleBrush}" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Height" Value="10" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+    </Style>
+
     <!-- 太陽／月（SVG ベクター）。ライト＝太陽、ダーク＝月（IsChecked はダークテーマ） -->
     <Style x:Key="ThemeIconToggleStyle" TargetType="ToggleButton">
         <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}" />

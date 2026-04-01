@@ -480,16 +480,20 @@
                                     </Border.Style>
                                 </Border>
 
-                                <ProgressBar Grid.Column="0"
-                                             Value="{Binding GlobalStatus.ProgressValue}"
-                                             IsIndeterminate="{Binding GlobalStatus.IsIndeterminate}"
-                                             VerticalAlignment="Center"
-                                             Height="10"
-                                             Foreground="{DynamicResource IndicatorBrush}"
-                                             Background="{DynamicResource ShellBackgroundBrush}"
-                                             BorderThickness="0"
-                                             Minimum="0"
-                                             Maximum="100" />
+                                <Border Grid.Column="0"
+                                        VerticalAlignment="Center"
+                                        Height="10"
+                                        CornerRadius="5"
+                                        BorderBrush="{DynamicResource BorderSubtleBrush}"
+                                        BorderThickness="1"
+                                        Background="{DynamicResource ShellBackgroundBrush}"
+                                        ClipToBounds="True">
+                                    <ProgressBar Value="{Binding GlobalStatus.ProgressValue}"
+                                                 IsIndeterminate="{Binding GlobalStatus.IsIndeterminate}"
+                                                 Minimum="0"
+                                                 Maximum="100"
+                                                 Style="{StaticResource AppStatusProgressBarStyle}" />
+                                </Border>
 
                                 <TextBlock Grid.Column="1"
                                            Margin="10,0,0,0"
