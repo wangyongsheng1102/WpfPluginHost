@@ -189,7 +189,8 @@
                 </StackPanel>
 
                 <!-- DataGrid オーバーレイ -->
-                <DataGrid ItemsSource="{Binding PendingFiles}"
+                <DataGrid x:Name="PendingFilesDataGrid"
+                          ItemsSource="{Binding PendingFiles}"
                           AutoGenerateColumns="False"
                           CanUserAddRows="False"
                           CanUserDeleteRows="False"
@@ -245,7 +246,8 @@
                     </DataGrid.Style>
                     <DataGrid.Columns>
                         <DataGridTemplateColumn Header="ファイル名"
-                                                Width="125"
+                                                Width="SizeToCells"
+                                                MinWidth="125"
                                                 IsReadOnly="True">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
@@ -255,7 +257,8 @@
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
                         <DataGridTemplateColumn Header="ステータス"
-                                                Width="60"
+                                                Width="SizeToCells"
+                                                MinWidth="60"
                                                 IsReadOnly="True">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
