@@ -113,7 +113,7 @@
                             <TextBlock Grid.Row="0"
                                        Text="接続一覧"
                                        Margin="0,0,0,8"
-                                       Style="{StaticResource BodyTextStyle}" />
+                                       Style="{StaticResource SubtitleTextStyle}" />
 
                             <DataGrid Grid.Row="1"
                                       ItemsSource="{Binding DbConfigViewModel.Connections}"
@@ -137,7 +137,8 @@
                                       RowBackground="Transparent"
                                       AlternatingRowBackground="{DynamicResource ContentBackgroundBrush}"
                                       UseLayoutRounding="True"
-                                      Margin="0">
+                                      Margin="0"
+                                      ColumnHeaderStyle="{StaticResource AppDataGridColumnHeaderStyle}">
                                 <DataGrid.Resources>
                                     <Style x:Key="PostgreCompareDbDataGridCellTextStyle" TargetType="TextBlock" BasedOn="{x:Null}">
                                         <Setter Property="FontFamily" Value="{DynamicResource AppFontFamily}" />
@@ -153,18 +154,6 @@
                                         </Setter>
                                     </Style>
                                 </DataGrid.Resources>
-                                <DataGrid.ColumnHeaderStyle>
-                                    <Style TargetType="DataGridColumnHeader">
-                                        <Setter Property="FontFamily" Value="{DynamicResource AppFontFamily}" />
-                                        <Setter Property="FontWeight" Value="Bold" />
-                                        <Setter Property="Background" Value="{DynamicResource CardElevatedBrush}" />
-                                        <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
-                                        <Setter Property="BorderBrush" Value="{DynamicResource BorderSubtleBrush}" />
-                                        <Setter Property="BorderThickness" Value="0,0,1,1" />
-                                        <Setter Property="Padding" Value="12,8" />
-                                        <Setter Property="HorizontalContentAlignment" Value="Left" />
-                                    </Style>
-                                </DataGrid.ColumnHeaderStyle>
                                 <DataGrid.RowStyle>
                                     <Style TargetType="DataGridRow">
                                         <Setter Property="BorderThickness" Value="0" />
@@ -352,7 +341,7 @@
 
                             <TextBlock Grid.Row="0"
                                        Text="エクスポート設定"
-                                       Style="{StaticResource BodyTextStyle}"
+                                       Style="{StaticResource SubtitleTextStyle}"
                                        Margin="0,0,0,10" />
 
                             <TextBlock Grid.Row="1"
@@ -487,7 +476,7 @@
 
                             <TextBlock Grid.Row="0"
                                        Text="{Binding ImportExportViewModel.SelectedTableCount, StringFormat='選択中のテーブル: {0} 件'}"
-                                       Style="{StaticResource BodyTextStyle}"
+                                       Style="{StaticResource KeyInfoTextStyle}"
                                        Margin="0,0,0,8" />
 
                             <DataGrid Grid.Row="1"
@@ -510,19 +499,8 @@
                                       Foreground="{DynamicResource PrimaryTextBrush}"
                                       RowBackground="Transparent"
                                       AlternatingRowBackground="{DynamicResource ContentBackgroundBrush}"
-                                      UseLayoutRounding="True">
-                                <DataGrid.ColumnHeaderStyle>
-                                    <Style TargetType="DataGridColumnHeader">
-                                        <Setter Property="FontFamily" Value="{DynamicResource AppFontFamily}" />
-                                        <Setter Property="FontWeight" Value="Bold" />
-                                        <Setter Property="Background" Value="{DynamicResource CardElevatedBrush}" />
-                                        <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
-                                        <Setter Property="BorderBrush" Value="{DynamicResource BorderSubtleBrush}" />
-                                        <Setter Property="BorderThickness" Value="0,0,1,1" />
-                                        <Setter Property="Padding" Value="12,8" />
-                                        <Setter Property="HorizontalContentAlignment" Value="Left" />
-                                    </Style>
-                                </DataGrid.ColumnHeaderStyle>
+                                      UseLayoutRounding="True"
+                                      ColumnHeaderStyle="{StaticResource AppDataGridColumnHeaderStyle}">
                                 <DataGrid.RowStyle>
                                     <Style TargetType="DataGridRow">
                                         <Setter Property="BorderThickness" Value="0" />
