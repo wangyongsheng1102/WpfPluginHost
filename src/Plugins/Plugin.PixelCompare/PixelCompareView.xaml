@@ -157,7 +157,7 @@
                     <DataGrid.Resources>
                         <Style x:Key="CenteredDataGridHeaderStyle"
                                TargetType="DataGridColumnHeader"
-                               BasedOn="{DynamicResource AppDataGridColumnHeaderStyle}">
+                               BasedOn="{StaticResource AppDataGridColumnHeaderStyle}">
                             <Setter Property="HorizontalContentAlignment" Value="Center" />
                         </Style>
                     </DataGrid.Resources>
