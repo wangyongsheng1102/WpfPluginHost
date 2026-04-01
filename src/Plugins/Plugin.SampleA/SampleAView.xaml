@@ -223,6 +223,12 @@
                                     <TextDecorationCollection />
                                 </Setter.Value>
                             </Setter>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding RelativeSource={RelativeSource AncestorType=DataGridRow}, Path=IsSelected}"
+                                             Value="True">
+                                    <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+                                </DataTrigger>
+                            </Style.Triggers>
                         </Style>
                     </DataGrid.Resources>
                     <DataGrid.Style>
@@ -258,6 +264,8 @@
                                 </Trigger>
                                 <Trigger Property="IsSelected" Value="True">
                                     <Setter Property="Background" Value="{DynamicResource SelectedBrush}" />
+                                    <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+                                    <Setter Property="TextElement.Foreground" Value="{DynamicResource PrimaryTextBrush}" />
                                 </Trigger>
                             </Style.Triggers>
                         </Style>
@@ -277,6 +285,8 @@
                                 </Trigger>
                                 <Trigger Property="IsSelected" Value="True">
                                     <Setter Property="Background" Value="Transparent" />
+                                    <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+                                    <Setter Property="TextElement.Foreground" Value="{DynamicResource PrimaryTextBrush}" />
                                 </Trigger>
                             </Style.Triggers>
                         </Style>
