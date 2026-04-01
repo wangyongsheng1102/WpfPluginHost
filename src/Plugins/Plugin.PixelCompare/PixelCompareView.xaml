@@ -175,6 +175,7 @@
                             <Setter Property="BorderThickness" Value="0" />
                             <Setter Property="Padding" Value="10,6" />
                             <Setter Property="VerticalAlignment" Value="Center" />
+                            <Setter Property="HorizontalContentAlignment" Value="Center" />
                             <Setter Property="Background" Value="Transparent" />
                             <Setter Property="FocusVisualStyle" Value="{x:Null}" />
                             <Style.Triggers>
@@ -194,15 +195,25 @@
                         <DataGridTextColumn Header="行番号"
                                             Width="SizeToCells"
                                             MinWidth="64"
-                                            Binding="{Binding RowIndex, Mode=OneWay}" />
+                                            Binding="{Binding RowIndex, Mode=OneWay}">
+                            <DataGridTextColumn.ElementStyle>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="HorizontalAlignment" Value="Center" />
+                                    <Setter Property="TextAlignment" Value="Center" />
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
                         <DataGridTextColumn Header="結果"
                                             Width="SizeToCells"
                                             MinWidth="88"
-                                            Binding="{Binding StatusText, Mode=OneWay}" />
-                        <DataGridTextColumn Header="差異率"
-                                            Width="SizeToCells"
-                                            MinWidth="120"
-                                            Binding="{Binding DifferencePercentageText, Mode=OneWay}" />
+                                            Binding="{Binding StatusText, Mode=OneWay}">
+                            <DataGridTextColumn.ElementStyle>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="HorizontalAlignment" Value="Center" />
+                                    <Setter Property="TextAlignment" Value="Center" />
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
                         <DataGridTextColumn Header="差異数"
                                             Width="*"
                                             MinWidth="72"
@@ -211,6 +222,8 @@
                                 <Style TargetType="TextBlock">
                                     <Setter Property="FontSize" Value="{DynamicResource BodyFontSize}" />
                                     <Setter Property="VerticalAlignment" Value="Center" />
+                                    <Setter Property="HorizontalAlignment" Value="Center" />
+                                    <Setter Property="TextAlignment" Value="Center" />
                                     <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding IsSizeMismatch}" Value="True">
@@ -222,6 +235,17 @@
                                             <Setter Property="Foreground" Value="{DynamicResource ErrorBrush}" />
                                         </DataTrigger>
                                     </Style.Triggers>
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
+                        <DataGridTextColumn Header="差異率"
+                                            Width="SizeToCells"
+                                            MinWidth="120"
+                                            Binding="{Binding DifferencePercentageText, Mode=OneWay}">
+                            <DataGridTextColumn.ElementStyle>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="HorizontalAlignment" Value="Center" />
+                                    <Setter Property="TextAlignment" Value="Center" />
                                 </Style>
                             </DataGridTextColumn.ElementStyle>
                         </DataGridTextColumn>
