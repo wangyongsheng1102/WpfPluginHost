@@ -9,8 +9,8 @@
         Title="WPF プラグインシェル"
         Height="900"
         Width="1250"
-        MinHeight="600"
-        MinWidth="850"
+        MinHeight="700"
+        MinWidth="950"
         AllowsTransparency="False"
         WindowStyle="SingleBorderWindow"
         WindowStartupLocation="CenterScreen"
@@ -182,7 +182,8 @@
 
                             <TextBlock x:Name="HomeText"
                                        Text="ホーム"
-                                       FontWeight="SemiBold"
+                                       FontFamily="{DynamicResource AppFontFamilyBold}"
+                                       FontWeight="Normal"
                                        FontSize="16"
                                        Foreground="{DynamicResource PrimaryTextBrush}"
                                        HorizontalAlignment="Center"
@@ -283,7 +284,7 @@
                                             <DoubleAnimation Storyboard.TargetName="RefreshRotate"
                                                              Storyboard.TargetProperty="Angle"
                                                              From="0"
-                                                             To="360"
+                                                             To="-360"
                                                              Duration="{StaticResource IconSpinDuration}"
                                                              RepeatBehavior="Forever" />
                                         </Storyboard>
@@ -389,7 +390,9 @@
                         <TextBlock Text="{Binding GlobalStatus.Message}" 
                                    VerticalAlignment="Center" Margin="16,0,0,0"
                                    Foreground="{Binding GlobalStatus.TextColor}" 
-                                   FontSize="13" FontWeight="SemiBold" />
+                                   FontSize="13"
+                                   FontFamily="{DynamicResource AppFontFamilyBold}"
+                                   FontWeight="Normal" />
                         
                         <!-- Progress Bar -->
                         <ProgressBar Value="{Binding GlobalStatus.ProgressValue}" 

@@ -19,29 +19,39 @@
                       Opacity="0.22" />
 
     <Style x:Key="TitleTextStyle" TargetType="TextBlock">
-        <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}" />
+        <Setter Property="FontFamily" Value="{StaticResource AppFontFamilyBold}" />
         <Setter Property="FontSize" Value="{StaticResource TitleFontSize}" />
-        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="FontWeight" Value="Normal" />
         <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
     </Style>
 
     <Style x:Key="SubtitleTextStyle" TargetType="TextBlock">
-        <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}" />
+        <Setter Property="FontFamily" Value="{StaticResource AppFontFamilyBold}" />
         <Setter Property="FontSize" Value="{StaticResource SubtitleFontSize}" />
-        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="FontWeight" Value="Normal" />
         <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
     </Style>
 
     <Style x:Key="BodyTextStyle" TargetType="TextBlock">
         <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}" />
         <Setter Property="FontSize" Value="{StaticResource BodyFontSize}" />
+        <Setter Property="FontWeight" Value="Normal" />
         <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
     </Style>
 
     <Style x:Key="CaptionTextStyle" TargetType="TextBlock">
         <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}" />
         <Setter Property="FontSize" Value="{StaticResource CaptionFontSize}" />
+        <Setter Property="FontWeight" Value="Normal" />
         <Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}" />
+    </Style>
+
+    <!-- ステータス行・キュー状態など、本文サイズで強調したい一行 -->
+    <Style x:Key="KeyInfoTextStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="{StaticResource AppFontFamilyBold}" />
+        <Setter Property="FontSize" Value="{StaticResource BodyFontSize}" />
+        <Setter Property="FontWeight" Value="Normal" />
+        <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
     </Style>
     <Style x:Key="ActionButtonStyle" TargetType="Button">
         <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}" />
@@ -168,7 +178,7 @@
     </Style>
 
     <Style x:Key="PrimaryButtonStyle" TargetType="Button">
-        <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}" />
+        <Setter Property="FontFamily" Value="{StaticResource AppFontFamilyBold}" />
         <Setter Property="Background" Value="{DynamicResource IndicatorBrush}" />
         <Setter Property="Foreground" Value="{DynamicResource PrimaryButtonTextBrush}" />
         <Setter Property="BorderThickness" Value="0" />
@@ -460,6 +470,17 @@
         </Style.Triggers>
     </Style>
 
+    <Style x:Key="AppDataGridColumnHeaderStyle" TargetType="DataGridColumnHeader">
+        <Setter Property="FontFamily" Value="{StaticResource AppFontFamilyBold}" />
+        <Setter Property="FontWeight" Value="Normal" />
+        <Setter Property="Background" Value="{DynamicResource CardElevatedBrush}" />
+        <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource BorderSubtleBrush}" />
+        <Setter Property="BorderThickness" Value="0,0,1,1" />
+        <Setter Property="Padding" Value="12,8" />
+        <Setter Property="HorizontalContentAlignment" Value="Left" />
+    </Style>
+
     <Style x:Key="NavListBoxStyle" TargetType="ListBox">
         <Setter Property="Background" Value="Transparent" />
         <Setter Property="BorderThickness" Value="0" />
@@ -564,7 +585,7 @@
     </Style>
 
     <Style x:Key="NavTextStyle" TargetType="TextBlock">
-        <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}" />
+        <Setter Property="FontFamily" Value="{StaticResource AppFontFamilyBold}" />
         <Setter Property="VerticalAlignment" Value="Center" />
         <Setter Property="HorizontalAlignment" Value="Left" />
         <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
@@ -576,7 +597,7 @@
         <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}" />
         <Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}" />
         <Setter Property="FontSize" Value="{StaticResource CaptionFontSize}" />
-        <Setter Property="FontWeight" Value="SemiBold" />
+        <Setter Property="FontWeight" Value="Normal" />
     </Style>
 
     <!-- 太陽／月（SVG ベクター）。ライト＝太陽、ダーク＝月（IsChecked はダークテーマ） -->

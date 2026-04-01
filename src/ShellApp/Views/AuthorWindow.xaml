@@ -36,11 +36,11 @@
                         BorderThickness="1" CornerRadius="8"
                         Padding="24" Margin="0,0,0,24">
                     <StackPanel>
-                        <TextBlock Text="{Binding ProductName}" Style="{StaticResource TitleTextStyle}" FontSize="26" FontWeight="Bold" />
+                        <TextBlock Text="{Binding ProductName}" Style="{StaticResource TitleTextStyle}" FontSize="26" />
                         <TextBlock Text="{Binding VersionDisplay}" Style="{StaticResource BodyTextStyle}" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,4,0,20" />
 
                         <StackPanel Orientation="Horizontal">
-                            <svgc:SvgViewbox Source="/ShellApp;component/Assets/SVG/avatar-bad-breaking-svgrepo-com.svg"
+                            <svgc:SvgViewbox Source="/Assets/SVG/avatar-bad-breaking-svgrepo-com.svg"
                                              Width="44" Height="44"
                                              Stretch="Uniform"
                                              VerticalAlignment="Center"
@@ -78,7 +78,8 @@
                                 <StackPanel>
                                     <Grid Margin="0,0,0,12">
                                         <TextBlock Text="{Binding VersionTitle}"
-                                                   FontWeight="Bold" FontSize="15" Foreground="{DynamicResource PrimaryTextBrush}" HorizontalAlignment="Left" />
+                                                   FontFamily="{DynamicResource AppFontFamilyBold}"
+                                                   FontWeight="Normal" FontSize="15" Foreground="{DynamicResource PrimaryTextBrush}" HorizontalAlignment="Left" />
                                         <TextBlock Text="{Binding DateLabel}" Style="{StaticResource CaptionTextStyle}" HorizontalAlignment="Right" />
                                     </Grid>
                                     <TextBlock Text="{Binding Notes}"
