@@ -165,6 +165,8 @@
                                 </Trigger>
                                 <Trigger Property="IsSelected" Value="True">
                                     <Setter Property="Background" Value="{DynamicResource SelectedBrush}" />
+                                    <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+                                    <Setter Property="TextElement.Foreground" Value="{DynamicResource PrimaryTextBrush}" />
                                 </Trigger>
                             </Style.Triggers>
                         </Style>
@@ -176,6 +178,16 @@
                             <Setter Property="VerticalAlignment" Value="Center" />
                             <Setter Property="Background" Value="Transparent" />
                             <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+                            <Style.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Background" Value="Transparent" />
+                                </Trigger>
+                                <Trigger Property="IsSelected" Value="True">
+                                    <Setter Property="Background" Value="Transparent" />
+                                    <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+                                    <Setter Property="TextElement.Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+                                </Trigger>
+                            </Style.Triggers>
                         </Style>
                     </DataGrid.CellStyle>
                     <DataGrid.Columns>
