@@ -125,7 +125,7 @@
                     </Grid.RowDefinitions>
                     <TextBlock Grid.Row="0"
                                Text="比較一覧"
-                               Style="{StaticResource BodyTextStyle}"
+                               Style="{StaticResource SubtitleTextStyle}"
                                Margin="0,0,0,10" />
                 <DataGrid Grid.Row="1"
                           ItemsSource="{Binding CompareItems}"
@@ -149,18 +149,8 @@
                           Foreground="{DynamicResource PrimaryTextBrush}"
                           RowBackground="Transparent"
                           AlternatingRowBackground="{DynamicResource ContentBackgroundBrush}"
-                          UseLayoutRounding="True">
-                    <DataGrid.ColumnHeaderStyle>
-                        <Style TargetType="DataGridColumnHeader">
-                            <Setter Property="FontWeight" Value="Bold" />
-                            <Setter Property="Background" Value="{DynamicResource CardElevatedBrush}" />
-                            <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
-                            <Setter Property="BorderBrush" Value="{DynamicResource BorderSubtleBrush}" />
-                            <Setter Property="BorderThickness" Value="0,0,1,1" />
-                            <Setter Property="Padding" Value="12,8" />
-                            <Setter Property="HorizontalContentAlignment" Value="Left" />
-                        </Style>
-                    </DataGrid.ColumnHeaderStyle>
+                          UseLayoutRounding="True"
+                          ColumnHeaderStyle="{StaticResource AppDataGridColumnHeaderStyle}">
                     <DataGrid.RowStyle>
                         <Style TargetType="DataGridRow">
                             <Setter Property="BorderThickness" Value="0" />
