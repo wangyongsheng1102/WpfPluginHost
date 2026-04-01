@@ -31,16 +31,20 @@ public sealed class HtmlReportService
         html.AppendLine(".toc li{margin:4px 0;break-inside:avoid;}");
         html.AppendLine(".toc a{text-decoration:none;color:#1f4a9d;}");
         html.AppendLine(".toc a:hover{text-decoration:underline;}");
+        html.AppendLine(".back-to-toc{position:fixed;right:24px;bottom:24px;z-index:999;display:inline-flex;align-items:center;justify-content:center;width:52px;height:52px;border-radius:999px;background:#1f4a9d;color:#fff;text-decoration:none;font-size:22px;box-shadow:0 6px 16px rgba(0,0,0,.22);}");
+        html.AppendLine(".back-to-toc:hover{background:#173a7b;}");
         html.AppendLine("</style></head><body><div class=\"container\">");
         html.AppendLine("<h1>PixelCompare レポート</h1>");
         html.AppendLine($"<p><strong>作成日時:</strong> {DateTime.Now:yyyy-MM-dd HH:mm:ss}</p>");
         html.AppendLine($"<p><strong>Excel:</strong> {excelPath}</p>");
         html.AppendLine($"<p><strong>シート:</strong> {sheetName}</p>");
-        html.AppendLine("<div class=\"toc\"><h2>目次</h2><ul>");
+        html.AppendLine("<div class=\"toc\" id=\"toc\"><h2>目次</h2><ul>");
         foreach (var entry in results.OrderBy(x => x.RowIndex))
         {
             var rowIndex = entry.RowIndex;
-            html.AppendLine($"<li><a href=\"#row-{rowIndex}\">{rowIndex} 行目</a></li>");
+            var result = entry.Result;
+            var diffCountText = result.IsSizeMismatch ? "∞" : result.HasError ? "-" : result.DiffCount.ToString();
+            html.AppendLine($"<li><a href=\"#row-{rowIndex}\">{rowIndex} 行目（差異数: {diffCountText}）</a></li>");
         }
         html.AppendLine("</ul></div>");
 
@@ -60,7 +64,7 @@ public sealed class HtmlReportService
             }
             else
             {
-                html.AppendLine($"<div class=\"ok\">差異領域数: {result.DiffCount} / 差異率: {result.DifferencePercentage:F2}%</div>");
+                html.AppendLine($"<div class=\"ok\">差異数: {result.DiffCount} / 差異率: {result.DifferencePercentage:F2}%</div>");
                 AppendImageIfExists(html, result.MarkedImage1Path, "左画像（赤枠）");
                 AppendImageIfExists(html, result.MarkedImage2Path, "右画像（赤枠）");
             }
@@ -68,7 +72,7 @@ public sealed class HtmlReportService
             html.AppendLine("</div>");
         }
 
-        html.AppendLine("</div></body></html>");
+        html.AppendLine("</div><a class=\"back-to-toc\" href=\"#toc\" title=\"目次へ戻る\" aria-label=\"目次へ戻る\">↑</a></body></html>");
         await File.WriteAllTextAsync(reportPath, html.ToString(), Encoding.UTF8);
     }
 
