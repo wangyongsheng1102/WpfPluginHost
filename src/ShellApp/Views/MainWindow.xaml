@@ -14,7 +14,6 @@
         AllowsTransparency="False"
         WindowStyle="SingleBorderWindow"
         WindowStartupLocation="CenterScreen"
-        Icon="/Assets/Icons/toolbox_repair_box_tool_box_toolboxes_toolkit_icon_189326.ico"
         Background="{DynamicResource ShellBackgroundBrush}">
     <WindowChrome.WindowChrome>
         <WindowChrome GlassFrameThickness="0,0,0,1" CornerRadius="0" CaptionHeight="52" ResizeBorderThickness="8" UseAeroCaptionButtons="False" />
@@ -409,13 +408,16 @@
             </Grid>
         </Grid>
 
-        <Button Style="{StaticResource AboutAppStyle}"
-                Command="{Binding ShowAuthorCommand}"
-                WindowChrome.IsHitTestVisibleInChrome="True" />
-
-        <Button Style="{StaticResource ExitAppStyle}"
-                Click="CloseButton_Click"
-                ToolTip="閉じる"
-                WindowChrome.IsHitTestVisibleInChrome="True" />
+        <StackPanel Orientation="Horizontal"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Top"
+                    Margin="0,7,7,0"
+                    WindowChrome.IsHitTestVisibleInChrome="True">
+            <Button Style="{StaticResource AboutAppStyle}"
+                    Command="{Binding ShowAuthorCommand}" />
+            <Button Style="{StaticResource ExitAppStyle}"
+                    Click="CloseButton_Click"
+                    ToolTip="閉じる" />
+        </StackPanel>
     </Grid>
 </Window>
