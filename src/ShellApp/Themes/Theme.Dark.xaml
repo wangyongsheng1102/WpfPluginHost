@@ -4,8 +4,11 @@
     <Color x:Key="ShellBackgroundColor">#202020</Color>
     <Color x:Key="NavBackgroundColor">#202020</Color>
     <Color x:Key="HoverColor">#333333</Color>
-    <!-- ContentBackground(#282828) と差がつくよう、ComboBox 候補の選択色としても判読できるグレーに -->
-    <Color x:Key="SelectedColor">#3A3A3A</Color>
+    <!-- ナビ・ボタン等の汎用選択（リスト行・ComboBox 候補は ListItem* を使用） -->
+    <Color x:Key="SelectedColor">#282828</Color>
+    <!-- ドロップダウン／テーブル行：薄い青系（HoverBrush の純グレーと差別化） -->
+    <Color x:Key="ListItemHoverColor">#2D3F52</Color>
+    <Color x:Key="ListRowAccentSelectedColor">#154C78</Color>
     <Color x:Key="IndicatorColor">#60CDFF</Color>
     <Color x:Key="PrimaryTextColor">#FFFFFF</Color>
     <Color x:Key="SecondaryTextColor">#B8B8B8</Color>
@@ -24,7 +27,9 @@
     <SolidColorBrush x:Key="NavBackgroundBrush" Color="{StaticResource NavBackgroundColor}" />
     <SolidColorBrush x:Key="HoverBrush" Color="{StaticResource HoverColor}" />
     <SolidColorBrush x:Key="SelectedBrush" Color="{StaticResource SelectedColor}" />
-    <SolidColorBrush x:Key="DataGridRowSelectedBrush" Color="#154C78" />
+    <SolidColorBrush x:Key="ListItemHoverBrush" Color="{StaticResource ListItemHoverColor}" />
+    <SolidColorBrush x:Key="ListItemSelectedBrush" Color="{StaticResource ListRowAccentSelectedColor}" />
+    <SolidColorBrush x:Key="DataGridRowSelectedBrush" Color="{StaticResource ListRowAccentSelectedColor}" />
     <SolidColorBrush x:Key="DataGridRowSelectedBorderBrush" Color="#7ED6FF" />
     <SolidColorBrush x:Key="DataGridRowSelectedTextBrush" Color="#FFFFFF" />
     <SolidColorBrush x:Key="IndicatorBrush" Color="{StaticResource IndicatorColor}" />

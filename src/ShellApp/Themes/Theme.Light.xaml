@@ -24,7 +24,9 @@
     <SolidColorBrush x:Key="NavBackgroundBrush" Color="{StaticResource NavBackgroundColor}" />
     <SolidColorBrush x:Key="HoverBrush" Color="{StaticResource HoverColor}" />
     <SolidColorBrush x:Key="SelectedBrush" Color="{StaticResource SelectedColor}" />
-    <!-- DataGrid 行ホバー／選択：明暗どちらでも判別できるようコントラストを確保 -->
+    <!-- ドロップダウン候補・テーブル行・DataGrid の同一トーン（Theme ごとに定義） -->
+    <SolidColorBrush x:Key="ListItemHoverBrush" Color="{StaticResource HoverColor}" />
+    <SolidColorBrush x:Key="ListItemSelectedBrush" Color="{StaticResource SelectedColor}" />
     <SolidColorBrush x:Key="DataGridRowSelectedBrush" Color="#DDEBFA" />
     <SolidColorBrush x:Key="DataGridRowSelectedBorderBrush" Color="#AAC8E8" />
     <SolidColorBrush x:Key="DataGridRowSelectedTextBrush" Color="#E4000000" />

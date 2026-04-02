@@ -546,7 +546,7 @@
         </Setter>
     </Style>
 
-    <!-- テーブル風 ListBox 行：インポート一覧など。選択行は SelectedBrush で全面ハイライト -->
+    <!-- テーブル風 ListBox 行：Theme の ListItemHoverBrush / ListItemSelectedBrush（ComboBox 候補と同じトーン） -->
     <Style x:Key="AppFlatSelectableRowListBoxItemStyle" TargetType="ListBoxItem">
         <Setter Property="Padding" Value="0" />
         <Setter Property="Margin" Value="0" />
@@ -561,13 +561,12 @@
                         <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
                                           VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
                     </Border>
-                    <!-- AppComboBoxItemStyle と同じ：IsHighlighted 相当＝HoverBrush、IsSelected＝SelectedBrush -->
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="ItemBd" Property="Background" Value="{DynamicResource HoverBrush}" />
+                            <Setter TargetName="ItemBd" Property="Background" Value="{DynamicResource ListItemHoverBrush}" />
                         </Trigger>
                         <Trigger Property="IsSelected" Value="True">
-                            <Setter TargetName="ItemBd" Property="Background" Value="{DynamicResource SelectedBrush}" />
+                            <Setter TargetName="ItemBd" Property="Background" Value="{DynamicResource ListItemSelectedBrush}" />
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -943,17 +942,16 @@
         <Setter Property="HorizontalContentAlignment" Value="Center" />
         <Setter Property="VerticalContentAlignment" Value="Center" />
         <Setter Property="VerticalAlignment" Value="Center" />
-        <!-- AppComboBoxItemStyle と同じ：候補ハイライト＝HoverBrush、選択＝SelectedBrush -->
         <Style.Triggers>
             <MultiDataTrigger>
                 <MultiDataTrigger.Conditions>
                     <Condition Binding="{Binding RelativeSource={RelativeSource AncestorType=DataGridRow}, Path=IsMouseOver}" Value="True" />
                     <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsSelected}" Value="False" />
                 </MultiDataTrigger.Conditions>
-                <Setter Property="Background" Value="{DynamicResource HoverBrush}" />
+                <Setter Property="Background" Value="{DynamicResource ListItemHoverBrush}" />
             </MultiDataTrigger>
             <Trigger Property="IsSelected" Value="True">
-                <Setter Property="Background" Value="{DynamicResource SelectedBrush}" />
+                <Setter Property="Background" Value="{DynamicResource ListItemSelectedBrush}" />
                 <Setter Property="BorderThickness" Value="0" />
                 <Setter Property="BorderBrush" Value="Transparent" />
                 <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
@@ -984,10 +982,10 @@
         <Setter Property="FontSize" Value="{StaticResource BodyFontSize}" />
         <Style.Triggers>
             <Trigger Property="IsHighlighted" Value="True">
-                <Setter Property="Background" Value="{DynamicResource HoverBrush}" />
+                <Setter Property="Background" Value="{DynamicResource ListItemHoverBrush}" />
             </Trigger>
             <Trigger Property="IsSelected" Value="True">
-                <Setter Property="Background" Value="{DynamicResource SelectedBrush}" />
+                <Setter Property="Background" Value="{DynamicResource ListItemSelectedBrush}" />
             </Trigger>
         </Style.Triggers>
     </Style>
