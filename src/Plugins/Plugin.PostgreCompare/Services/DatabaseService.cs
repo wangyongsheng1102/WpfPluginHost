@@ -34,52 +34,30 @@ public class DatabaseService
         await using var conn = new NpgsqlConnection(connectionString);
         await conn.OpenAsync();
 
+        // Use pg_class to get an estimated row count quickly in a single query
         const string sql = @"
         SELECT 
-            table_schema,
-            table_name
-        FROM information_schema.tables t
-        WHERE table_schema NOT IN ('pg_catalog', 'information_schema')
-          AND table_type = 'BASE TABLE'
-          AND table_schema = @schema
-        ORDER BY table_schema, table_name";
+            n.nspname as table_schema,
+            c.relname as table_name,
+            CAST(c.reltuples AS BIGINT) as row_count
+        FROM pg_class c
+        JOIN pg_namespace n ON n.oid = c.relnamespace
+        WHERE n.nspname = @schema
+          AND c.relkind = 'r'
+        ORDER BY n.nspname, c.relname";
 
         await using var cmd = new NpgsqlCommand(sql, conn);
         cmd.Parameters.AddWithValue("schema", schema);
         await using var reader = await cmd.ExecuteReaderAsync();
 
-        var tableList = new List<(string Schema, string Table)>();
         while (await reader.ReadAsync())
         {
-            tableList.Add((reader.GetString(0), reader.GetString(1)));
-        }
-
-        await reader.CloseAsync();
-
-        foreach (var (schemaName, tableName) in tableList)
-        {
-            try
+            tables.Add(new TableInfo
             {
-                var countSql = $"SELECT COUNT(*) FROM \"{schemaName}\".\"{tableName}\"";
-                await using var countCmd = new NpgsqlCommand(countSql, conn);
-                var rowCount = Convert.ToInt64(await countCmd.ExecuteScalarAsync());
-
-                tables.Add(new TableInfo
-                {
-                    SchemaName = schemaName,
-                    TableName = tableName,
-                    RowCount = rowCount
-                });
-            }
-            catch
-            {
-                tables.Add(new TableInfo
-                {
-                    SchemaName = schemaName,
-                    TableName = tableName,
-                    RowCount = -1
-                });
-            }
+                SchemaName = reader.GetString(0),
+                TableName = reader.GetString(1),
+                RowCount = reader.GetInt64(2)
+            });
         }
 
         return tables;

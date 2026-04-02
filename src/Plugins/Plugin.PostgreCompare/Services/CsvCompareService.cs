@@ -49,33 +49,32 @@ public class CsvCompareService
 
         progress?.Report((0, 0, "データ比較を実行しています..."));
 
-        var comparer = new PrimaryKeyComparer();
-        var baseFrozen = baseData.ToDictionary(k => k.Key, v => v.Value, comparer);
-        var compareFrozen = compareData.ToDictionary(k => k.Key, v => v.Value, comparer);
-
-        foreach (var kvp in baseFrozen)
+        // baseData にあって compareData にないものを「削除」とする
+        foreach (var kvp in baseData)
         {
-            if (!compareFrozen.ContainsKey(kvp.Key))
+            if (!compareData.ContainsKey(kvp.Key))
             {
                 results.Add(new RowComparisonResult
                 {
                     TableName = $"{schemaName}.{tableName}",
                     Status = ComparisonStatus.Deleted,
-                    PrimaryKeyValues = kvp.Key,
+                    PrimaryKeyValues = kvp.Value.PrimaryKeyValues,
                     OldValues = kvp.Value.Values
                 });
             }
         }
 
-        foreach (var kvp in compareFrozen)
+        // compareData にあって baseData にないものを「追加」
+        // 両方にあるがハッシュが異なるものを「更新」とする
+        foreach (var kvp in compareData)
         {
-            if (!baseFrozen.TryGetValue(kvp.Key, out var baseRow))
+            if (!baseData.TryGetValue(kvp.Key, out var baseRow))
             {
                 results.Add(new RowComparisonResult
                 {
                     TableName = $"{schemaName}.{tableName}",
                     Status = ComparisonStatus.Added,
-                    PrimaryKeyValues = kvp.Key,
+                    PrimaryKeyValues = kvp.Value.PrimaryKeyValues,
                     NewValues = kvp.Value.Values
                 });
             }
@@ -85,7 +84,7 @@ public class CsvCompareService
                 {
                     TableName = $"{schemaName}.{tableName}",
                     Status = ComparisonStatus.Updated,
-                    PrimaryKeyValues = kvp.Key,
+                    PrimaryKeyValues = kvp.Value.PrimaryKeyValues,
                     OldValues = baseRow.Values,
                     NewValues = kvp.Value.Values
                 });
@@ -98,14 +97,14 @@ public class CsvCompareService
         return results;
     }
 
-    private async Task<Dictionary<Dictionary<string, object?>, RowData>> LoadCsvDataWithHashAsync(
+    private async Task<Dictionary<string, RowData>> LoadCsvDataWithHashAsync(
         string csvPath,
         List<string> primaryKeyColumns,
         IProgress<(int current, int total, string message)>? progress,
         string label,
         bool useFullRowComparison = false)
     {
-        var data = new Dictionary<Dictionary<string, object?>, RowData>(new PrimaryKeyComparer());
+        var data = new Dictionary<string, RowData>();
 
         if (!File.Exists(csvPath))
         {
@@ -113,15 +112,16 @@ public class CsvCompareService
             return data;
         }
 
-        var lines = await File.ReadAllLinesAsync(csvPath, Encoding.UTF8);
-        if (lines.Length == 0)
-        {
-            return data;
-        }
+        using var reader = new StreamReader(csvPath, Encoding.UTF8);
+        var headerLine = await reader.ReadLineAsync();
+        if (headerLine == null) return data;
 
-        var headers = ParseCsvLine(lines[0]);
-        var totalRows = lines.Length - 1;
-        var processedRows = 0L;
+        var headers = ParseCsvLine(headerLine);
+        
+        // ファイルの行数を概算で見積もる（進捗表示用）
+        var fileSize = new FileInfo(csvPath).Length;
+        var processedBytes = 0L;
+        var lastReportedPercentage = -1;
 
         List<int> primaryKeyIndices;
         List<int> nonPrimaryKeyIndices;
@@ -149,25 +149,31 @@ public class CsvCompareService
                 .ToList();
         }
 
-        var batch = new List<(Dictionary<string, object?> pk, Dictionary<string, object?> values, long hash)>();
+        string? line;
+        long processedRows = 0;
 
-        for (int rowIndex = 1; rowIndex < lines.Length; rowIndex++)
+        while ((line = await reader.ReadLineAsync()) != null)
         {
-            var line = lines[rowIndex];
+            processedRows++;
+            processedBytes += Encoding.UTF8.GetByteCount(line) + 2; // +2 for \r\n
+
             if (string.IsNullOrWhiteSpace(line)) continue;
 
             var values = ParseCsvLine(line);
             if (values.Count != headers.Count) continue;
 
             var primaryKeyValues = new Dictionary<string, object?>();
+            var pkKeyBuilder = new StringBuilder();
             foreach (var idx in primaryKeyIndices)
             {
                 var colName = headers[idx];
-                var value = idx < values.Count ? values[idx] : null;
+                var value = values[idx];
                 primaryKeyValues[colName] = string.IsNullOrEmpty(value) ? null : value;
+                pkKeyBuilder.Append(value ?? "NULL").Append('\u001F'); // Use unit separator to avoid collision
             }
 
-            var nonPkValues = new Dictionary<string, object?>();
+            var pkKey = pkKeyBuilder.ToString();
+            var rowValues = new Dictionary<string, object?>();
             var hashBuilder = new StringBuilder();
 
             if (useFullRowComparison)
@@ -175,11 +181,10 @@ public class CsvCompareService
                 foreach (var idx in primaryKeyIndices)
                 {
                     var colName = headers[idx];
-                    var value = idx < values.Count ? values[idx] : null;
-                    nonPkValues[colName] = string.IsNullOrEmpty(value) ? null : value;
+                    var value = values[idx];
+                    rowValues[colName] = string.IsNullOrEmpty(value) ? null : value;
 
-                    hashBuilder.Append(colName).Append('=');
-                    hashBuilder.Append(value ?? "NULL").Append('|');
+                    hashBuilder.Append(colName).Append('=').Append(value ?? "NULL").Append('|');
                 }
             }
             else
@@ -187,45 +192,53 @@ public class CsvCompareService
                 foreach (var idx in nonPrimaryKeyIndices)
                 {
                     var colName = headers[idx];
-                    var value = idx < values.Count ? values[idx] : null;
-                    nonPkValues[colName] = string.IsNullOrEmpty(value) ? null : value;
+                    var value = values[idx];
+                    rowValues[colName] = string.IsNullOrEmpty(value) ? null : value;
 
-                    hashBuilder.Append(colName).Append('=');
-                    hashBuilder.Append(value ?? "NULL").Append('|');
+                    hashBuilder.Append(colName).Append('=').Append(value ?? "NULL").Append('|');
                 }
             }
 
-            var hashBytes = SHA256.HashData(Encoding.UTF8.GetBytes(hashBuilder.ToString()));
-            var hash = BitConverter.ToInt64(hashBytes, 0);
+            // Using a simple but effective hash for performance
+            var rowHash = GetStableHashCode(hashBuilder.ToString());
+            
+            data[pkKey] = new RowData 
+            { 
+                PrimaryKeyValues = primaryKeyValues,
+                Values = rowValues, 
+                Hash = rowHash 
+            };
 
-            batch.Add((primaryKeyValues, nonPkValues, hash));
-            processedRows++;
-
-            if (batch.Count >= BatchSize)
+            if (processedRows % BatchSize == 0)
             {
-                ProcessBatch(batch, data);
-                batch.Clear();
-
-                var percentage = totalRows > 0 ? (int)(processedRows * 100 / totalRows) : 0;
-                progress?.Report((percentage, 100, $"[{label}] {processedRows}/{totalRows} 行を処理しました ({percentage}%)"));
+                var percentage = (int)(processedBytes * 100 / fileSize);
+                if (percentage != lastReportedPercentage)
+                {
+                    progress?.Report((percentage, 100, $"[{label}] {processedRows} 行を処理しました ({percentage}%)"));
+                    lastReportedPercentage = percentage;
+                }
             }
-        }
-
-        if (batch.Count > 0)
-        {
-            ProcessBatch(batch, data);
         }
 
         return data;
     }
 
-    private static void ProcessBatch(
-        List<(Dictionary<string, object?> pk, Dictionary<string, object?> values, long hash)> batch,
-        Dictionary<Dictionary<string, object?>, RowData> data)
+    private static long GetStableHashCode(string str)
     {
-        foreach (var (pk, values, hash) in batch)
+        unchecked
         {
-            data[pk] = new RowData { Values = values, Hash = hash };
+            long hash1 = 5381;
+            long hash2 = hash1;
+
+            for (int i = 0; i < str.Length && str[i] != '\0'; i += 2)
+            {
+                hash1 = ((hash1 << 5) + hash1) ^ str[i];
+                if (i + 1 == str.Length || str[i + 1] == '\0')
+                    break;
+                hash2 = ((hash2 << 5) + hash2) ^ str[i + 1];
+            }
+
+            return hash1 + (hash2 * 1566083941);
         }
     }
 
@@ -268,36 +281,9 @@ public class CsvCompareService
 
     private sealed class RowData
     {
+        public Dictionary<string, object?> PrimaryKeyValues { get; set; } = new();
         public Dictionary<string, object?> Values { get; set; } = new();
         public long Hash { get; set; }
-    }
-
-    private sealed class PrimaryKeyComparer : IEqualityComparer<Dictionary<string, object?>>
-    {
-        public bool Equals(Dictionary<string, object?>? x, Dictionary<string, object?>? y)
-        {
-            if (x == null || y == null) return x == y;
-            if (x.Count != y.Count) return false;
-
-            foreach (var kvp in x)
-            {
-                if (!y.TryGetValue(kvp.Key, out var value) || !Equals(kvp.Value, value))
-                    return false;
-            }
-
-            return true;
-        }
-
-        public int GetHashCode(Dictionary<string, object?> obj)
-        {
-            var hash = new HashCode();
-            foreach (var kvp in obj.OrderBy(k => k.Key))
-            {
-                hash.Add(kvp.Key);
-                hash.Add(kvp.Value);
-            }
-            return hash.ToHashCode();
-        }
     }
 }
 
