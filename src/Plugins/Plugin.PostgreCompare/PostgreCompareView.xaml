@@ -507,7 +507,7 @@
                                               IsChecked="{Binding CompareViewModel.AccessLogChecked}"
                                               Margin="0,0,0,16" />
 
-                                    <Button Content="比較実行" Height="36" Style="{DynamicResource PostgrePrimaryButtonStyle}" Command="{Binding CompareViewModel.CompareCsvFilesCommand}" HorizontalAlignment="Left" Width="200" />
+                                    <Button Content="比較実行" Height="36" Style="{DynamicResource PostgrePrimaryButtonStyle}" Command="{Binding CompareViewModel.CompareCsvFilesCommand}" HorizontalAlignment="Stretch" />
                                 </StackPanel>
                             </Border>
                         </StackPanel>

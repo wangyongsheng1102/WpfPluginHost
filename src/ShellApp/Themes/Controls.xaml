@@ -927,35 +927,16 @@
         </Setter>
     </Style>
 
-    <!-- DataGrid 行：ListBox テーブル一覧と同様、選択行は SelectedBrush で全面ハイライト -->
+    <!--
+      DataGrid は行に RowBackground / AlternatingRowBackground をローカル値で塗るため、
+      DataGridRow の Style トリガーでは Background が効かない（ListBox とは異なる）。
+      選択・ホバーは DataGridCell 側で塗る。
+    -->
     <Style TargetType="DataGridRow" BasedOn="{StaticResource {x:Type DataGridRow}}">
         <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
         <Setter Property="TextElement.Foreground" Value="{DynamicResource PrimaryTextBrush}" />
-        <Setter Property="Background" Value="Transparent" />
         <Setter Property="BorderThickness" Value="0,0,0,1" />
         <Setter Property="BorderBrush" Value="{DynamicResource BorderSubtleBrush}" />
-        <Style.Triggers>
-            <Trigger Property="IsMouseOver" Value="True">
-                <Setter Property="Background" Value="{DynamicResource ButtonHoverGradientBrush}" />
-            </Trigger>
-            <Trigger Property="IsSelected" Value="True">
-                <Setter Property="Background" Value="{DynamicResource SelectedBrush}" />
-                <Setter Property="BorderBrush" Value="{DynamicResource BorderSubtleBrush}" />
-                <Setter Property="BorderThickness" Value="0,0,0,1" />
-                <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
-                <Setter Property="TextElement.Foreground" Value="{DynamicResource PrimaryTextBrush}" />
-            </Trigger>
-            <MultiTrigger>
-                <MultiTrigger.Conditions>
-                    <Condition Property="IsSelected" Value="True" />
-                    <Condition Property="Selector.IsSelectionActive" Value="False" />
-                </MultiTrigger.Conditions>
-                <Setter Property="Background" Value="{DynamicResource NavBackgroundBrush}" />
-                <Setter Property="BorderBrush" Value="{DynamicResource BorderSubtleBrush}" />
-                <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
-                <Setter Property="TextElement.Foreground" Value="{DynamicResource PrimaryTextBrush}" />
-            </MultiTrigger>
-        </Style.Triggers>
     </Style>
 
     <Style TargetType="DataGridCell" BasedOn="{StaticResource {x:Type DataGridCell}}">
@@ -969,21 +950,29 @@
         <Setter Property="VerticalContentAlignment" Value="Center" />
         <Setter Property="VerticalAlignment" Value="Center" />
         <Style.Triggers>
+            <!-- 未選択行にマウス：行ホバー（祖先 Row の IsMouseOver） -->
+            <MultiDataTrigger>
+                <MultiDataTrigger.Conditions>
+                    <Condition Binding="{Binding RelativeSource={RelativeSource AncestorType=DataGridRow}, Path=IsMouseOver}" Value="True" />
+                    <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsSelected}" Value="False" />
+                </MultiDataTrigger.Conditions>
+                <Setter Property="Background" Value="{DynamicResource ButtonHoverGradientBrush}" />
+            </MultiDataTrigger>
+            <!-- 選択：ListBox の AppFlatSelectableRow と同じ SelectedBrush -->
             <Trigger Property="IsSelected" Value="True">
-                <Setter Property="Background" Value="Transparent" />
+                <Setter Property="Background" Value="{DynamicResource SelectedBrush}" />
                 <Setter Property="BorderThickness" Value="0" />
                 <Setter Property="BorderBrush" Value="Transparent" />
                 <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
                 <Setter Property="TextElement.Foreground" Value="{DynamicResource PrimaryTextBrush}" />
             </Trigger>
+            <!-- フォーカスが別コントロールへ：選択はやや抑える -->
             <MultiTrigger>
                 <MultiTrigger.Conditions>
                     <Condition Property="IsSelected" Value="True" />
                     <Condition Property="Selector.IsSelectionActive" Value="False" />
                 </MultiTrigger.Conditions>
-                <Setter Property="Background" Value="Transparent" />
-                <Setter Property="BorderThickness" Value="0" />
-                <Setter Property="BorderBrush" Value="Transparent" />
+                <Setter Property="Background" Value="{DynamicResource NavBackgroundBrush}" />
                 <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
                 <Setter Property="TextElement.Foreground" Value="{DynamicResource PrimaryTextBrush}" />
             </MultiTrigger>
