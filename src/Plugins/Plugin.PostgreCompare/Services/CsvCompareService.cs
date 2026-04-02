@@ -1,21 +1,70 @@
 using System;
 using System.Collections.Frozen;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using CsvHelper;
+using CsvHelper.Configuration;
 using Plugin.PostgreCompare.Models;
 
 namespace Plugin.PostgreCompare.Services;
 
 /// <summary>
-/// CSV 比較（ロジックは WslPostgreTool CsvCompareService と同一）
+/// CSV 比較。参照 WslPostgreTool CsvCompareService：CsvHelper でレコード単位読込（フィールド内改行に対応）。
+/// 主キー見出しは DB 名と CSV の大文字小文字差を FindHeaderIndex で吸収し、主キー辞書のキーは DB 列名に統一。
 /// </summary>
 public class CsvCompareService
 {
     private const int BatchSize = 10000;
+
+    private static CsvConfiguration CreateCsvConfiguration()
+    {
+        return new CsvConfiguration(CultureInfo.InvariantCulture)
+        {
+            HasHeaderRecord = true,
+            DetectDelimiter = false,
+            Delimiter = ",",
+            IgnoreBlankLines = true,
+            TrimOptions = TrimOptions.None,
+            BadDataFound = null,
+            MissingFieldFound = null,
+        };
+    }
+
+    private static async Task<long> CountCsvDataRecordsAsync(string csvPath)
+    {
+        var config = CreateCsvConfiguration();
+
+        await using var stream = File.OpenRead(csvPath);
+        using var reader = new StreamReader(stream, Encoding.UTF8, detectEncodingFromByteOrderMarks: true);
+        using var csv = new CsvReader(reader, config);
+
+        if (!await csv.ReadAsync())
+        {
+            return 0;
+        }
+
+        csv.ReadHeader();
+        var headers = csv.HeaderRecord ?? Array.Empty<string>();
+
+        long count = 0;
+        while (await csv.ReadAsync())
+        {
+            var record = csv.Parser.Record;
+            if (record == null || record.Length != headers.Length)
+            {
+                continue;
+            }
+
+            count++;
+        }
+
+        return count;
+    }
 
     public async Task<List<RowComparisonResult>> CompareCsvFilesAsync(
         string baseCsvPath,
@@ -39,8 +88,8 @@ public class CsvCompareService
         else
         {
             var pkList = primaryKeyColumns!;
-            // 片方だけ整行・片方だけ主キーになるとキー構造が不一致になるため、両ファイルで主キー列が揃うときだけ主キーモード
-            if (!PrimaryKeysResolvableInCsv(baseCsvPath, pkList) || !PrimaryKeysResolvableInCsv(compareCsvPath, pkList))
+            if (!await PrimaryKeysResolvableInCsvAsync(baseCsvPath, pkList) ||
+                !await PrimaryKeysResolvableInCsvAsync(compareCsvPath, pkList))
             {
                 progress?.Report((0, 0,
                     "いずれかの CSV で主キー列が見出しと一致しないため、両ファイルとも整行比較モードで実行します。"));
@@ -130,19 +179,29 @@ public class CsvCompareService
             return data;
         }
 
-        var lines = await File.ReadAllLinesAsync(csvPath, Encoding.UTF8);
-        if (lines.Length == 0)
+        var config = CreateCsvConfiguration();
+        var totalRows = await CountCsvDataRecordsAsync(csvPath);
+        var processedRows = 0L;
+
+        List<int>? primaryKeyIndices = null;
+        List<int> nonPrimaryKeyIndices;
+
+        await using var stream = File.OpenRead(csvPath);
+        using var reader = new StreamReader(stream, Encoding.UTF8, detectEncodingFromByteOrderMarks: true);
+        using var csv = new CsvReader(reader, config);
+
+        if (!await csv.ReadAsync())
         {
             return data;
         }
 
-        // UTF-8 BOM が付くと先頭列名が一致しない
-        var headers = ParseCsvLine(lines[0].TrimStart('\uFEFF'));
-        var totalRows = lines.Length - 1;
-        var processedRows = 0L;
+        csv.ReadHeader();
+        var headers = (csv.HeaderRecord ?? Array.Empty<string>()).ToList();
 
-        List<int> primaryKeyIndices;
-        List<int> nonPrimaryKeyIndices;
+        if (headers.Count == 0)
+        {
+            return data;
+        }
 
         if (useFullRowComparison)
         {
@@ -159,10 +218,6 @@ public class CsvCompareService
                     resolvedPkIndices.Add(idx);
             }
 
-            primaryKeyIndices = Enumerable.Range(0, headers.Count)
-                .Where(resolvedPkIndices.Contains)
-                .ToList();
-
             if (resolvedPkIndices.Count == 0)
             {
                 progress?.Report((0, 0, $"主キー列が見つかりません: {string.Join(", ", primaryKeyColumns)}"));
@@ -176,34 +231,33 @@ public class CsvCompareService
 
         var batch = new List<(Dictionary<string, object?> pk, Dictionary<string, object?> values, long hash)>();
 
-        for (int rowIndex = 1; rowIndex < lines.Length; rowIndex++)
+        while (await csv.ReadAsync())
         {
-            var line = lines[rowIndex];
-            if (string.IsNullOrWhiteSpace(line)) continue;
-
-            var values = ParseCsvLine(line);
-            if (values.Count != headers.Count) continue;
+            var record = csv.Parser.Record;
+            if (record == null || record.Length != headers.Count)
+            {
+                continue;
+            }
 
             var primaryKeyValues = new Dictionary<string, object?>();
             if (useFullRowComparison)
             {
-                foreach (var idx in primaryKeyIndices)
+                foreach (var idx in primaryKeyIndices!)
                 {
                     var colName = headers[idx];
-                    var value = idx < values.Count ? values[idx] : null;
-                    primaryKeyValues[colName] = string.IsNullOrEmpty(value) ? null : value;
+                    var rawValue = csv.GetField<string>(idx);
+                    primaryKeyValues[colName] = string.IsNullOrEmpty(rawValue) ? null : rawValue;
                 }
             }
             else
             {
-                // キーは DB の主キー列名に統一（各 CSV の見出しの大文字小文字が違っても同一行として突き合わせる）
                 foreach (var pkCol in primaryKeyColumns)
                 {
                     var idx = FindHeaderIndex(headers, pkCol);
                     if (idx < 0)
                         continue;
-                    var value = idx < values.Count ? values[idx] : null;
-                    primaryKeyValues[pkCol] = string.IsNullOrEmpty(value) ? null : value;
+                    var rawValue = csv.GetField<string>(idx);
+                    primaryKeyValues[pkCol] = string.IsNullOrEmpty(rawValue) ? null : rawValue;
                 }
             }
 
@@ -212,11 +266,12 @@ public class CsvCompareService
 
             if (useFullRowComparison)
             {
-                foreach (var idx in primaryKeyIndices)
+                foreach (var idx in primaryKeyIndices!)
                 {
                     var colName = headers[idx];
-                    var value = idx < values.Count ? values[idx] : null;
-                    nonPkValues[colName] = string.IsNullOrEmpty(value) ? null : value;
+                    var rawValue = csv.GetField<string>(idx);
+                    var value = string.IsNullOrEmpty(rawValue) ? null : rawValue;
+                    nonPkValues[colName] = value;
 
                     hashBuilder.Append(colName).Append('=');
                     hashBuilder.Append(value ?? "NULL").Append('|');
@@ -227,8 +282,9 @@ public class CsvCompareService
                 foreach (var idx in nonPrimaryKeyIndices)
                 {
                     var colName = headers[idx];
-                    var value = idx < values.Count ? values[idx] : null;
-                    nonPkValues[colName] = string.IsNullOrEmpty(value) ? null : value;
+                    var rawValue = csv.GetField<string>(idx);
+                    var value = string.IsNullOrEmpty(rawValue) ? null : rawValue;
+                    nonPkValues[colName] = value;
 
                     hashBuilder.Append(colName).Append('=');
                     hashBuilder.Append(value ?? "NULL").Append('|');
@@ -269,24 +325,20 @@ public class CsvCompareService
         }
     }
 
-    /// <summary>
-    /// 複合主キーは構成列がすべて見出しに存在するときのみ true（CompareCsvFilesAsync で両 CSV を同じモードにするため）
-    /// </summary>
-    private static bool PrimaryKeysResolvableInCsv(string csvPath, List<string> primaryKeyColumns)
+    private static async Task<bool> PrimaryKeysResolvableInCsvAsync(string csvPath, List<string> primaryKeyColumns)
     {
         if (!File.Exists(csvPath) || primaryKeyColumns.Count == 0)
             return false;
 
-        string? firstLine;
-        using (var reader = new StreamReader(csvPath, Encoding.UTF8, detectEncodingFromByteOrderMarks: true))
-        {
-            firstLine = reader.ReadLine();
-        }
+        await using var stream = File.OpenRead(csvPath);
+        using var reader = new StreamReader(stream, Encoding.UTF8, detectEncodingFromByteOrderMarks: true);
+        using var csv = new CsvReader(reader, CreateCsvConfiguration());
 
-        if (string.IsNullOrWhiteSpace(firstLine))
+        if (!await csv.ReadAsync())
             return false;
 
-        var headers = ParseCsvLine(firstLine.TrimStart('\uFEFF'));
+        csv.ReadHeader();
+        var headers = (csv.HeaderRecord ?? Array.Empty<string>()).ToList();
         return primaryKeyColumns.All(pk => FindHeaderIndex(headers, pk) >= 0);
     }
 
@@ -300,41 +352,6 @@ public class CsvCompareService
         }
 
         return -1;
-    }
-
-    private static List<string> ParseCsvLine(string line)
-    {
-        var values = new List<string>();
-        var current = new StringBuilder();
-        bool inQuotes = false;
-
-        foreach (var c in line)
-        {
-            if (c == '"')
-            {
-                if (inQuotes && current.Length > 0 && current[current.Length - 1] == '"')
-                {
-                    current.Length--;
-                    current.Append('"');
-                }
-                else
-                {
-                    inQuotes = !inQuotes;
-                }
-            }
-            else if (c == ',' && !inQuotes)
-            {
-                values.Add(current.ToString());
-                current.Clear();
-            }
-            else
-            {
-                current.Append(c);
-            }
-        }
-        values.Add(current.ToString());
-
-        return values;
     }
 
     private sealed class RowData

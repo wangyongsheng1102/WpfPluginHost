@@ -16,6 +16,7 @@
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2">
       <ExcludeAssets>runtime</ExcludeAssets>
     </PackageReference>
+    <PackageReference Include="CsvHelper" Version="33.1.0" />
     <PackageReference Include="Npgsql" Version="8.0.3" />
     <PackageReference Include="ClosedXML" Version="0.105.0" />
   </ItemGroup>
@@ -29,9 +30,7 @@
       <PluginRuntimeFiles Include="$(TargetDir)*.dll" />
       <PluginRuntimeFiles Include="$(TargetDir)*.deps.json" />
     </ItemGroup>
-    <Copy SourceFiles="@(PluginRuntimeFiles)"
-          DestinationFolder="$(PluginDropFolder)"
-          SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(PluginRuntimeFiles)" DestinationFolder="$(PluginDropFolder)" SkipUnchangedFiles="true" />
   </Target>
 </Project>
 
