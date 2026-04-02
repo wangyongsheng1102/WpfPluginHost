@@ -9,6 +9,13 @@
     <UserControl.Resources>
         <ResourceDictionary>
             <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+            <!-- TabItem が FontSize=20 のため内容が継承するのを防ぎ、PixelCompare と同じ BodyFontSize をボタンに適用 -->
+            <Style x:Key="PostgrePrimaryButtonStyle" TargetType="Button" BasedOn="{DynamicResource PrimaryButtonStyle}">
+                <Setter Property="FontSize" Value="{DynamicResource BodyFontSize}" />
+            </Style>
+            <Style x:Key="PostgreActionButtonStyle" TargetType="Button" BasedOn="{DynamicResource ActionButtonStyle}">
+                <Setter Property="FontSize" Value="{DynamicResource BodyFontSize}" />
+            </Style>
             <!-- タぶ項目のスタイルを定義 -->
             <Style x:Key="PostgreTabItemStyle" TargetType="TabItem">
                 <Setter Property="FontFamily" Value="{StaticResource AppFontFamilyBold}" />
@@ -68,7 +75,7 @@
                                     Height="36"
                                     MinWidth="110"
                                     Padding="16,0"
-                                    Style="{DynamicResource PrimaryButtonStyle}"
+                                    Style="{DynamicResource PostgrePrimaryButtonStyle}"
                                     Command="{Binding DbConfigViewModel.AddConnectionCommand}" />
                         </StackPanel>
                     </Border>
@@ -172,7 +179,7 @@
                                                         </Border>
 
                                                         <Button Grid.Column="6" Content="削除" Width="80" Height="36"
-                                                                Style="{DynamicResource ActionButtonStyle}"
+                                                                Style="{DynamicResource PostgreActionButtonStyle}"
                                                                 Foreground="{DynamicResource ErrorBrush}"
                                                                 Command="{Binding DataContext.DbConfigViewModel.RemoveConnectionCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                                 CommandParameter="{Binding}" Margin="4,2" />
@@ -231,7 +238,7 @@
                                         Content="テーブルリストを読み込み"
                                         Height="36"
                                         Padding="16,0"
-                                        Style="{DynamicResource PrimaryButtonStyle}"
+                                        Style="{DynamicResource PostgrePrimaryButtonStyle}"
                                         Command="{Binding ImportExportViewModel.LoadTablesCommand}" />
                             </Grid>
                         </Grid>
@@ -263,8 +270,8 @@
                                 <TextBlock Grid.Row="0" Text="テーブル一覧" Style="{DynamicResource SubtitleTextStyle}" Margin="0,0,0,12" />
                                 
                                 <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,10">
-                                    <Button Content="全選択" Height="36" MinWidth="80" Style="{DynamicResource ActionButtonStyle}" Command="{Binding ImportExportViewModel.SelectAllTablesCommand}" Margin="0,0,8,0" />
-                                    <Button Content="全解除" Height="36" MinWidth="80" Style="{DynamicResource ActionButtonStyle}" Command="{Binding ImportExportViewModel.DeselectAllTablesCommand}" />
+                                    <Button Content="全選択" Height="36" MinWidth="80" Style="{DynamicResource PostgreActionButtonStyle}" Command="{Binding ImportExportViewModel.SelectAllTablesCommand}" Margin="0,0,8,0" />
+                                    <Button Content="全解除" Height="36" MinWidth="80" Style="{DynamicResource PostgreActionButtonStyle}" Command="{Binding ImportExportViewModel.DeselectAllTablesCommand}" />
                                 </StackPanel>
 
                                 <TextBlock Grid.Row="2" Text="{Binding ImportExportViewModel.SelectedTableCount, StringFormat='選択中: {0} 件'}" Style="{DynamicResource CaptionTextStyle}" Margin="0,0,0,10" />
@@ -320,9 +327,9 @@
                                         <Border Grid.Column="0" Style="{DynamicResource AppInputChromeBorderStyle}" Height="36">
                                             <TextBox Style="{DynamicResource AppTextBoxFlatStyle}" Text="{Binding ImportExportViewModel.ExportFolderPath, UpdateSourceTrigger=PropertyChanged}" />
                                         </Border>
-                                        <Button Grid.Column="1" Content="選択" Height="36" MinWidth="70" Style="{DynamicResource ActionButtonStyle}" Command="{Binding ImportExportViewModel.SelectExportFolderCommand}" Margin="8,0,0,0" />
+                                        <Button Grid.Column="1" Content="選択" Height="36" MinWidth="70" Style="{DynamicResource PostgreActionButtonStyle}" Command="{Binding ImportExportViewModel.SelectExportFolderCommand}" Margin="8,0,0,0" />
                                     </Grid>
-                                    <Button Content="エクスポート実行" Height="36" Style="{DynamicResource PrimaryButtonStyle}" Command="{Binding ImportExportViewModel.ExportTablesCommand}" HorizontalAlignment="Stretch" />
+                                    <Button Content="エクスポート実行" Height="36" Style="{DynamicResource PostgrePrimaryButtonStyle}" Command="{Binding ImportExportViewModel.ExportTablesCommand}" HorizontalAlignment="Stretch" />
                                 </StackPanel>
                             </Border>
 
@@ -344,9 +351,9 @@
                                         <Border Grid.Column="0" Style="{DynamicResource AppInputChromeBorderStyle}" Height="36">
                                             <TextBox Style="{DynamicResource AppTextBoxFlatStyle}" Text="{Binding ImportExportViewModel.ImportFolderPath, UpdateSourceTrigger=PropertyChanged}" />
                                         </Border>
-                                        <Button Grid.Column="1" Content="選択" Height="36" MinWidth="70" Style="{DynamicResource ActionButtonStyle}" Command="{Binding ImportExportViewModel.SelectImportFolderCommand}" Margin="8,0,0,0" />
+                                        <Button Grid.Column="1" Content="選択" Height="36" MinWidth="70" Style="{DynamicResource PostgreActionButtonStyle}" Command="{Binding ImportExportViewModel.SelectImportFolderCommand}" Margin="8,0,0,0" />
                                     </Grid>
-                                    <Button Content="インポート実行" Height="36" Style="{DynamicResource PrimaryButtonStyle}" Command="{Binding ImportExportViewModel.ImportTablesCommand}" HorizontalAlignment="Stretch" />
+                                    <Button Content="インポート実行" Height="36" Style="{DynamicResource PostgrePrimaryButtonStyle}" Command="{Binding ImportExportViewModel.ImportTablesCommand}" HorizontalAlignment="Stretch" />
                                 </StackPanel>
                             </Border>
                         </Grid>
@@ -408,7 +415,7 @@
                                         <Border Grid.Column="0" Style="{DynamicResource AppInputChromeBorderStyle}" Height="36">
                                             <TextBox Style="{DynamicResource AppTextBoxFlatStyle}" Text="{Binding CompareViewModel.BaseFolderPath, UpdateSourceTrigger=PropertyChanged}" />
                                         </Border>
-                                        <Button Grid.Column="1" Content="選択" Height="36" MinWidth="70" Style="{DynamicResource ActionButtonStyle}" Command="{Binding CompareViewModel.SelectBaseFolderCommand}" Margin="8,0,0,0" />
+                                        <Button Grid.Column="1" Content="選択" Height="36" MinWidth="70" Style="{DynamicResource PostgreActionButtonStyle}" Command="{Binding CompareViewModel.SelectBaseFolderCommand}" Margin="8,0,0,0" />
                                     </Grid>
 
                                     <TextBlock Text="旧フォルダ" Style="{DynamicResource BodyTextStyle}" Margin="0,0,0,8" />
@@ -420,7 +427,7 @@
                                         <Border Grid.Column="0" Style="{DynamicResource AppInputChromeBorderStyle}" Height="36">
                                             <TextBox Style="{DynamicResource AppTextBoxFlatStyle}" Text="{Binding CompareViewModel.OldFolderPath, UpdateSourceTrigger=PropertyChanged}" />
                                         </Border>
-                                        <Button Grid.Column="1" Content="選択" Height="36" MinWidth="70" Style="{DynamicResource ActionButtonStyle}" Command="{Binding CompareViewModel.SelectOldFolderCommand}" Margin="8,0,0,0" />
+                                        <Button Grid.Column="1" Content="選択" Height="36" MinWidth="70" Style="{DynamicResource PostgreActionButtonStyle}" Command="{Binding CompareViewModel.SelectOldFolderCommand}" Margin="8,0,0,0" />
                                     </Grid>
 
                                     <TextBlock Text="新フォルダ" Style="{DynamicResource BodyTextStyle}" Margin="0,0,0,8" />
@@ -432,7 +439,7 @@
                                         <Border Grid.Column="0" Style="{DynamicResource AppInputChromeBorderStyle}" Height="36">
                                             <TextBox Style="{DynamicResource AppTextBoxFlatStyle}" Text="{Binding CompareViewModel.NewFolderPath, UpdateSourceTrigger=PropertyChanged}" />
                                         </Border>
-                                        <Button Grid.Column="1" Content="選択" Height="36" MinWidth="70" Style="{DynamicResource ActionButtonStyle}" Command="{Binding CompareViewModel.SelectNewFolderCommand}" Margin="8,0,0,0" />
+                                        <Button Grid.Column="1" Content="選択" Height="36" MinWidth="70" Style="{DynamicResource PostgreActionButtonStyle}" Command="{Binding CompareViewModel.SelectNewFolderCommand}" Margin="8,0,0,0" />
                                     </Grid>
                                 </StackPanel>
                             </Border>
@@ -454,14 +461,14 @@
                                         <Border Grid.Column="0" Style="{DynamicResource AppInputChromeBorderStyle}" Height="36">
                                             <TextBox Style="{DynamicResource AppTextBoxFlatStyle}" Text="{Binding CompareViewModel.ExportFilePath, UpdateSourceTrigger=PropertyChanged}" />
                                         </Border>
-                                        <Button Grid.Column="1" Content="選択" Height="36" MinWidth="70" Style="{DynamicResource ActionButtonStyle}" Command="{Binding CompareViewModel.SelectExportFileCommand}" Margin="8,0,0,0" />
+                                        <Button Grid.Column="1" Content="選択" Height="36" MinWidth="70" Style="{DynamicResource PostgreActionButtonStyle}" Command="{Binding CompareViewModel.SelectExportFileCommand}" Margin="8,0,0,0" />
                                     </Grid>
 
                                     <CheckBox Content="access_log.csv を含める"
                                               IsChecked="{Binding CompareViewModel.AccessLogChecked}"
                                               Margin="0,0,0,16" />
 
-                                    <Button Content="比較実行" Height="36" Style="{DynamicResource PrimaryButtonStyle}" Command="{Binding CompareViewModel.CompareCsvFilesCommand}" HorizontalAlignment="Left" Width="200" />
+                                    <Button Content="比較実行" Height="36" Style="{DynamicResource PostgrePrimaryButtonStyle}" Command="{Binding CompareViewModel.CompareCsvFilesCommand}" HorizontalAlignment="Left" Width="200" />
                                 </StackPanel>
                             </Border>
                         </StackPanel>
