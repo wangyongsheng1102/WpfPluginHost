@@ -48,23 +48,10 @@ public partial class PixelCompareView : UserControl
         }
     }
 
-    private async void OnCompareCompleted(object? sender, EventArgs e)
+    private void OnCompareCompleted(object? sender, EventArgs e)
     {
-        await Dispatcher.InvokeAsync(AutoSizeCompareListColumns, DispatcherPriority.Background);
-    }
-
-    private void AutoSizeCompareListColumns()
-    {
-        if (CompareListDataGrid.Columns.Count == 0)
-        {
-            return;
-        }
-
-        CompareListDataGrid.UpdateLayout();
-        foreach (var column in CompareListDataGrid.Columns)
-        {
-            column.Width = new DataGridLength(1, DataGridLengthUnitType.Auto);
-        }
+        // PixelCompare の一覧は DataGrid ではなく ListBox で描画しているため、
+        // 列幅の自動調整は不要。
     }
 
     private void OnPreviewImageMouseLeftButtonDown(object sender, MouseButtonEventArgs e)

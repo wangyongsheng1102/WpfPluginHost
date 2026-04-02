@@ -125,117 +125,131 @@
                                Text="比較一覧"
                                Style="{DynamicResource SubtitleTextStyle}"
                                Margin="0,0,0,10" />
-                <DataGrid x:Name="CompareListDataGrid"
-                          Grid.Row="1"
-                          ItemsSource="{Binding CompareItems}"
-                          SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
-                          IsEnabled="{Binding IsProcessing, Converter={StaticResource InverseBooleanConverter}}"
-                          IsReadOnly="True"
-                          AutoGenerateColumns="False"
-                          CanUserAddRows="False"
-                          CanUserDeleteRows="False"
-                          CanUserResizeRows="False"
-                          HeadersVisibility="Column"
-                          SelectionMode="Single"
-                          SelectionUnit="FullRow"
-                          GridLinesVisibility="None"
-                          HorizontalGridLinesBrush="{DynamicResource BorderSubtleBrush}"
-                          VerticalGridLinesBrush="{DynamicResource BorderSubtleBrush}"
-                          Background="Transparent"
-                          BorderThickness="0"
-                          RowHeight="Auto"
-                          MinRowHeight="38"
-                          ColumnHeaderHeight="38"
-                          FontSize="{DynamicResource BodyFontSize}"
-                          FontFamily="{DynamicResource AppFontFamily}"
-                          Foreground="{DynamicResource PrimaryTextBrush}"
-                          RowBackground="Transparent"
-                          AlternatingRowBackground="{DynamicResource ContentBackgroundBrush}"
-                          UseLayoutRounding="True"
-                          ColumnHeaderStyle="{DynamicResource AppDataGridColumnHeaderStyle}"
-                          ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                          ScrollViewer.VerticalScrollBarVisibility="Auto">
-                    <DataGrid.CellStyle>
-                        <Style TargetType="DataGridCell"
-                               BasedOn="{StaticResource {x:Type DataGridCell}}">
-                            <!-- 选中背景需要铺满整格：避免内容只占中间导致“选中不连续” -->
-                            <Setter Property="VerticalContentAlignment" Value="Stretch" />
-                            <Setter Property="VerticalAlignment" Value="Stretch" />
-                            <Setter Property="Padding" Value="0" />
-                        </Style>
-                    </DataGrid.CellStyle>
-                    <DataGrid.Resources>
-                        <Style x:Key="CenteredDataGridHeaderStyle"
-                               TargetType="DataGridColumnHeader"
-                               BasedOn="{StaticResource AppDataGridColumnHeaderStyle}">
-                            <Setter Property="HorizontalContentAlignment" Value="Center" />
-                        </Style>
-                    </DataGrid.Resources>
-                    <DataGrid.Columns>
-                        <!-- 内容幅にぴったり合わせ、余白（余分な空白）を排除 -->
-                        <DataGridTextColumn Header="行番号"
-                                            Width="Auto"
-                                            MinWidth="72"
-                                            HeaderStyle="{StaticResource CenteredDataGridHeaderStyle}"
-                                            Binding="{Binding RowIndex, Mode=OneWay}">
-                            <DataGridTextColumn.ElementStyle>
-                                <Style TargetType="TextBlock">
-                                    <Setter Property="HorizontalAlignment" Value="Center" />
-                                    <Setter Property="TextAlignment" Value="Center" />
+                    <Grid Grid.Row="1" Grid.IsSharedSizeScope="True">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+
+                        <!-- 列見出し（DataGrid 版と同じ列を LeftTable / ItemTemplate に复刻） -->
+                        <Grid Grid.Row="0" Margin="8,0,8,8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" SharedSizeGroup="PcRowIndex" />
+                                <ColumnDefinition Width="Auto" SharedSizeGroup="PcStatus" />
+                                <ColumnDefinition Width="Auto" SharedSizeGroup="PcDiffCount" />
+                                <ColumnDefinition Width="Auto" SharedSizeGroup="PcDiffPct" />
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Grid.Column="0"
+                                       Text="行番号"
+                                       Style="{DynamicResource CaptionTextStyle}"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center" />
+                            <TextBlock Grid.Column="1"
+                                       Text="結果"
+                                       Style="{DynamicResource CaptionTextStyle}"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center" />
+                            <TextBlock Grid.Column="2"
+                                       Text="差異数"
+                                       Style="{DynamicResource CaptionTextStyle}"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center" />
+                            <TextBlock Grid.Column="3"
+                                       Text="差異率"
+                                       Style="{DynamicResource CaptionTextStyle}"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center" />
+                        </Grid>
+
+                        <ListBox Grid.Row="1"
+                                 ItemsSource="{Binding CompareItems}"
+                                 SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
+                                 IsEnabled="{Binding IsProcessing, Converter={StaticResource InverseBooleanConverter}}"
+                                 Background="Transparent"
+                                 BorderThickness="0"
+                                 HorizontalAlignment="Left"
+                                 HorizontalContentAlignment="Left"
+                                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                 ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                 SelectionMode="Single"
+                                 >
+                            <ListBox.ItemContainerStyle>
+                                <Style TargetType="ListBoxItem"
+                                       BasedOn="{StaticResource AppFlatSelectableRowListBoxItemStyle}">
+                                    <Setter Property="HorizontalContentAlignment" Value="Left" />
                                 </Style>
-                            </DataGridTextColumn.ElementStyle>
-                        </DataGridTextColumn>
-                        <DataGridTextColumn Header="結果"
-                                            Width="Auto"
-                                            MinWidth="80"
-                                            HeaderStyle="{StaticResource CenteredDataGridHeaderStyle}"
-                                            Binding="{Binding StatusText, Mode=OneWay}">
-                            <DataGridTextColumn.ElementStyle>
-                                <Style TargetType="TextBlock">
-                                    <Setter Property="HorizontalAlignment" Value="Center" />
-                                    <Setter Property="TextAlignment" Value="Center" />
-                                </Style>
-                            </DataGridTextColumn.ElementStyle>
-                        </DataGridTextColumn>
-                        <DataGridTextColumn Header="差異数"
-                                            Width="Auto"
-                                            MinWidth="80"
-                                            HeaderStyle="{StaticResource CenteredDataGridHeaderStyle}"
-                                            Binding="{Binding DiffCountDisplay, Mode=OneWay}">
-                            <DataGridTextColumn.ElementStyle>
-                                <Style TargetType="TextBlock">
-                                    <Setter Property="FontSize" Value="{DynamicResource BodyFontSize}" />
-                                    <Setter Property="VerticalAlignment" Value="Center" />
-                                    <Setter Property="HorizontalAlignment" Value="Center" />
-                                    <Setter Property="TextAlignment" Value="Center" />
-                                    <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding IsSizeMismatch}" Value="True">
-                                            <Setter Property="Foreground" Value="{StaticResource PixelCompareInfinityForegroundBrush}" />
-                                            <Setter Property="FontSize" Value="{DynamicResource SubtitleFontSize}" />
-                                            <Setter Property="FontWeight" Value="SemiBold" />
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding HasNonZeroDiffCount}" Value="True">
-                                            <Setter Property="Foreground" Value="{DynamicResource ErrorBrush}" />
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </DataGridTextColumn.ElementStyle>
-                        </DataGridTextColumn>
-                        <DataGridTextColumn Header="差異率"
-                                            Width="Auto"
-                                            MinWidth="100"
-                                            HeaderStyle="{StaticResource CenteredDataGridHeaderStyle}"
-                                            Binding="{Binding DifferencePercentageText, Mode=OneWay}">
-                            <DataGridTextColumn.ElementStyle>
-                                <Style TargetType="TextBlock">
-                                    <Setter Property="HorizontalAlignment" Value="Center" />
-                                    <Setter Property="TextAlignment" Value="Center" />
-                                </Style>
-                            </DataGridTextColumn.ElementStyle>
-                        </DataGridTextColumn>
-                    </DataGrid.Columns>
-                </DataGrid>
+                            </ListBox.ItemContainerStyle>
+
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <Border BorderBrush="{DynamicResource BorderSubtleBrush}" BorderThickness="0,0,0,1" Padding="8,6">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto" SharedSizeGroup="PcRowIndex" />
+                                                <ColumnDefinition Width="Auto" SharedSizeGroup="PcStatus" />
+                                                <ColumnDefinition Width="Auto" SharedSizeGroup="PcDiffCount" />
+                                                <ColumnDefinition Width="Auto" SharedSizeGroup="PcDiffPct" />
+                                            </Grid.ColumnDefinitions>
+
+                                            <TextBlock Grid.Column="0"
+                                                       Text="{Binding RowIndex}"
+                                                       VerticalAlignment="Center"
+                                                       HorizontalAlignment="Center"
+                                                       Style="{DynamicResource BodyTextStyle}"
+                                                       TextAlignment="Center" />
+                                            <TextBlock Grid.Column="1"
+                                                       Text="{Binding StatusText}"
+                                                       VerticalAlignment="Center"
+                                                       HorizontalAlignment="Center"
+                                                       Style="{DynamicResource BodyTextStyle}"
+                                                       TextAlignment="Center" />
+
+                                            <Border Grid.Column="2" Background="Transparent">
+                                                <Border.Resources>
+                                                    <Style x:Key="PcDiffCountTextStyle" TargetType="TextBlock">
+                                                        <Setter Property="FontSize" Value="{DynamicResource BodyFontSize}" />
+                                                        <Setter Property="FontFamily" Value="{DynamicResource AppFontFamily}" />
+                                                        <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+                                                        <Setter Property="VerticalAlignment" Value="Center" />
+                                                        <Setter Property="HorizontalAlignment" Value="Center" />
+                                                        <Setter Property="TextAlignment" Value="Center" />
+                                                    </Style>
+                                                </Border.Resources>
+                                                <TextBlock Text="{Binding DiffCountDisplay}"
+                                                           VerticalAlignment="Center"
+                                                           HorizontalAlignment="Center"
+                                                           TextAlignment="Center">
+                                                    <TextBlock.Style>
+                                                        <Style TargetType="TextBlock" BasedOn="{StaticResource PcDiffCountTextStyle}">
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding IsSizeMismatch}" Value="True">
+                                                                    <Setter Property="Foreground" Value="{StaticResource PixelCompareInfinityForegroundBrush}" />
+                                                                    <Setter Property="FontSize" Value="{DynamicResource SubtitleFontSize}" />
+                                                                    <Setter Property="FontWeight" Value="SemiBold" />
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding HasNonZeroDiffCount}" Value="True">
+                                                                    <Setter Property="Foreground" Value="{DynamicResource ErrorBrush}" />
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </TextBlock.Style>
+                                                </TextBlock>
+                                            </Border>
+
+                                            <TextBlock Grid.Column="3"
+                                                       Text="{Binding DifferencePercentageText}"
+                                                       VerticalAlignment="Center"
+                                                       HorizontalAlignment="Center"
+                                                       Style="{DynamicResource BodyTextStyle}"
+                                                       TextAlignment="Center"
+                                                       TextTrimming="CharacterEllipsis" />
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </Grid>
                 </Grid>
             </Border>
 
