@@ -105,13 +105,13 @@
 
         <Grid Grid.Row="1" Margin="0,0,0,0">
             <Grid.ColumnDefinitions>
-                <!-- 比較一覧とプレビューの幅を比率で分配し、バランスを調整 -->
-                <ColumnDefinition Width="420" MinWidth="380" />
+                <!-- 比較一覧エリアはテーブルの内容幅に追従、プレビューは残り幅を使用 -->
+                <ColumnDefinition Width="Auto" MinWidth="300" />
                 <ColumnDefinition Width="16" />
                 <ColumnDefinition Width="*" MinWidth="400" />
             </Grid.ColumnDefinitions>
 
-            <Border Grid.Column="0" Padding="16"
+            <Border Grid.Column="0" Padding="12,16"
                     Background="{DynamicResource CardElevatedBrush}"
                     CornerRadius="{StaticResource PanelRadius}"
                     BorderThickness="1"
@@ -162,10 +162,10 @@
                         </Style>
                     </DataGrid.Resources>
                     <DataGrid.Columns>
-                        <!-- スター（*）による比率指定で、横スクロールバーなしの自動レイアウトを実現 -->
+                        <!-- 内容幅にぴったり合わせ、余白（余分な空白）を排除 -->
                         <DataGridTextColumn Header="行番号"
-                                            Width="0.8*"
-                                            MinWidth="60"
+                                            Width="Auto"
+                                            MinWidth="72"
                                             HeaderStyle="{StaticResource CenteredDataGridHeaderStyle}"
                                             Binding="{Binding RowIndex, Mode=OneWay}">
                             <DataGridTextColumn.ElementStyle>
@@ -176,7 +176,7 @@
                             </DataGridTextColumn.ElementStyle>
                         </DataGridTextColumn>
                         <DataGridTextColumn Header="結果"
-                                            Width="*"
+                                            Width="Auto"
                                             MinWidth="80"
                                             HeaderStyle="{StaticResource CenteredDataGridHeaderStyle}"
                                             Binding="{Binding StatusText, Mode=OneWay}">
@@ -188,7 +188,7 @@
                             </DataGridTextColumn.ElementStyle>
                         </DataGridTextColumn>
                         <DataGridTextColumn Header="差異数"
-                                            Width="*"
+                                            Width="Auto"
                                             MinWidth="80"
                                             HeaderStyle="{StaticResource CenteredDataGridHeaderStyle}"
                                             Binding="{Binding DiffCountDisplay, Mode=OneWay}">
@@ -213,7 +213,7 @@
                             </DataGridTextColumn.ElementStyle>
                         </DataGridTextColumn>
                         <DataGridTextColumn Header="差異率"
-                                            Width="1.2*"
+                                            Width="Auto"
                                             MinWidth="100"
                                             HeaderStyle="{StaticResource CenteredDataGridHeaderStyle}"
                                             Binding="{Binding DifferencePercentageText, Mode=OneWay}">
