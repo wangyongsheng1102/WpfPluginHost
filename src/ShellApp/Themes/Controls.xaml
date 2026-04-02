@@ -592,22 +592,22 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="ProgressBar">
-                    <Grid x:Name="TemplateRoot">
+                    <Grid x:Name="TemplateRoot" ClipToBounds="True">
                         <!-- トラック：より控えめに -->
                         <Border x:Name="PART_Track"
                                 CornerRadius="2"
                                 Background="#15000000" />
                         
                         <Grid x:Name="PART_Indicator"
-                              HorizontalAlignment="Left"
-                              ClipToBounds="True">
+                              HorizontalAlignment="Left">
                             <Grid.RenderTransform>
                                 <TranslateTransform X="0" />
                             </Grid.RenderTransform>
                             
                             <!-- インジケーター本体：グラデーションと発光 -->
                             <Border x:Name="IndicatorBorder"
-                                    CornerRadius="2">
+                                    CornerRadius="2"
+                                    ClipToBounds="True">
                                 <Border.Background>
                                     <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
                                         <GradientStop Offset="0" Color="{Binding Color, Source={StaticResource IndicatorBrush}}" />
@@ -642,7 +642,7 @@
                     </Grid>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsIndeterminate" Value="True">
-                            <Setter TargetName="PART_Indicator" Property="Width" Value="80" />
+                            <Setter TargetName="PART_Indicator" Property="Width" Value="100" />
                             <Setter TargetName="IndicatorBorder" Property="Background">
                                 <Setter.Value>
                                     <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
@@ -657,7 +657,7 @@
                                     <Storyboard RepeatBehavior="Forever">
                                         <DoubleAnimation Storyboard.TargetName="PART_Indicator"
                                                          Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.X)"
-                                                         From="-80" To="250" Duration="0:0:1.2">
+                                                         From="-100" To="300" Duration="0:0:1.2">
                                             <DoubleAnimation.EasingFunction>
                                                 <CubicEase EasingMode="EaseInOut" />
                                             </DoubleAnimation.EasingFunction>
@@ -675,7 +675,7 @@
                                     <Storyboard RepeatBehavior="Forever">
                                         <DoubleAnimation Storyboard.TargetName="GlowTransform"
                                                          Storyboard.TargetProperty="X"
-                                                         From="0" To="400" Duration="0:0:2" />
+                                                         From="0" To="800" Duration="0:0:2.5" />
                                     </Storyboard>
                                 </BeginStoryboard>
                             </Trigger.EnterActions>
