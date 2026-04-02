@@ -72,7 +72,7 @@
 ### リリースビルド（Release）
 
 1. メインアプリの発行：
-   - `dotnet publish src/ShellApp/ShellApp.csproj -c Release -r win-x64 --self-contained false`
+   - `dotnet publish src/ShellApp/ShellApp.csproj -c Release -r win-x64 --self-contained false --output ./publish`
 2. プラグインのビルド（必要な分）：
    - `dotnet build src/Plugins/Plugin.SampleA/Plugin.SampleA.csproj -c Release`
    - `dotnet build src/Plugins/Plugin.SampleB/Plugin.SampleB.csproj -c Release`

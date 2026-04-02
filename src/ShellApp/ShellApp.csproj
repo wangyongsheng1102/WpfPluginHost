@@ -38,4 +38,13 @@
     </ItemGroup>
     <Copy SourceFiles="@(_PluginFiles)" DestinationFolder="$(OutDir)plugins" SkipUnchangedFiles="true" />
   </Target>
+
+  <!-- dotnet publish 時も、ホストの配布先（$(PublishDir)）へ plugins を同梱する -->
+  <Target Name="CopyWorkspacePluginsToPublishOutput" AfterTargets="Publish">
+    <MakeDir Directories="$(PublishDir)plugins" />
+    <ItemGroup>
+      <_PluginFilesForPublish Include="$(MSBuildThisFileDirectory)..\..\plugins\*.*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(_PluginFilesForPublish)" DestinationFolder="$(PublishDir)plugins" SkipUnchangedFiles="true" />
+  </Target>
 </Project>
