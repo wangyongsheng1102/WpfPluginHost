@@ -59,6 +59,13 @@ public partial class ImportExportViewModel : ObservableObject
         Tables.Clear();
         foreach (var table in tables)
         {
+            table.PropertyChanged += (s, e) =>
+            {
+                if (e.PropertyName == nameof(TableInfo.IsSelected))
+                {
+                    OnPropertyChanged(nameof(SelectedTableCount));
+                }
+            };
             Tables.Add(table);
         }
 
