@@ -585,52 +585,50 @@
     <Style x:Key="AppStatusProgressBarStyle" TargetType="ProgressBar">
         <Setter Property="Foreground" Value="{DynamicResource IndicatorBrush}" />
         <Setter Property="Background" Value="{DynamicResource ShellBackgroundBrush}" />
-        <Setter Property="BorderBrush" Value="{DynamicResource BorderSubtleBrush}" />
+        <Setter Property="BorderBrush" Value="Transparent" />
         <Setter Property="BorderThickness" Value="0" />
-        <Setter Property="Height" Value="6" />
+        <Setter Property="Height" Value="4" />
         <Setter Property="SnapsToDevicePixels" Value="True" />
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="ProgressBar">
                     <Grid x:Name="TemplateRoot">
+                        <!-- トラック：より控えめに -->
                         <Border x:Name="PART_Track"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="3">
-                            <Border.Background>
-                                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                                    <GradientStop Offset="0" Color="#10000000" />
-                                    <GradientStop Offset="1" Color="#05000000" />
-                                </LinearGradientBrush>
-                            </Border.Background>
-                        </Border>
+                                CornerRadius="2"
+                                Background="#15000000" />
+                        
                         <Grid x:Name="PART_Indicator"
                               HorizontalAlignment="Left"
                               ClipToBounds="True">
                             <Grid.RenderTransform>
                                 <TranslateTransform X="0" />
                             </Grid.RenderTransform>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                            </Grid.ColumnDefinitions>
-                            <Border x:Name="Animation"
-                                    Background="{TemplateBinding Foreground}"
-                                    CornerRadius="3">
+                            
+                            <!-- インジケーター本体：グラデーションと発光 -->
+                            <Border x:Name="IndicatorBorder"
+                                    CornerRadius="2">
+                                <Border.Background>
+                                    <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
+                                        <GradientStop Offset="0" Color="{Binding Color, Source={StaticResource IndicatorBrush}}" />
+                                        <GradientStop Offset="1" Color="#FF64B5F6" /> <!-- 少し明るい青へ -->
+                                    </LinearGradientBrush>
+                                </Border.Background>
                                 <Border.Effect>
-                                    <DropShadowEffect BlurRadius="6"
+                                    <DropShadowEffect BlurRadius="8"
                                                       Color="{Binding Color, Source={StaticResource IndicatorBrush}}"
                                                       Direction="0"
-                                                      Opacity="0.4"
+                                                      Opacity="0.6"
                                                       ShadowDepth="0" />
                                 </Border.Effect>
-                                <Grid x:Name="OverlayGrid">
-                                    <Border Background="{TemplateBinding Foreground}" CornerRadius="3" />
-                                    <!-- シマー効果（光沢が流れるアニメーション） -->
+                                
+                                <Grid>
+                                    <!-- シマー効果 -->
                                     <Border x:Name="Glow" Margin="-150,0,0,0" Width="150" HorizontalAlignment="Left">
                                         <Border.Background>
                                             <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
                                                 <GradientStop Offset="0" Color="Transparent" />
-                                                <GradientStop Offset="0.5" Color="#30FFFFFF" />
+                                                <GradientStop Offset="0.5" Color="#60FFFFFF" />
                                                 <GradientStop Offset="1" Color="Transparent" />
                                             </LinearGradientBrush>
                                         </Border.Background>
@@ -644,15 +642,24 @@
                     </Grid>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsIndeterminate" Value="True">
-                            <Setter TargetName="PART_Indicator" Property="Width" Value="100" />
+                            <Setter TargetName="PART_Indicator" Property="Width" Value="80" />
+                            <Setter TargetName="IndicatorBorder" Property="Background">
+                                <Setter.Value>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                        <GradientStop Offset="0" Color="Transparent" />
+                                        <GradientStop Offset="0.5" Color="{Binding Color, Source={StaticResource IndicatorBrush}}" />
+                                        <GradientStop Offset="1" Color="Transparent" />
+                                    </LinearGradientBrush>
+                                </Setter.Value>
+                            </Setter>
                             <Trigger.EnterActions>
                                 <BeginStoryboard x:Name="IndeterminateStoryboard">
                                     <Storyboard RepeatBehavior="Forever">
                                         <DoubleAnimation Storyboard.TargetName="PART_Indicator"
                                                          Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.X)"
-                                                         From="-100" To="400" Duration="0:0:1.5">
+                                                         From="-80" To="250" Duration="0:0:1.2">
                                             <DoubleAnimation.EasingFunction>
-                                                <QuadraticEase EasingMode="EaseInOut" />
+                                                <CubicEase EasingMode="EaseInOut" />
                                             </DoubleAnimation.EasingFunction>
                                         </DoubleAnimation>
                                     </Storyboard>
@@ -662,14 +669,13 @@
                                 <StopStoryboard BeginStoryboardName="IndeterminateStoryboard" />
                             </Trigger.ExitActions>
                         </Trigger>
-                        <!-- 通常の進捗時のシマーアニメーション -->
                         <Trigger Property="IsIndeterminate" Value="False">
                             <Trigger.EnterActions>
                                 <BeginStoryboard>
                                     <Storyboard RepeatBehavior="Forever">
                                         <DoubleAnimation Storyboard.TargetName="GlowTransform"
                                                          Storyboard.TargetProperty="X"
-                                                         From="0" To="600" Duration="0:0:3" />
+                                                         From="0" To="400" Duration="0:0:2" />
                                     </Storyboard>
                                 </BeginStoryboard>
                             </Trigger.EnterActions>

@@ -405,13 +405,13 @@
                                    FontWeight="Normal" />
 
                         <Border Grid.Column="1"
-                                Margin="0,8,12,8"
-                                Padding="10,6"
+                                Margin="0,0,10,12"
+                                Padding="8,4"
+                                HorizontalAlignment="Right"
+                                VerticalAlignment="Bottom"
                                 MinWidth="250"
                                 CornerRadius="7"
                                 Background="Transparent"
-                                BorderBrush="{DynamicResource BorderSubtleBrush}"
-                                BorderThickness="1"
                                 Visibility="{Binding GlobalStatus.ShowProgress, Converter={StaticResource BooleanToVisibilityConverter}}">
                             <Border.Style>
                                 <Style TargetType="Border">
@@ -440,7 +440,7 @@
                                 </Grid.ColumnDefinitions>
 
                                 <Border Grid.ColumnSpan="2"
-                                        Background="{DynamicResource ContentBackgroundBrush}"
+                                        Background="Transparent"
                                         CornerRadius="6" />
                                 <Border Grid.ColumnSpan="2"
                                         CornerRadius="6"
@@ -480,18 +480,14 @@
                                     </Border.Style>
                                 </Border>
 
-                                <Border Grid.Column="0"
-                                        VerticalAlignment="Center"
-                                        Height="6"
-                                        CornerRadius="3"
-                                        Background="{DynamicResource ShellBackgroundBrush}"
-                                        ClipToBounds="True">
-                                    <ProgressBar Value="{Binding GlobalStatus.ProgressValue}"
-                                                 IsIndeterminate="{Binding GlobalStatus.IsIndeterminate}"
-                                                 Minimum="0"
-                                                 Maximum="100"
-                                                 Style="{StaticResource AppStatusProgressBarStyle}" />
-                                </Border>
+                                <ProgressBar Grid.Column="0"
+                                             VerticalAlignment="Center"
+                                             Height="4"
+                                             Value="{Binding GlobalStatus.ProgressValue}"
+                                             IsIndeterminate="{Binding GlobalStatus.IsIndeterminate}"
+                                             Minimum="0"
+                                             Maximum="100"
+                                             Style="{StaticResource AppStatusProgressBarStyle}" />
 
                                 <TextBlock Grid.Column="1"
                                            Margin="10,0,0,0"
