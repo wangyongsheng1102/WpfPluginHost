@@ -90,7 +90,8 @@ public partial class DbConfigViewModel : ObservableObject
             }
         }
 
-        _mainViewModel.SaveConnections();
+        if (!_mainViewModel.IsBulkUpdatingConnections)
+            _mainViewModel.SaveConnections();
     }
 
     private void AttachConnectionItem(DatabaseConnection item)
@@ -101,7 +102,8 @@ public partial class DbConfigViewModel : ObservableObject
 
     private void OnConnectionPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
-        _mainViewModel.SaveConnections();
+        if (!_mainViewModel.IsBulkUpdatingConnections)
+            _mainViewModel.SaveConnections();
     }
 }
 

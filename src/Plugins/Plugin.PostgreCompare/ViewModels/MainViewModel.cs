@@ -61,6 +61,11 @@ public partial class MainViewModel : ObservableObject
     private readonly IPluginContext? _context;
     private const string PluginId = "postgreCompare";
 
+    /// <summary>
+    /// 設定読み込み中は <see cref="DbConfigViewModel"/> の CollectionChanged による自動保存を抑止する。
+    /// </summary>
+    public bool IsBulkUpdatingConnections { get; private set; }
+
     public MainViewModel(IPluginContext? context)
     {
         _context = context;
@@ -86,10 +91,18 @@ public partial class MainViewModel : ObservableObject
                 var config = JsonSerializer.Deserialize<PostgreCompareConfig>(json);
                 if (config?.Connections != null)
                 {
-                    Connections.Clear();
-                    foreach (var conn in config.Connections)
+                    IsBulkUpdatingConnections = true;
+                    try
                     {
-                        Connections.Add(conn);
+                        Connections.Clear();
+                        foreach (var conn in config.Connections)
+                        {
+                            Connections.Add(conn);
+                        }
+                    }
+                    finally
+                    {
+                        IsBulkUpdatingConnections = false;
                     }
                 }
             }
