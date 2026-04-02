@@ -23,9 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="Assets\Images\**\*.*">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    <Resource Include="Assets\Images\**\*.*" />
     <Resource Include="Assets\Fonts\**\*.ttf" />
     <Resource Include="Assets\SVG\**\*.svg" />
   </ItemGroup>

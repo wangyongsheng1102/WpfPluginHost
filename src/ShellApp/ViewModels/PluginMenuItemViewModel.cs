@@ -55,7 +55,22 @@ public sealed class PluginMenuItemViewModel
             ? pathValue!
             : Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, pathValue!));
 
-        return File.Exists(fullPath) ? fullPath : null;
+        // 1) 如果仍然存在于文件系统（例如开发环境或你显式保留拷贝），优先返回绝对路径
+        if (File.Exists(fullPath))
+        {
+            return fullPath;
+        }
+
+        // 2) 否则尝试从 WPF 资源加载：
+        //    当 Assets/Images 作为 Resource 嵌入到程序集后，Image 可以直接用 pack URI 加载。
+        var normalized = pathValue!.Replace("\\", "/").TrimStart('/');
+        const string assetPrefix = "Assets/Images/";
+        if (normalized.StartsWith(assetPrefix, StringComparison.OrdinalIgnoreCase))
+        {
+            return "/" + normalized;
+        }
+
+        return null;
     }
 
     private static bool LooksLikeImagePath(string? value)
