@@ -10,11 +10,11 @@
             <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
             <!-- タぶ項目のスタイルを定義 -->
             <Style x:Key="PostgreTabItemStyle" TargetType="TabItem">
-                <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}" />
-                <Setter Property="FontSize" Value="15" />
+                <Setter Property="FontFamily" Value="{StaticResource AppFontFamilyBold}" />
+                <Setter Property="FontSize" Value="20" />
                 <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
-                <Setter Property="Padding" Value="12,8" />
-                <Setter Property="Margin" Value="0,0,4,0" />
+                <Setter Property="Padding" Value="20,10" />
+                <Setter Property="Margin" Value="0,0,10,0" />
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="TabItem">
@@ -48,20 +48,14 @@
         <TabControl Background="Transparent" BorderThickness="0">
             <!-- DB 設定タブ -->
             <TabItem Header="DB設定" Style="{StaticResource PostgreTabItemStyle}">
-                <Grid Margin="0,12,0,0">
+                <Grid Margin="0,20,0,0">
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
 
-                    <TextBlock Grid.Row="0"
-                               Text="データベース接続設定"
-                               Style="{DynamicResource TitleTextStyle}"
-                               Margin="0,0,0,12" />
-
                     <!-- 操作ボタン区域 -->
-                    <Border Grid.Row="1"
+                    <Border Grid.Row="0"
                             Background="{DynamicResource CardElevatedBrush}"
                             CornerRadius="{StaticResource PanelRadius}"
                             BorderBrush="{DynamicResource BorderSubtleBrush}"
@@ -79,7 +73,7 @@
                     </Border>
 
                     <!-- 接続一覧 -->
-                    <Border Grid.Row="2"
+                    <Border Grid.Row="1"
                             Background="{DynamicResource CardElevatedBrush}"
                             CornerRadius="{StaticResource PanelRadius}"
                             BorderBrush="{DynamicResource BorderSubtleBrush}"
@@ -195,20 +189,14 @@
 
             <!-- インポート・エクスポートタブ -->
             <TabItem Header="インポート・エクスポート" Style="{StaticResource PostgreTabItemStyle}">
-                <Grid Margin="0,12,0,0">
+                <Grid Margin="0,20,0,0">
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
 
-                    <TextBlock Grid.Row="0"
-                               Text="データベースインポート・エクスポート"
-                               Style="{DynamicResource TitleTextStyle}"
-                               Margin="0,0,0,12" />
-
                     <!-- 接続選択 -->
-                    <Border Grid.Row="1"
+                    <Border Grid.Row="0"
                             Background="{DynamicResource CardElevatedBrush}"
                             CornerRadius="{StaticResource PanelRadius}"
                             BorderBrush="{DynamicResource BorderSubtleBrush}"
@@ -249,7 +237,7 @@
                     </Border>
 
                     <!-- テーブル一覧と操作 -->
-                    <Grid Grid.Row="2">
+                    <Grid Grid.Row="1">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="400" />
@@ -297,7 +285,7 @@
                                                     <CheckBox Grid.Column="0" IsChecked="{Binding IsSelected}" VerticalAlignment="Center" HorizontalAlignment="Center" />
                                                     <TextBlock Grid.Column="1" Text="{Binding SchemaName}" VerticalAlignment="Center" HorizontalAlignment="Center" Style="{DynamicResource CaptionTextStyle}" />
                                                     <TextBlock Grid.Column="2" Text="{Binding TableName}" VerticalAlignment="Center" HorizontalAlignment="Center" Style="{DynamicResource BodyTextStyle}" />
-                                                    <TextBlock Grid.Column="3" Text="{Binding RowCount, StringFormat='{}{0:N0} 行'}" VerticalAlignment="Center" HorizontalAlignment="Center" Style="{DynamicResource CaptionTextStyle}" />
+                                                    <TextBlock Grid.Column="3" Text="{Binding RowCount, StringFormat='{}{0:N0} 行'}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,10,0" Style="{DynamicResource CaptionTextStyle}" />
                                                 </Grid>
                                             </Border>
                                         </DataTemplate>
@@ -329,7 +317,7 @@
                                             <ColumnDefinition Width="Auto" />
                                         </Grid.ColumnDefinitions>
                                         <Border Grid.Column="0" Style="{DynamicResource AppInputChromeBorderStyle}" Height="36">
-                                            <TextBox Style="{DynamicResource AppTextBoxFlatStyle}" Text="{Binding ImportExportViewModel.ExportFolderPath}" IsReadOnly="True" />
+                                            <TextBox Style="{DynamicResource AppTextBoxFlatStyle}" Text="{Binding ImportExportViewModel.ExportFolderPath, UpdateSourceTrigger=PropertyChanged}" />
                                         </Border>
                                         <Button Grid.Column="1" Content="選択" Height="36" MinWidth="70" Style="{DynamicResource ActionButtonStyle}" Command="{Binding ImportExportViewModel.SelectExportFolderCommand}" Margin="8,0,0,0" />
                                     </Grid>
@@ -353,7 +341,7 @@
                                             <ColumnDefinition Width="Auto" />
                                         </Grid.ColumnDefinitions>
                                         <Border Grid.Column="0" Style="{DynamicResource AppInputChromeBorderStyle}" Height="36">
-                                            <TextBox Style="{DynamicResource AppTextBoxFlatStyle}" Text="{Binding ImportExportViewModel.ImportFolderPath}" IsReadOnly="True" />
+                                            <TextBox Style="{DynamicResource AppTextBoxFlatStyle}" Text="{Binding ImportExportViewModel.ImportFolderPath, UpdateSourceTrigger=PropertyChanged}" />
                                         </Border>
                                         <Button Grid.Column="1" Content="選択" Height="36" MinWidth="70" Style="{DynamicResource ActionButtonStyle}" Command="{Binding ImportExportViewModel.SelectImportFolderCommand}" Margin="8,0,0,0" />
                                     </Grid>
@@ -367,20 +355,16 @@
 
             <!-- データ比較タブ -->
             <TabItem Header="比較" Style="{StaticResource PostgreTabItemStyle}">
-                <Grid Margin="0,12,0,0">
+                <Grid Margin="0,20,0,0">
                     <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
 
-                    <TextBlock Grid.Row="0"
-                               Text="CSV ファイル比較"
-                               Style="{DynamicResource TitleTextStyle}"
-                               Margin="0,0,0,12" />
-
                     <!-- 接続選択 -->
-                    <Border Grid.Row="1"
+                    <Border Grid.Row="0"
                             Background="{DynamicResource CardElevatedBrush}"
                             CornerRadius="{StaticResource PanelRadius}"
                             BorderBrush="{DynamicResource BorderSubtleBrush}"
@@ -402,105 +386,83 @@
                         </Grid>
                     </Border>
 
-                    <Grid Grid.Row="2">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="400" />
-                        </Grid.ColumnDefinitions>
+                    <!-- フォルダ選択 -->
+                    <Border Grid.Row="1"
+                            Background="{DynamicResource CardElevatedBrush}"
+                            CornerRadius="{StaticResource PanelRadius}"
+                            BorderBrush="{DynamicResource BorderSubtleBrush}"
+                            BorderThickness="1"
+                            Padding="20"
+                            Margin="0,0,0,16">
+                        <StackPanel>
+                            <TextBlock Text="フォルダ選択" Style="{DynamicResource SubtitleTextStyle}" Margin="0,0,0,16" />
 
-                        <!-- フォルダ選択 -->
-                        <Border Grid.Column="0"
-                                Background="{DynamicResource CardElevatedBrush}"
-                                CornerRadius="{StaticResource PanelRadius}"
-                                BorderBrush="{DynamicResource BorderSubtleBrush}"
-                                BorderThickness="1"
-                                Padding="20"
-                                Margin="0,0,16,0">
-                            <StackPanel>
-                                <TextBlock Text="フォルダ選択" Style="{DynamicResource SubtitleTextStyle}" Margin="0,0,0,16" />
+                            <TextBlock Text="更新前フォルダ" Style="{DynamicResource BodyTextStyle}" Margin="0,0,0,8" />
+                            <Grid Margin="0,0,0,16">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <Border Grid.Column="0" Style="{DynamicResource AppInputChromeBorderStyle}" Height="36">
+                                    <TextBox Style="{DynamicResource AppTextBoxFlatStyle}" Text="{Binding CompareViewModel.BaseFolderPath, UpdateSourceTrigger=PropertyChanged}" />
+                                </Border>
+                                <Button Grid.Column="1" Content="選択" Height="36" MinWidth="70" Style="{DynamicResource ActionButtonStyle}" Command="{Binding CompareViewModel.SelectBaseFolderCommand}" Margin="8,0,0,0" />
+                            </Grid>
 
-                                <TextBlock Text="更新前フォルダ" Style="{DynamicResource BodyTextStyle}" Margin="0,0,0,8" />
-                                <Grid Margin="0,0,0,16">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="Auto" />
-                                    </Grid.ColumnDefinitions>
-                                    <Border Grid.Column="0" Style="{DynamicResource AppInputChromeBorderStyle}" Height="36">
-                                        <TextBox Style="{DynamicResource AppTextBoxFlatStyle}" Text="{Binding CompareViewModel.BaseFolderPath}" IsReadOnly="True" />
-                                    </Border>
-                                    <Button Grid.Column="1" Content="選択" Height="36" MinWidth="70" Style="{DynamicResource ActionButtonStyle}" Command="{Binding CompareViewModel.SelectBaseFolderCommand}" Margin="8,0,0,0" />
-                                </Grid>
+                            <TextBlock Text="旧フォルダ" Style="{DynamicResource BodyTextStyle}" Margin="0,0,0,8" />
+                            <Grid Margin="0,0,0,16">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <Border Grid.Column="0" Style="{DynamicResource AppInputChromeBorderStyle}" Height="36">
+                                    <TextBox Style="{DynamicResource AppTextBoxFlatStyle}" Text="{Binding CompareViewModel.OldFolderPath, UpdateSourceTrigger=PropertyChanged}" />
+                                </Border>
+                                <Button Grid.Column="1" Content="選択" Height="36" MinWidth="70" Style="{DynamicResource ActionButtonStyle}" Command="{Binding CompareViewModel.SelectOldFolderCommand}" Margin="8,0,0,0" />
+                            </Grid>
 
-                                <Grid Margin="0,0,0,16">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="*" />
-                                    </Grid.ColumnDefinitions>
-                                    <StackPanel Grid.Column="0" Margin="0,0,8,0">
-                                        <TextBlock Text="旧フォルダ" Style="{DynamicResource BodyTextStyle}" Margin="0,0,0,8" />
-                                        <Grid>
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*" />
-                                                <ColumnDefinition Width="Auto" />
-                                            </Grid.ColumnDefinitions>
-                                            <Border Grid.Column="0" Style="{DynamicResource AppInputChromeBorderStyle}" Height="36">
-                                                <TextBox Style="{DynamicResource AppTextBoxFlatStyle}" Text="{Binding CompareViewModel.OldFolderPath}" IsReadOnly="True" />
-                                            </Border>
-                                            <Button Grid.Column="1" Content="選択" Height="36" MinWidth="70" Style="{DynamicResource ActionButtonStyle}" Command="{Binding CompareViewModel.SelectOldFolderCommand}" Margin="8,0,0,0" />
-                                        </Grid>
-                                    </StackPanel>
-                                    <StackPanel Grid.Column="1" Margin="8,0,0,0">
-                                        <TextBlock Text="新フォルダ" Style="{DynamicResource BodyTextStyle}" Margin="0,0,0,8" />
-                                        <Grid>
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="*" />
-                                                <ColumnDefinition Width="Auto" />
-                                            </Grid.ColumnDefinitions>
-                                            <Border Grid.Column="0" Style="{DynamicResource AppInputChromeBorderStyle}" Height="36">
-                                                <TextBox Style="{DynamicResource AppTextBoxFlatStyle}" Text="{Binding CompareViewModel.NewFolderPath}" IsReadOnly="True" />
-                                            </Border>
-                                            <Button Grid.Column="1" Content="選択" Height="36" MinWidth="70" Style="{DynamicResource ActionButtonStyle}" Command="{Binding CompareViewModel.SelectNewFolderCommand}" Margin="8,0,0,0" />
-                                        </Grid>
-                                    </StackPanel>
-                                </Grid>
-                            </StackPanel>
-                        </Border>
+                            <TextBlock Text="新フォルダ" Style="{DynamicResource BodyTextStyle}" Margin="0,0,0,8" />
+                            <Grid Margin="0,0,0,8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <Border Grid.Column="0" Style="{DynamicResource AppInputChromeBorderStyle}" Height="36">
+                                    <TextBox Style="{DynamicResource AppTextBoxFlatStyle}" Text="{Binding CompareViewModel.NewFolderPath, UpdateSourceTrigger=PropertyChanged}" />
+                                </Border>
+                                <Button Grid.Column="1" Content="選択" Height="36" MinWidth="70" Style="{DynamicResource ActionButtonStyle}" Command="{Binding CompareViewModel.SelectNewFolderCommand}" Margin="8,0,0,0" />
+                            </Grid>
+                        </StackPanel>
+                    </Border>
 
-                        <!-- 导出设置和执行 -->
-                        <Grid Grid.Column="1">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto" />
-                            </Grid.RowDefinitions>
-
-                            <Border Grid.Row="0"
-                                    Background="{DynamicResource CardElevatedBrush}"
-                                    CornerRadius="{StaticResource PanelRadius}"
-                                    BorderBrush="{DynamicResource BorderSubtleBrush}"
-                                    BorderThickness="1"
-                                    Padding="20"
-                                    Margin="0,0,0,16">
-                                <StackPanel>
-                                    <TextBlock Text="エクスポート設定" Style="{DynamicResource SubtitleTextStyle}" Margin="0,0,0,12" />
-                                    <Grid Margin="0,0,0,16">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*" />
-                                            <ColumnDefinition Width="Auto" />
-                                        </Grid.ColumnDefinitions>
-                                        <Border Grid.Column="0" Style="{DynamicResource AppInputChromeBorderStyle}" Height="36">
-                                            <TextBox Style="{DynamicResource AppTextBoxFlatStyle}" Text="{Binding CompareViewModel.ExportFilePath}" IsReadOnly="True" />
-                                        </Border>
-                                        <Button Grid.Column="1" Content="選択" Height="36" MinWidth="70" Style="{DynamicResource ActionButtonStyle}" Command="{Binding CompareViewModel.SelectExportFileCommand}" Margin="8,0,0,0" />
-                                    </Grid>
-                                    
-                                    <CheckBox Content="access_log.csv を含める"
-                                              IsChecked="{Binding CompareViewModel.AccessLogChecked}"
-                                              Margin="0,0,0,16" />
-                                              
-                                    <Button Content="比較実行" Height="38" Style="{DynamicResource PrimaryButtonStyle}" Command="{Binding CompareViewModel.CompareCsvFilesCommand}" HorizontalAlignment="Stretch" />
-                                </StackPanel>
-                            </Border>
-                        </Grid>
-                    </Grid>
+                    <!-- エクスポート設定 -->
+                    <Border Grid.Row="2"
+                            Background="{DynamicResource CardElevatedBrush}"
+                            CornerRadius="{StaticResource PanelRadius}"
+                            BorderBrush="{DynamicResource BorderSubtleBrush}"
+                            BorderThickness="1"
+                            Padding="20"
+                            Margin="0,0,0,16">
+                        <StackPanel>
+                            <TextBlock Text="エクスポート設定" Style="{DynamicResource SubtitleTextStyle}" Margin="0,0,0,12" />
+                            <Grid Margin="0,0,0,16">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <Border Grid.Column="0" Style="{DynamicResource AppInputChromeBorderStyle}" Height="36">
+                                    <TextBox Style="{DynamicResource AppTextBoxFlatStyle}" Text="{Binding CompareViewModel.ExportFilePath, UpdateSourceTrigger=PropertyChanged}" />
+                                </Border>
+                                <Button Grid.Column="1" Content="選択" Height="36" MinWidth="70" Style="{DynamicResource ActionButtonStyle}" Command="{Binding CompareViewModel.SelectExportFileCommand}" Margin="8,0,0,0" />
+                            </Grid>
+                            
+                            <CheckBox Content="access_log.csv を含める"
+                                      IsChecked="{Binding CompareViewModel.AccessLogChecked}"
+                                      Margin="0,0,0,16" />
+                                      
+                            <Button Content="比較実行" Height="38" Style="{DynamicResource PrimaryButtonStyle}" Command="{Binding CompareViewModel.CompareCsvFilesCommand}" HorizontalAlignment="Left" Width="200" />
+                        </StackPanel>
+                    </Border>
                 </Grid>
             </TabItem>
         </TabControl>
