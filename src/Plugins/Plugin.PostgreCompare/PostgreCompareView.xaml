@@ -363,7 +363,7 @@
                                     Padding="20"
                                     Margin="0,0,0,16">
                                 <StackPanel>
-                                    <TextBlock Text="エクスポート" Style="{DynamicResource SubtitleTextStyle}" Margin="0,0,0,12" />
+                                    <TextBlock Text="エクスポート「導出」" Style="{DynamicResource SubtitleTextStyle}" Margin="0,0,0,12" />
                                     <Grid Margin="0,0,0,16">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*" />
@@ -387,7 +387,7 @@
                                     Padding="20"
                                     Margin="0,0,0,16">
                                 <StackPanel>
-                                    <TextBlock Text="インポート" Style="{DynamicResource SubtitleTextStyle}" Margin="0,0,0,12" />
+                                    <TextBlock Text="インポート「導入」" Style="{DynamicResource SubtitleTextStyle}" Margin="0,0,0,12" />
                                     <Grid Margin="0,0,0,16">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*" />
