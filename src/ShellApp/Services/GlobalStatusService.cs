@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Plugin.Abstractions;
 using System.Windows;
 using System.Windows.Media;
+using System.Text.Json;
 
 namespace ShellApp.Services;
 
