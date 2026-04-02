@@ -7,6 +7,7 @@
              Background="{DynamicResource ContentBackgroundBrush}">
     <UserControl.Resources>
         <ResourceDictionary>
+            <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
             <!-- タぶ項目のスタイルを定義 -->
             <Style x:Key="PostgreTabItemStyle" TargetType="TabItem">
                 <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}" />
@@ -93,86 +94,92 @@
                                        Style="{StaticResource SubtitleTextStyle}"
                                        Margin="0,0,0,12" />
 
-                            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-                                <ItemsControl ItemsSource="{Binding DbConfigViewModel.Connections}">
-                                    <ItemsControl.HeaderTemplate>
-                                        <DataTemplate>
-                                            <Border Background="{DynamicResource ContentBackgroundBrush}"
-                                                    BorderBrush="{DynamicResource BorderSubtleBrush}"
-                                                    BorderThickness="0,0,0,2"
-                                                    Padding="0,8"
-                                                    Margin="0,0,0,4">
-                                                <Grid Margin="8,0">
-                                                    <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="2*" />
-                                                        <ColumnDefinition Width="2*" />
-                                                        <ColumnDefinition Width="1*" />
-                                                        <ColumnDefinition Width="2*" />
-                                                        <ColumnDefinition Width="2*" />
-                                                        <ColumnDefinition Width="2*" />
-                                                        <ColumnDefinition Width="2*" />
-                                                        <ColumnDefinition Width="Auto" />
-                                                    </Grid.ColumnDefinitions>
-                                                    <TextBlock Grid.Column="0" Text="設定名" HorizontalAlignment="Center" Style="{StaticResource CaptionTextStyle}" />
-                                                    <TextBlock Grid.Column="1" Text="ホスト" HorizontalAlignment="Center" Style="{StaticResource CaptionTextStyle}" />
-                                                    <TextBlock Grid.Column="2" Text="ポート" HorizontalAlignment="Center" Style="{StaticResource CaptionTextStyle}" />
-                                                    <TextBlock Grid.Column="3" Text="データベース" HorizontalAlignment="Center" Style="{StaticResource CaptionTextStyle}" />
-                                                    <TextBlock Grid.Column="4" Text="ユーザー" HorizontalAlignment="Center" Style="{StaticResource CaptionTextStyle}" />
-                                                    <TextBlock Grid.Column="5" Text="パスワード" HorizontalAlignment="Center" Style="{StaticResource CaptionTextStyle}" />
-                                                    <TextBlock Grid.Column="6" Text="WSL" HorizontalAlignment="Center" Style="{StaticResource CaptionTextStyle}" />
-                                                    <TextBlock Grid.Column="7" Text="操作" Width="80" HorizontalAlignment="Center" Style="{StaticResource CaptionTextStyle}" />
-                                                </Grid>
-                                            </Border>
-                                        </DataTemplate>
-                                    </ItemsControl.HeaderTemplate>
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate>
-                                            <Border BorderBrush="{DynamicResource BorderSubtleBrush}"
-                                                    BorderThickness="0,0,0,1"
-                                                    Padding="0,6">
-                                                <Grid Margin="8,0">
-                                                    <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="2*" />
-                                                        <ColumnDefinition Width="2*" />
-                                                        <ColumnDefinition Width="1*" />
-                                                        <ColumnDefinition Width="2*" />
-                                                        <ColumnDefinition Width="2*" />
-                                                        <ColumnDefinition Width="2*" />
-                                                        <ColumnDefinition Width="2*" />
-                                                        <ColumnDefinition Width="Auto" />
-                                                    </Grid.ColumnDefinitions>
+                            <Grid Grid.Row="1">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="*" />
+                                </Grid.RowDefinitions>
+                                
+                                <!-- ヘッダー部分 -->
+                                <Border Grid.Row="0"
+                                        Background="{DynamicResource ContentBackgroundBrush}"
+                                        BorderBrush="{DynamicResource BorderSubtleBrush}"
+                                        BorderThickness="0,0,0,2"
+                                        Padding="0,8"
+                                        Margin="0,0,0,4">
+                                    <Grid Margin="8,0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="2*" />
+                                            <ColumnDefinition Width="2*" />
+                                            <ColumnDefinition Width="1*" />
+                                            <ColumnDefinition Width="2*" />
+                                            <ColumnDefinition Width="2*" />
+                                            <ColumnDefinition Width="2*" />
+                                            <ColumnDefinition Width="2*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="設定名" HorizontalAlignment="Center" Style="{StaticResource CaptionTextStyle}" />
+                                        <TextBlock Grid.Column="1" Text="ホスト" HorizontalAlignment="Center" Style="{StaticResource CaptionTextStyle}" />
+                                        <TextBlock Grid.Column="2" Text="ポート" HorizontalAlignment="Center" Style="{StaticResource CaptionTextStyle}" />
+                                        <TextBlock Grid.Column="3" Text="データベース" HorizontalAlignment="Center" Style="{StaticResource CaptionTextStyle}" />
+                                        <TextBlock Grid.Column="4" Text="ユーザー" HorizontalAlignment="Center" Style="{StaticResource CaptionTextStyle}" />
+                                        <TextBlock Grid.Column="5" Text="パスワード" HorizontalAlignment="Center" Style="{StaticResource CaptionTextStyle}" />
+                                        <TextBlock Grid.Column="6" Text="WSL" HorizontalAlignment="Center" Style="{StaticResource CaptionTextStyle}" />
+                                        <TextBlock Grid.Column="7" Text="操作" Width="80" HorizontalAlignment="Center" Style="{StaticResource CaptionTextStyle}" />
+                                    </Grid>
+                                </Border>
 
-                                                    <TextBox Grid.Column="0" Text="{Binding ConfigurationName, UpdateSourceTrigger=PropertyChanged}" Margin="4,2" />
-                                                    <TextBox Grid.Column="1" Text="{Binding Host, UpdateSourceTrigger=PropertyChanged}" Margin="4,2" />
-                                                    <TextBox Grid.Column="2" Text="{Binding Port, UpdateSourceTrigger=PropertyChanged}" Margin="4,2" />
-                                                    <TextBox Grid.Column="3" Text="{Binding Database, UpdateSourceTrigger=PropertyChanged}" Margin="4,2" />
-                                                    
-                                                    <ComboBox Grid.Column="4" IsEditable="True" Text="{Binding User, UpdateSourceTrigger=PropertyChanged}" Margin="4,2">
-                                                        <ComboBoxItem Content="cisdb_unisys" />
-                                                        <ComboBoxItem Content="orderdb_unisys" />
-                                                        <ComboBoxItem Content="portaldb_unisys" />
-                                                    </ComboBox>
+                                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                                    <ItemsControl ItemsSource="{Binding DbConfigViewModel.Connections}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border BorderBrush="{DynamicResource BorderSubtleBrush}"
+                                                        BorderThickness="0,0,0,1"
+                                                        Padding="0,6">
+                                                    <Grid Margin="8,0">
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="2*" />
+                                                            <ColumnDefinition Width="2*" />
+                                                            <ColumnDefinition Width="1*" />
+                                                            <ColumnDefinition Width="2*" />
+                                                            <ColumnDefinition Width="2*" />
+                                                            <ColumnDefinition Width="2*" />
+                                                            <ColumnDefinition Width="2*" />
+                                                            <ColumnDefinition Width="Auto" />
+                                                        </Grid.ColumnDefinitions>
 
-                                                    <ComboBox Grid.Column="5" IsEditable="True" Text="{Binding Password, UpdateSourceTrigger=PropertyChanged}" Margin="4,2">
-                                                        <ComboBoxItem Content="cisdb_unisys" />
-                                                        <ComboBoxItem Content="orderdb_unisys" />
-                                                        <ComboBoxItem Content="portaldb_unisys" />
-                                                    </ComboBox>
+                                                        <TextBox Grid.Column="0" Text="{Binding ConfigurationName, UpdateSourceTrigger=PropertyChanged}" Margin="4,2" />
+                                                        <TextBox Grid.Column="1" Text="{Binding Host, UpdateSourceTrigger=PropertyChanged}" Margin="4,2" />
+                                                        <TextBox Grid.Column="2" Text="{Binding Port, UpdateSourceTrigger=PropertyChanged}" Margin="4,2" />
+                                                        <TextBox Grid.Column="3" Text="{Binding Database, UpdateSourceTrigger=PropertyChanged}" Margin="4,2" />
+                                                        
+                                                        <ComboBox Grid.Column="4" IsEditable="True" Text="{Binding User, UpdateSourceTrigger=PropertyChanged}" Margin="4,2">
+                                                            <ComboBoxItem Content="cisdb_unisys" />
+                                                            <ComboBoxItem Content="orderdb_unisys" />
+                                                            <ComboBoxItem Content="portaldb_unisys" />
+                                                        </ComboBox>
 
-                                                    <ComboBox Grid.Column="6" ItemsSource="{Binding DataContext.DbConfigViewModel.WslDistributions, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                              SelectedItem="{Binding WslDistro, UpdateSourceTrigger=PropertyChanged}" Margin="4,2" />
+                                                        <ComboBox Grid.Column="5" IsEditable="True" Text="{Binding Password, UpdateSourceTrigger=PropertyChanged}" Margin="4,2">
+                                                            <ComboBoxItem Content="cisdb_unisys" />
+                                                            <ComboBoxItem Content="orderdb_unisys" />
+                                                            <ComboBoxItem Content="portaldb_unisys" />
+                                                        </ComboBox>
 
-                                                    <Button Grid.Column="7" Content="🗑 削除" Width="80"
-                                                            Style="{StaticResource ActionButtonStyle}"
-                                                            Foreground="{DynamicResource ErrorBrush}"
-                                                            Command="{Binding DataContext.DbConfigViewModel.RemoveConnectionCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                            CommandParameter="{Binding}" Margin="4,2" />
-                                                </Grid>
-                                            </Border>
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
-                            </ScrollViewer>
+                                                        <ComboBox Grid.Column="6" ItemsSource="{Binding DataContext.DbConfigViewModel.WslDistributions, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                                  SelectedItem="{Binding WslDistro, UpdateSourceTrigger=PropertyChanged}" Margin="4,2" />
+
+                                                        <Button Grid.Column="7" Content="🗑 削除" Width="80"
+                                                                Style="{StaticResource ActionButtonStyle}"
+                                                                Foreground="{DynamicResource ErrorBrush}"
+                                                                Command="{Binding DataContext.DbConfigViewModel.RemoveConnectionCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                                CommandParameter="{Binding}" Margin="4,2" />
+                                                    </Grid>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </ScrollViewer>
+                            </Grid>
                         </Grid>
                     </Border>
                 </Grid>
@@ -306,7 +313,7 @@
                                             <ColumnDefinition Width="*" />
                                             <ColumnDefinition Width="Auto" />
                                         </Grid.ColumnDefinitions>
-                                        <TextBox Grid.Column="0" Text="{Binding ImportExportViewModel.ExportFolderPath}" Tag="エクスポートフォルダを選択してください" />
+                                        <TextBox Grid.Column="0" Text="{Binding ImportExportViewModel.ExportFolderPath}" />
                                         <Button Grid.Column="1" Content="📁 選択" Style="{StaticResource ActionButtonStyle}" Command="{Binding ImportExportViewModel.SelectExportFolderCommand}" Margin="8,0,0,0" />
                                     </Grid>
                                     <Button Content="▶ エクスポート実行" Style="{StaticResource PrimaryButtonStyle}" Command="{Binding ImportExportViewModel.ExportTablesCommand}" HorizontalAlignment="Stretch" />
@@ -328,7 +335,7 @@
                                             <ColumnDefinition Width="*" />
                                             <ColumnDefinition Width="Auto" />
                                         </Grid.ColumnDefinitions>
-                                        <TextBox Grid.Column="0" Text="{Binding ImportExportViewModel.ImportFolderPath}" Tag="インポートフォルダを選択してください" />
+                                        <TextBox Grid.Column="0" Text="{Binding ImportExportViewModel.ImportFolderPath}" />
                                         <Button Grid.Column="1" Content="📁 選択" Style="{StaticResource ActionButtonStyle}" Command="{Binding ImportExportViewModel.SelectImportFolderCommand}" Margin="8,0,0,0" />
                                     </Grid>
                                     <Button Content="▶ インポート実行" Style="{StaticResource PrimaryButtonStyle}" Command="{Binding ImportExportViewModel.ImportTablesCommand}" HorizontalAlignment="Stretch" />
