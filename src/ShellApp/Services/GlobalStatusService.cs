@@ -101,13 +101,20 @@ public partial class GlobalStatusService : ObservableObject, IPluginContext
     {
         Application.Current.Dispatcher.Invoke(() =>
         {
-            ApplyLevelStyle(
-                StatusLevel.Info,
-                message,
-                includePrefix: true,
-                showProgress: true,
-                progressValue: percentage,
-                isIndeterminate: isIndeterminate);
+            // メッセージが空でない場合のみメッセージを更新する
+            if (!string.IsNullOrWhiteSpace(message))
+            {
+                Message = $"[{GetLevelPrefix(StatusLevel.Info)}] {message}";
+                _currentLevel = StatusLevel.Info;
+                TextColor = ResolveLevelBrush(_currentLevel);
+                IsSuccessState = false;
+                IsErrorState = false;
+            }
+
+            // 100% かつ不確定でない場合はプログレスを非表示にする
+            ShowProgress = isIndeterminate || percentage < 100;
+            ProgressValue = percentage;
+            IsIndeterminate = isIndeterminate;
         });
     }
 

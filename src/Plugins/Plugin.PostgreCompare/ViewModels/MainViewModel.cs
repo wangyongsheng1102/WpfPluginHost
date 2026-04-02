@@ -112,7 +112,7 @@ public partial class MainViewModel : ObservableObject
         PostToUi(() =>
         {
             ProgressValue = (int)percentage;
-            IsProcessing = !isIndeterminate && percentage is > 0 and < 100;
+            IsProcessing = isIndeterminate || (percentage > 0 && percentage < 100);
             _context?.ReportProgress(message, percentage, isIndeterminate);
         });
     }

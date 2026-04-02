@@ -43,7 +43,7 @@
         </ResourceDictionary>
     </UserControl.Resources>
 
-    <Grid Margin="16" Background="Transparent">
+    <Grid Margin="30" Background="Transparent">
         <!-- メインタブ -->
         <TabControl Background="Transparent" BorderThickness="0">
             <!-- DB 設定タブ -->
@@ -57,8 +57,8 @@
 
                     <TextBlock Grid.Row="0"
                                Text="データベース接続設定"
-                               Style="{StaticResource TitleTextStyle}"
-                               Margin="4,0,0,12" />
+                               Style="{DynamicResource TitleTextStyle}"
+                               Margin="0,0,0,12" />
 
                     <!-- 操作ボタン区域 -->
                     <Border Grid.Row="1"
@@ -66,13 +66,15 @@
                             CornerRadius="{StaticResource PanelRadius}"
                             BorderBrush="{DynamicResource BorderSubtleBrush}"
                             BorderThickness="1"
-                            Padding="12"
-                            Margin="0,0,0,12">
+                            Padding="20"
+                            Margin="0,0,0,16">
                         <StackPanel Orientation="Horizontal">
                             <Button Content="接続を追加"
-                                    Style="{StaticResource PrimaryButtonStyle}"
-                                    Command="{Binding DbConfigViewModel.AddConnectionCommand}"
-                                    Padding="16,6" />
+                                    Height="36"
+                                    MinWidth="110"
+                                    Padding="16,0"
+                                    Style="{DynamicResource PrimaryButtonStyle}"
+                                    Command="{Binding DbConfigViewModel.AddConnectionCommand}" />
                         </StackPanel>
                     </Border>
 
@@ -82,7 +84,7 @@
                             CornerRadius="{StaticResource PanelRadius}"
                             BorderBrush="{DynamicResource BorderSubtleBrush}"
                             BorderThickness="1"
-                            Padding="12">
+                            Padding="20">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto" />
@@ -91,8 +93,8 @@
 
                             <TextBlock Grid.Row="0"
                                        Text="接続一覧"
-                                       Style="{StaticResource SubtitleTextStyle}"
-                                       Margin="0,0,0,12" />
+                                       Style="{DynamicResource SubtitleTextStyle}"
+                                       Margin="0,0,0,16" />
 
                             <Grid Grid.Row="1">
                                 <Grid.RowDefinitions>
@@ -106,8 +108,8 @@
                                         BorderBrush="{DynamicResource BorderSubtleBrush}"
                                         BorderThickness="0,0,0,2"
                                         Padding="0,8"
-                                        Margin="0,0,0,4">
-                                    <Grid Margin="8,0">
+                                        Margin="0,0,0,8">
+                                    <Grid Margin="12,0">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="2*" />
                                             <ColumnDefinition Width="2*" />
@@ -117,13 +119,13 @@
                                             <ColumnDefinition Width="2*" />
                                             <ColumnDefinition Width="Auto" />
                                         </Grid.ColumnDefinitions>
-                                        <TextBlock Grid.Column="0" Text="設定名" HorizontalAlignment="Center" Style="{StaticResource CaptionTextStyle}" />
-                                        <TextBlock Grid.Column="1" Text="ホスト" HorizontalAlignment="Center" Style="{StaticResource CaptionTextStyle}" />
-                                        <TextBlock Grid.Column="2" Text="ポート" HorizontalAlignment="Center" Style="{StaticResource CaptionTextStyle}" />
-                                        <TextBlock Grid.Column="3" Text="データベース" HorizontalAlignment="Center" Style="{StaticResource CaptionTextStyle}" />
-                                        <TextBlock Grid.Column="4" Text="ユーザー" HorizontalAlignment="Center" Style="{StaticResource CaptionTextStyle}" />
-                                        <TextBlock Grid.Column="5" Text="パスワード" HorizontalAlignment="Center" Style="{StaticResource CaptionTextStyle}" />
-                                        <TextBlock Grid.Column="6" Text="操作" Width="80" HorizontalAlignment="Center" Style="{StaticResource CaptionTextStyle}" />
+                                        <TextBlock Grid.Column="0" Text="設定名" HorizontalAlignment="Center" Style="{DynamicResource CaptionTextStyle}" />
+                                        <TextBlock Grid.Column="1" Text="ホスト" HorizontalAlignment="Center" Style="{DynamicResource CaptionTextStyle}" />
+                                        <TextBlock Grid.Column="2" Text="ポート" HorizontalAlignment="Center" Style="{DynamicResource CaptionTextStyle}" />
+                                        <TextBlock Grid.Column="3" Text="データベース" HorizontalAlignment="Center" Style="{DynamicResource CaptionTextStyle}" />
+                                        <TextBlock Grid.Column="4" Text="ユーザー" HorizontalAlignment="Center" Style="{DynamicResource CaptionTextStyle}" />
+                                        <TextBlock Grid.Column="5" Text="パスワード" HorizontalAlignment="Center" Style="{DynamicResource CaptionTextStyle}" />
+                                        <TextBlock Grid.Column="6" Text="操作" Width="80" HorizontalAlignment="Center" Style="{DynamicResource CaptionTextStyle}" />
                                     </Grid>
                                 </Border>
 
@@ -133,8 +135,8 @@
                                             <DataTemplate>
                                                 <Border BorderBrush="{DynamicResource BorderSubtleBrush}"
                                                         BorderThickness="0,0,0,1"
-                                                        Padding="0,6">
-                                                    <Grid Margin="8,0">
+                                                        Padding="0,8">
+                                                    <Grid Margin="12,0">
                                                         <Grid.ColumnDefinitions>
                                                             <ColumnDefinition Width="2*" />
                                                             <ColumnDefinition Width="2*" />
@@ -145,25 +147,37 @@
                                                             <ColumnDefinition Width="Auto" />
                                                         </Grid.ColumnDefinitions>
 
-                                                        <TextBox Grid.Column="0" Text="{Binding ConfigurationName, UpdateSourceTrigger=PropertyChanged}" Margin="4,2" />
-                                                        <TextBox Grid.Column="1" Text="{Binding Host, UpdateSourceTrigger=PropertyChanged}" Margin="4,2" />
-                                                        <TextBox Grid.Column="2" Text="{Binding Port, UpdateSourceTrigger=PropertyChanged}" Margin="4,2" />
-                                                        <TextBox Grid.Column="3" Text="{Binding Database, UpdateSourceTrigger=PropertyChanged}" Margin="4,2" />
+                                                        <Border Grid.Column="0" Style="{DynamicResource AppInputChromeBorderStyle}" Height="36" Margin="4,2">
+                                                            <TextBox Style="{DynamicResource AppTextBoxFlatStyle}" Text="{Binding ConfigurationName, UpdateSourceTrigger=PropertyChanged}" />
+                                                        </Border>
+                                                        <Border Grid.Column="1" Style="{DynamicResource AppInputChromeBorderStyle}" Height="36" Margin="4,2">
+                                                            <TextBox Style="{DynamicResource AppTextBoxFlatStyle}" Text="{Binding Host, UpdateSourceTrigger=PropertyChanged}" />
+                                                        </Border>
+                                                        <Border Grid.Column="2" Style="{DynamicResource AppInputChromeBorderStyle}" Height="36" Margin="4,2">
+                                                            <TextBox Style="{DynamicResource AppTextBoxFlatStyle}" Text="{Binding Port, UpdateSourceTrigger=PropertyChanged}" />
+                                                        </Border>
+                                                        <Border Grid.Column="3" Style="{DynamicResource AppInputChromeBorderStyle}" Height="36" Margin="4,2">
+                                                            <TextBox Style="{DynamicResource AppTextBoxFlatStyle}" Text="{Binding Database, UpdateSourceTrigger=PropertyChanged}" />
+                                                        </Border>
                                                         
-                                                        <ComboBox Grid.Column="4" IsEditable="True" Text="{Binding User, UpdateSourceTrigger=PropertyChanged}" Margin="4,2">
-                                                            <ComboBoxItem Content="cisdb_unisys" />
-                                                            <ComboBoxItem Content="orderdb_unisys" />
-                                                            <ComboBoxItem Content="portaldb_unisys" />
-                                                        </ComboBox>
+                                                        <Border Grid.Column="4" Style="{DynamicResource AppInputChromeBorderStyle}" Height="36" Margin="4,2">
+                                                            <ComboBox Style="{DynamicResource AppComboBoxFlatStyle}" IsEditable="True" Text="{Binding User, UpdateSourceTrigger=PropertyChanged}">
+                                                                <ComboBoxItem Content="cisdb_unisys" />
+                                                                <ComboBoxItem Content="orderdb_unisys" />
+                                                                <ComboBoxItem Content="portaldb_unisys" />
+                                                            </ComboBox>
+                                                        </Border>
 
-                                                        <ComboBox Grid.Column="5" IsEditable="True" Text="{Binding Password, UpdateSourceTrigger=PropertyChanged}" Margin="4,2">
-                                                            <ComboBoxItem Content="cisdb_unisys" />
-                                                            <ComboBoxItem Content="orderdb_unisys" />
-                                                            <ComboBoxItem Content="portaldb_unisys" />
-                                                        </ComboBox>
+                                                        <Border Grid.Column="5" Style="{DynamicResource AppInputChromeBorderStyle}" Height="36" Margin="4,2">
+                                                            <ComboBox Style="{DynamicResource AppComboBoxFlatStyle}" IsEditable="True" Text="{Binding Password, UpdateSourceTrigger=PropertyChanged}">
+                                                                <ComboBoxItem Content="cisdb_unisys" />
+                                                                <ComboBoxItem Content="orderdb_unisys" />
+                                                                <ComboBoxItem Content="portaldb_unisys" />
+                                                            </ComboBox>
+                                                        </Border>
 
-                                                        <Button Grid.Column="6" Content="削除" Width="80"
-                                                                Style="{StaticResource ActionButtonStyle}"
+                                                        <Button Grid.Column="6" Content="削除" Width="80" Height="36"
+                                                                Style="{DynamicResource ActionButtonStyle}"
                                                                 Foreground="{DynamicResource ErrorBrush}"
                                                                 Command="{Binding DataContext.DbConfigViewModel.RemoveConnectionCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                                 CommandParameter="{Binding}" Margin="4,2" />
@@ -190,8 +204,8 @@
 
                     <TextBlock Grid.Row="0"
                                Text="データベースインポート・エクスポート"
-                               Style="{StaticResource TitleTextStyle}"
-                               Margin="4,0,0,12" />
+                               Style="{DynamicResource TitleTextStyle}"
+                               Margin="0,0,0,12" />
 
                     <!-- 接続選択 -->
                     <Border Grid.Row="1"
@@ -199,34 +213,37 @@
                             CornerRadius="{StaticResource PanelRadius}"
                             BorderBrush="{DynamicResource BorderSubtleBrush}"
                             BorderThickness="1"
-                            Padding="12"
-                            Margin="0,0,0,12">
+                            Padding="20"
+                            Margin="0,0,0,16">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto" />
                                 <RowDefinition Height="Auto" />
                             </Grid.RowDefinitions>
-                            <TextBlock Grid.Row="0" Text="接続とスキーマの選択" Style="{StaticResource SubtitleTextStyle}" Margin="0,0,0,8" />
+                            <TextBlock Grid.Row="0" Text="接続とスキーマの選択" Style="{DynamicResource SubtitleTextStyle}" Margin="0,0,0,12" />
                             <Grid Grid.Row="1">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*" />
                                     <ColumnDefinition Width="*" />
                                     <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
-                                <ComboBox Grid.Column="0"
-                                          ItemsSource="{Binding ImportExportViewModel.Connections}"
-                                          SelectedItem="{Binding ImportExportViewModel.SelectedConnection}"
-                                          DisplayMemberPath="ConfigurationName"
-                                          Margin="0,0,8,0" />
-                                <ComboBox Grid.Column="1"
-                                          ItemsSource="{Binding ImportExportViewModel.Schemas}"
-                                          SelectedItem="{Binding ImportExportViewModel.SelectedSchema}"
-                                          Margin="0,0,12,0" />
+                                <Border Grid.Column="0" Style="{DynamicResource AppInputChromeBorderStyle}" Height="36" Margin="0,0,8,0">
+                                    <ComboBox Style="{DynamicResource AppComboBoxFlatStyle}"
+                                              ItemsSource="{Binding ImportExportViewModel.Connections}"
+                                              SelectedItem="{Binding ImportExportViewModel.SelectedConnection}"
+                                              DisplayMemberPath="ConfigurationName" />
+                                </Border>
+                                <Border Grid.Column="1" Style="{DynamicResource AppInputChromeBorderStyle}" Height="36" Margin="0,0,12,0">
+                                    <ComboBox Style="{DynamicResource AppComboBoxFlatStyle}"
+                                              ItemsSource="{Binding ImportExportViewModel.Schemas}"
+                                              SelectedItem="{Binding ImportExportViewModel.SelectedSchema}" />
+                                </Border>
                                 <Button Grid.Column="2"
                                         Content="テーブルリストを読み込み"
-                                        Style="{StaticResource PrimaryButtonStyle}"
-                                        Command="{Binding ImportExportViewModel.LoadTablesCommand}"
-                                        Padding="16,6" />
+                                        Height="36"
+                                        Padding="16,0"
+                                        Style="{DynamicResource PrimaryButtonStyle}"
+                                        Command="{Binding ImportExportViewModel.LoadTablesCommand}" />
                             </Grid>
                         </Grid>
                     </Border>
@@ -244,8 +261,8 @@
                                 CornerRadius="{StaticResource PanelRadius}"
                                 BorderBrush="{DynamicResource BorderSubtleBrush}"
                                 BorderThickness="1"
-                                Padding="12"
-                                Margin="0,0,12,0">
+                                Padding="20"
+                                Margin="0,0,16,0">
                             <Grid>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto" />
@@ -254,14 +271,14 @@
                                     <RowDefinition Height="*" />
                                 </Grid.RowDefinitions>
 
-                                <TextBlock Grid.Row="0" Text="テーブル一覧" Style="{StaticResource SubtitleTextStyle}" Margin="0,0,0,12" />
+                                <TextBlock Grid.Row="0" Text="テーブル一覧" Style="{DynamicResource SubtitleTextStyle}" Margin="0,0,0,12" />
                                 
-                                <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,8">
-                                    <Button Content="全選択" Style="{StaticResource ActionButtonStyle}" Command="{Binding ImportExportViewModel.SelectAllTablesCommand}" Margin="0,0,8,0" />
-                                    <Button Content="全解除" Style="{StaticResource ActionButtonStyle}" Command="{Binding ImportExportViewModel.DeselectAllTablesCommand}" />
+                                <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,10">
+                                    <Button Content="全選択" Height="32" MinWidth="80" Style="{DynamicResource ActionButtonStyle}" Command="{Binding ImportExportViewModel.SelectAllTablesCommand}" Margin="0,0,8,0" />
+                                    <Button Content="全解除" Height="32" MinWidth="80" Style="{DynamicResource ActionButtonStyle}" Command="{Binding ImportExportViewModel.DeselectAllTablesCommand}" />
                                 </StackPanel>
 
-                                <TextBlock Grid.Row="2" Text="{Binding ImportExportViewModel.SelectedTableCount, StringFormat='選択中: {0} 件'}" Style="{StaticResource CaptionTextStyle}" Margin="0,0,0,8" />
+                                <TextBlock Grid.Row="2" Text="{Binding ImportExportViewModel.SelectedTableCount, StringFormat='選択中: {0} 件'}" Style="{DynamicResource CaptionTextStyle}" Margin="0,0,0,10" />
 
                                 <ListBox Grid.Row="3"
                                          ItemsSource="{Binding ImportExportViewModel.Tables}"
@@ -278,9 +295,9 @@
                                                         <ColumnDefinition Width="100" />
                                                     </Grid.ColumnDefinitions>
                                                     <CheckBox Grid.Column="0" IsChecked="{Binding IsSelected}" VerticalAlignment="Center" HorizontalAlignment="Center" />
-                                                    <TextBlock Grid.Column="1" Text="{Binding SchemaName}" VerticalAlignment="Center" HorizontalAlignment="Center" Style="{StaticResource CaptionTextStyle}" />
-                                                    <TextBlock Grid.Column="2" Text="{Binding TableName}" VerticalAlignment="Center" HorizontalAlignment="Center" Style="{StaticResource BodyTextStyle}" />
-                                                    <TextBlock Grid.Column="3" Text="{Binding RowCount, StringFormat='{}{0:N0} 行'}" VerticalAlignment="Center" HorizontalAlignment="Center" Style="{StaticResource CaptionTextStyle}" />
+                                                    <TextBlock Grid.Column="1" Text="{Binding SchemaName}" VerticalAlignment="Center" HorizontalAlignment="Center" Style="{DynamicResource CaptionTextStyle}" />
+                                                    <TextBlock Grid.Column="2" Text="{Binding TableName}" VerticalAlignment="Center" HorizontalAlignment="Center" Style="{DynamicResource BodyTextStyle}" />
+                                                    <TextBlock Grid.Column="3" Text="{Binding RowCount, StringFormat='{}{0:N0} 行'}" VerticalAlignment="Center" HorizontalAlignment="Center" Style="{DynamicResource CaptionTextStyle}" />
                                                 </Grid>
                                             </Border>
                                         </DataTemplate>
@@ -302,19 +319,21 @@
                                     CornerRadius="{StaticResource PanelRadius}"
                                     BorderBrush="{DynamicResource BorderSubtleBrush}"
                                     BorderThickness="1"
-                                    Padding="12"
-                                    Margin="0,0,0,12">
+                                    Padding="20"
+                                    Margin="0,0,0,16">
                                 <StackPanel>
-                                    <TextBlock Text="エクスポート" Style="{StaticResource SubtitleTextStyle}" Margin="0,0,0,12" />
-                                    <Grid Margin="0,0,0,12">
+                                    <TextBlock Text="エクスポート" Style="{DynamicResource SubtitleTextStyle}" Margin="0,0,0,12" />
+                                    <Grid Margin="0,0,0,16">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*" />
                                             <ColumnDefinition Width="Auto" />
                                         </Grid.ColumnDefinitions>
-                                        <TextBox Grid.Column="0" Text="{Binding ImportExportViewModel.ExportFolderPath}" />
-                                        <Button Grid.Column="1" Content="選択" Style="{StaticResource ActionButtonStyle}" Command="{Binding ImportExportViewModel.SelectExportFolderCommand}" Margin="8,0,0,0" />
+                                        <Border Grid.Column="0" Style="{DynamicResource AppInputChromeBorderStyle}" Height="36">
+                                            <TextBox Style="{DynamicResource AppTextBoxFlatStyle}" Text="{Binding ImportExportViewModel.ExportFolderPath}" IsReadOnly="True" />
+                                        </Border>
+                                        <Button Grid.Column="1" Content="選択" Height="36" MinWidth="70" Style="{DynamicResource ActionButtonStyle}" Command="{Binding ImportExportViewModel.SelectExportFolderCommand}" Margin="8,0,0,0" />
                                     </Grid>
-                                    <Button Content="エクスポート実行" Style="{StaticResource PrimaryButtonStyle}" Command="{Binding ImportExportViewModel.ExportTablesCommand}" HorizontalAlignment="Stretch" />
+                                    <Button Content="エクスポート実行" Height="38" Style="{DynamicResource PrimaryButtonStyle}" Command="{Binding ImportExportViewModel.ExportTablesCommand}" HorizontalAlignment="Stretch" />
                                 </StackPanel>
                             </Border>
 
@@ -324,19 +343,21 @@
                                     CornerRadius="{StaticResource PanelRadius}"
                                     BorderBrush="{DynamicResource BorderSubtleBrush}"
                                     BorderThickness="1"
-                                    Padding="12"
-                                    Margin="0,0,0,12">
+                                    Padding="20"
+                                    Margin="0,0,0,16">
                                 <StackPanel>
-                                    <TextBlock Text="インポート" Style="{StaticResource SubtitleTextStyle}" Margin="0,0,0,12" />
-                                    <Grid Margin="0,0,0,12">
+                                    <TextBlock Text="インポート" Style="{DynamicResource SubtitleTextStyle}" Margin="0,0,0,12" />
+                                    <Grid Margin="0,0,0,16">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*" />
                                             <ColumnDefinition Width="Auto" />
                                         </Grid.ColumnDefinitions>
-                                        <TextBox Grid.Column="0" Text="{Binding ImportExportViewModel.ImportFolderPath}" />
-                                        <Button Grid.Column="1" Content="選択" Style="{StaticResource ActionButtonStyle}" Command="{Binding ImportExportViewModel.SelectImportFolderCommand}" Margin="8,0,0,0" />
+                                        <Border Grid.Column="0" Style="{DynamicResource AppInputChromeBorderStyle}" Height="36">
+                                            <TextBox Style="{DynamicResource AppTextBoxFlatStyle}" Text="{Binding ImportExportViewModel.ImportFolderPath}" IsReadOnly="True" />
+                                        </Border>
+                                        <Button Grid.Column="1" Content="選択" Height="36" MinWidth="70" Style="{DynamicResource ActionButtonStyle}" Command="{Binding ImportExportViewModel.SelectImportFolderCommand}" Margin="8,0,0,0" />
                                     </Grid>
-                                    <Button Content="インポート実行" Style="{StaticResource PrimaryButtonStyle}" Command="{Binding ImportExportViewModel.ImportTablesCommand}" HorizontalAlignment="Stretch" />
+                                    <Button Content="インポート実行" Height="38" Style="{DynamicResource PrimaryButtonStyle}" Command="{Binding ImportExportViewModel.ImportTablesCommand}" HorizontalAlignment="Stretch" />
                                 </StackPanel>
                             </Border>
                         </Grid>
@@ -355,8 +376,8 @@
 
                     <TextBlock Grid.Row="0"
                                Text="CSV ファイル比較"
-                               Style="{StaticResource TitleTextStyle}"
-                               Margin="4,0,0,12" />
+                               Style="{DynamicResource TitleTextStyle}"
+                               Margin="0,0,0,12" />
 
                     <!-- 接続選択 -->
                     <Border Grid.Row="1"
@@ -364,18 +385,20 @@
                             CornerRadius="{StaticResource PanelRadius}"
                             BorderBrush="{DynamicResource BorderSubtleBrush}"
                             BorderThickness="1"
-                            Padding="12"
-                            Margin="0,0,0,12">
+                            Padding="20"
+                            Margin="0,0,0,16">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto" />
                                 <RowDefinition Height="Auto" />
                             </Grid.RowDefinitions>
-                            <TextBlock Grid.Row="0" Text="接続選択" Style="{StaticResource SubtitleTextStyle}" Margin="0,0,0,8" />
-                            <ComboBox Grid.Row="1"
-                                      ItemsSource="{Binding CompareViewModel.Connections}"
-                                      SelectedItem="{Binding CompareViewModel.SelectedConnection}"
-                                      DisplayMemberPath="ConfigurationName" />
+                            <TextBlock Grid.Row="0" Text="接続選択" Style="{DynamicResource SubtitleTextStyle}" Margin="0,0,0,12" />
+                            <Border Grid.Row="1" Style="{DynamicResource AppInputChromeBorderStyle}" Height="36" Width="300" HorizontalAlignment="Left">
+                                <ComboBox Style="{DynamicResource AppComboBoxFlatStyle}"
+                                          ItemsSource="{Binding CompareViewModel.Connections}"
+                                          SelectedItem="{Binding CompareViewModel.SelectedConnection}"
+                                          DisplayMemberPath="ConfigurationName" />
+                            </Border>
                         </Grid>
                     </Border>
 
@@ -391,19 +414,21 @@
                                 CornerRadius="{StaticResource PanelRadius}"
                                 BorderBrush="{DynamicResource BorderSubtleBrush}"
                                 BorderThickness="1"
-                                Padding="12"
-                                Margin="0,0,12,0">
+                                Padding="20"
+                                Margin="0,0,16,0">
                             <StackPanel>
-                                <TextBlock Text="フォルダ選択" Style="{StaticResource SubtitleTextStyle}" Margin="0,0,0,16" />
+                                <TextBlock Text="フォルダ選択" Style="{DynamicResource SubtitleTextStyle}" Margin="0,0,0,16" />
 
-                                <TextBlock Text="更新前フォルダ" Style="{StaticResource BodyTextStyle}" Margin="0,0,0,8" />
+                                <TextBlock Text="更新前フォルダ" Style="{DynamicResource BodyTextStyle}" Margin="0,0,0,8" />
                                 <Grid Margin="0,0,0,16">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*" />
                                         <ColumnDefinition Width="Auto" />
                                     </Grid.ColumnDefinitions>
-                                    <TextBox Grid.Column="0" Text="{Binding CompareViewModel.BaseFolderPath}" />
-                                    <Button Grid.Column="1" Content="選択" Style="{StaticResource ActionButtonStyle}" Command="{Binding CompareViewModel.SelectBaseFolderCommand}" Margin="8,0,0,0" />
+                                    <Border Grid.Column="0" Style="{DynamicResource AppInputChromeBorderStyle}" Height="36">
+                                        <TextBox Style="{DynamicResource AppTextBoxFlatStyle}" Text="{Binding CompareViewModel.BaseFolderPath}" IsReadOnly="True" />
+                                    </Border>
+                                    <Button Grid.Column="1" Content="選択" Height="36" MinWidth="70" Style="{DynamicResource ActionButtonStyle}" Command="{Binding CompareViewModel.SelectBaseFolderCommand}" Margin="8,0,0,0" />
                                 </Grid>
 
                                 <Grid Margin="0,0,0,16">
@@ -412,25 +437,29 @@
                                         <ColumnDefinition Width="*" />
                                     </Grid.ColumnDefinitions>
                                     <StackPanel Grid.Column="0" Margin="0,0,8,0">
-                                        <TextBlock Text="旧フォルダ" Style="{StaticResource BodyTextStyle}" Margin="0,0,0,8" />
+                                        <TextBlock Text="旧フォルダ" Style="{DynamicResource BodyTextStyle}" Margin="0,0,0,8" />
                                         <Grid>
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="*" />
                                                 <ColumnDefinition Width="Auto" />
                                             </Grid.ColumnDefinitions>
-                                            <TextBox Grid.Column="0" Text="{Binding CompareViewModel.OldFolderPath}" />
-                                            <Button Grid.Column="1" Content="選択" Style="{StaticResource ActionButtonStyle}" Command="{Binding CompareViewModel.SelectOldFolderCommand}" Margin="8,0,0,0" />
+                                            <Border Grid.Column="0" Style="{DynamicResource AppInputChromeBorderStyle}" Height="36">
+                                                <TextBox Style="{DynamicResource AppTextBoxFlatStyle}" Text="{Binding CompareViewModel.OldFolderPath}" IsReadOnly="True" />
+                                            </Border>
+                                            <Button Grid.Column="1" Content="選択" Height="36" MinWidth="70" Style="{DynamicResource ActionButtonStyle}" Command="{Binding CompareViewModel.SelectOldFolderCommand}" Margin="8,0,0,0" />
                                         </Grid>
                                     </StackPanel>
                                     <StackPanel Grid.Column="1" Margin="8,0,0,0">
-                                        <TextBlock Text="新フォルダ" Style="{StaticResource BodyTextStyle}" Margin="0,0,0,8" />
+                                        <TextBlock Text="新フォルダ" Style="{DynamicResource BodyTextStyle}" Margin="0,0,0,8" />
                                         <Grid>
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="*" />
                                                 <ColumnDefinition Width="Auto" />
                                             </Grid.ColumnDefinitions>
-                                            <TextBox Grid.Column="0" Text="{Binding CompareViewModel.NewFolderPath}" />
-                                            <Button Grid.Column="1" Content="選択" Style="{StaticResource ActionButtonStyle}" Command="{Binding CompareViewModel.SelectNewFolderCommand}" Margin="8,0,0,0" />
+                                            <Border Grid.Column="0" Style="{DynamicResource AppInputChromeBorderStyle}" Height="36">
+                                                <TextBox Style="{DynamicResource AppTextBoxFlatStyle}" Text="{Binding CompareViewModel.NewFolderPath}" IsReadOnly="True" />
+                                            </Border>
+                                            <Button Grid.Column="1" Content="選択" Height="36" MinWidth="70" Style="{DynamicResource ActionButtonStyle}" Command="{Binding CompareViewModel.SelectNewFolderCommand}" Margin="8,0,0,0" />
                                         </Grid>
                                     </StackPanel>
                                 </Grid>
@@ -448,24 +477,26 @@
                                     CornerRadius="{StaticResource PanelRadius}"
                                     BorderBrush="{DynamicResource BorderSubtleBrush}"
                                     BorderThickness="1"
-                                    Padding="12"
-                                    Margin="0,0,0,12">
+                                    Padding="20"
+                                    Margin="0,0,0,16">
                                 <StackPanel>
-                                    <TextBlock Text="エクスポート設定" Style="{StaticResource SubtitleTextStyle}" Margin="0,0,0,12" />
-                                    <Grid Margin="0,0,0,12">
+                                    <TextBlock Text="エクスポート設定" Style="{DynamicResource SubtitleTextStyle}" Margin="0,0,0,12" />
+                                    <Grid Margin="0,0,0,16">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="*" />
                                             <ColumnDefinition Width="Auto" />
                                         </Grid.ColumnDefinitions>
-                                        <TextBox Grid.Column="0" Text="{Binding CompareViewModel.ExportFilePath}" />
-                                        <Button Grid.Column="1" Content="選択" Style="{StaticResource ActionButtonStyle}" Command="{Binding CompareViewModel.SelectExportFileCommand}" Margin="8,0,0,0" />
+                                        <Border Grid.Column="0" Style="{DynamicResource AppInputChromeBorderStyle}" Height="36">
+                                            <TextBox Style="{DynamicResource AppTextBoxFlatStyle}" Text="{Binding CompareViewModel.ExportFilePath}" IsReadOnly="True" />
+                                        </Border>
+                                        <Button Grid.Column="1" Content="選択" Height="36" MinWidth="70" Style="{DynamicResource ActionButtonStyle}" Command="{Binding CompareViewModel.SelectExportFileCommand}" Margin="8,0,0,0" />
                                     </Grid>
                                     
                                     <CheckBox Content="access_log.csv を含める"
                                               IsChecked="{Binding CompareViewModel.AccessLogChecked}"
-                                              Margin="0,0,0,12" />
+                                              Margin="0,0,0,16" />
                                               
-                                    <Button Content="比較実行" Style="{StaticResource PrimaryButtonStyle}" Command="{Binding CompareViewModel.CompareCsvFilesCommand}" HorizontalAlignment="Stretch" />
+                                    <Button Content="比較実行" Height="38" Style="{DynamicResource PrimaryButtonStyle}" Command="{Binding CompareViewModel.CompareCsvFilesCommand}" HorizontalAlignment="Stretch" />
                                 </StackPanel>
                             </Border>
                         </Grid>

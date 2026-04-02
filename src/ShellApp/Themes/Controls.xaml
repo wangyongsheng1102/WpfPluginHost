@@ -951,6 +951,19 @@
         </Style.Triggers>
     </Style>
 
+    <!-- 入力系 TextBox：外枠 Border + 内側フラット -->
+    <Style x:Key="AppTextBoxFlatStyle" TargetType="TextBox">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}" />
+        <Setter Property="FontSize" Value="{StaticResource BodyFontSize}" />
+        <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+        <Setter Property="CaretBrush" Value="{DynamicResource PrimaryTextBrush}" />
+        <Setter Property="Padding" Value="10,0" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+    </Style>
+
     <!-- 入力系 ComboBox：ツールバー上で ActionButton と高さ・枠線を揃える（外枠 Border + 内側フラット） -->
     <Style x:Key="AppComboBoxItemStyle" TargetType="ComboBoxItem">
         <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />

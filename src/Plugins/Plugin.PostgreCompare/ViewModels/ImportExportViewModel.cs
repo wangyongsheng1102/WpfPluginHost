@@ -54,12 +54,22 @@ public partial class ImportExportViewModel : ObservableObject
 
         if (value != null)
         {
-            var schemas = await _databaseService.GetSchemasAsync(value.GetConnectionString());
-            foreach (var schema in schemas)
+            try
             {
-                Schemas.Add(schema);
+                IsProcessing = true;
+                _mainViewModel.ReportProgress("スキーマリストを取得しています...", 0, true);
+                var schemas = await _databaseService.GetSchemasAsync(value.GetConnectionString());
+                foreach (var schema in schemas)
+                {
+                    Schemas.Add(schema);
+                }
+                SelectedSchema = Schemas.FirstOrDefault(s => s == "public") ?? Schemas.FirstOrDefault();
             }
-            SelectedSchema = Schemas.FirstOrDefault(s => s == "public") ?? Schemas.FirstOrDefault();
+            finally
+            {
+                IsProcessing = false;
+                _mainViewModel.ReportProgress(string.Empty, 100);
+            }
         }
     }
 
