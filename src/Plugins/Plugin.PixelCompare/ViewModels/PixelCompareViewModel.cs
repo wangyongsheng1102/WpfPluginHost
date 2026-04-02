@@ -75,7 +75,7 @@ public partial class PixelCompareViewModel : ObservableObject, IDisposable
     public PixelCompareViewModel(IPluginContext? context)
     {
         _context = context;
-        // 常用範囲の列名をプリセット (A-Z, AA-ZZ)
+        // 一般的な列名の範囲をプリセット (A-Z, AA-ZZ)
         for (var c = 'A'; c <= 'Z'; c++)
         {
             AvailableColumns.Add(c.ToString());
