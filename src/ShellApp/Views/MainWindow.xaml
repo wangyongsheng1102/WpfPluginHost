@@ -405,11 +405,11 @@
                                    FontWeight="Normal" />
 
                         <Border Grid.Column="1"
-                                Margin="0,0,10,12"
+                                Margin="0,0,6,8"
                                 Padding="8,4"
                                 HorizontalAlignment="Right"
                                 VerticalAlignment="Bottom"
-                                MinWidth="250"
+                                MinWidth="220"
                                 CornerRadius="7"
                                 Background="Transparent"
                                 Visibility="{Binding GlobalStatus.ShowProgress, Converter={StaticResource BooleanToVisibilityConverter}}">
@@ -435,8 +435,8 @@
 
                             <Grid>
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="170" />
                                     <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="150" />
                                 </Grid.ColumnDefinitions>
 
                                 <Border Grid.ColumnSpan="2"
@@ -480,17 +480,8 @@
                                     </Border.Style>
                                 </Border>
 
-                                <ProgressBar Grid.Column="0"
-                                             VerticalAlignment="Center"
-                                             Height="4"
-                                             Value="{Binding GlobalStatus.ProgressValue}"
-                                             IsIndeterminate="{Binding GlobalStatus.IsIndeterminate}"
-                                             Minimum="0"
-                                             Maximum="100"
-                                             Style="{StaticResource AppStatusProgressBarStyle}" />
-
-                                <TextBlock Grid.Column="1"
-                                           Margin="10,0,0,0"
+                                <TextBlock Grid.Column="0"
+                                           Margin="0,0,10,0"
                                            VerticalAlignment="Center"
                                            FontFamily="{DynamicResource AppFontFamilyBold}"
                                            FontSize="12"
@@ -506,6 +497,15 @@
                                         </Style>
                                     </TextBlock.Style>
                                 </TextBlock>
+
+                                <ProgressBar Grid.Column="1"
+                                             VerticalAlignment="Center"
+                                             Height="4"
+                                             Value="{Binding GlobalStatus.ProgressValue}"
+                                             IsIndeterminate="{Binding GlobalStatus.IsIndeterminate}"
+                                             Minimum="0"
+                                             Maximum="100"
+                                             Style="{StaticResource AppStatusProgressBarStyle}" />
                             </Grid>
                         </Border>
                     </Grid>
