@@ -138,7 +138,7 @@
                           HeadersVisibility="Column"
                           SelectionMode="Single"
                           SelectionUnit="FullRow"
-                          GridLinesVisibility="All"
+                          GridLinesVisibility="None"
                           HorizontalGridLinesBrush="{DynamicResource BorderSubtleBrush}"
                           VerticalGridLinesBrush="{DynamicResource BorderSubtleBrush}"
                           Background="Transparent"
@@ -154,6 +154,12 @@
                           ColumnHeaderStyle="{DynamicResource AppDataGridColumnHeaderStyle}"
                           ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                           ScrollViewer.VerticalScrollBarVisibility="Auto">
+                    <DataGrid.RowStyle>
+                        <Style TargetType="DataGridRow" BasedOn="{StaticResource {x:Type DataGridRow}}">
+                            <!-- PixelCompare は选中高亮要铺满整行；去掉 DataGridRow 的分割线 -->
+                            <Setter Property="BorderThickness" Value="0" />
+                        </Style>
+                    </DataGrid.RowStyle>
                     <DataGrid.Resources>
                         <Style x:Key="CenteredDataGridHeaderStyle"
                                TargetType="DataGridColumnHeader"
