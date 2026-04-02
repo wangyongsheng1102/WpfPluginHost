@@ -3,10 +3,23 @@
 ## プロジェクト構成
 
 - `src/ShellApp`：メインシェル（左側の折りたたみメニュー＋中央の動的コンテンツ）
-- `src/Plugin.Abstractions`：プラグイン契約 `IPluginModule`
+- `src/Plugin.Abstractions`：プラグイン契約 `IPluginModule` およびホスト通信用 `IPluginContext`
 - `src/Plugins/Plugin.SampleA`：サンプルプラグイン A（Excel 書式設定）
 - `src/Plugins/Plugin.SampleB`：サンプルプラグイン B（画像プレビュー）
+- `src/Plugins/Plugin.PixelCompare`：画像比較プラグイン（Excel 内の画像を抽出・比較）
+- `src/Plugins/Plugin.PostgreCompare`：データ比較プラグイン（DB・CSV の比較、インポート/エクスポート）
 - `plugins`：実行時プラグインディレクトリ（ホットリロードの監視対象）
+
+## 主要機能
+
+- **動的プラグインロード**: アプリ起動中であっても `plugins` フォルダ内の DLL をスキャンし、自動的にメニューへ追加・更新します。
+- **プラグインの分離**: 各プラグインは独自の `AssemblyLoadContext` で読み込まれ、依存関係の競合を最小限に抑えます。
+- **シャドウコピー**: プラグイン DLL を一時ディレクトリにコピーして読み込むため、アプリ実行中でも DLL の上書き（再ビルド）が可能です。
+- **ホスト通信 (IPluginContext)**: プラグインからホスト側のステータスバー、進捗表示、通知機能へ簡単にアクセスできます。
+- **最適化された画像比較 (PixelCompare)**: 
+  - Excel 内の図形（画像）を高速にインデックス化し、大量の画像でも瞬時に抽出します。
+  - `ImageSharp` の低レベルアクセスにより、ピクセル単位の比較を高速に実行します。
+  - レポート出力の並列処理、一時ファイルのリソース管理が最適化されています。
 
 ## 実行手順
 
@@ -80,6 +93,27 @@
 - 左メニュー数とプラグイン DLL の数が一致する。
 - 特定のプラグイン DLL を差し替えたあと、画面とメニューが自動更新される（ホットリロード）。
 - プラグイン DLL を削除したあと、メニュー項目が消え、メインは安定して動作する。
+
+## ホストとの連携 (IPluginContext)
+
+プラグインは `Initialize` メソッドで `IPluginContext` を受け取ります。これを利用して、ホスト側の UI に情報を表示できます。
+
+- `ReportProgress`: 進捗バーを更新します。
+- `ReportInfo` / `ReportSuccess` / `ReportWarning` / `ReportError`: ステータスバーにメッセージを表示します。
+
+```csharp
+public void Initialize(IPluginContext context)
+{
+    _context = context;
+}
+
+private async Task RunTaskAsync()
+{
+    _context.ReportProgress("処理を開始します...", 0, true);
+    // ... 処理 ...
+    _context.ReportSuccess("完了しました！");
+}
+```
 
 ## 新規プラグインのテンプレート（コピー用）
 
