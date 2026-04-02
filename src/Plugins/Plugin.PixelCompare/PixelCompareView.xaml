@@ -143,7 +143,8 @@
                           VerticalGridLinesBrush="{DynamicResource BorderSubtleBrush}"
                           Background="Transparent"
                           BorderThickness="0"
-                          RowHeight="38"
+                          RowHeight="Auto"
+                          MinRowHeight="38"
                           ColumnHeaderHeight="38"
                           FontSize="{DynamicResource BodyFontSize}"
                           FontFamily="{DynamicResource AppFontFamily}"
@@ -154,12 +155,15 @@
                           ColumnHeaderStyle="{DynamicResource AppDataGridColumnHeaderStyle}"
                           ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                           ScrollViewer.VerticalScrollBarVisibility="Auto">
-                    <DataGrid.RowStyle>
-                        <Style TargetType="DataGridRow" BasedOn="{StaticResource {x:Type DataGridRow}}">
-                            <!-- PixelCompare は选中高亮要铺满整行；去掉 DataGridRow 的分割线 -->
-                            <Setter Property="BorderThickness" Value="0" />
+                    <DataGrid.CellStyle>
+                        <Style TargetType="DataGridCell"
+                               BasedOn="{StaticResource {x:Type DataGridCell}}">
+                            <!-- 选中背景需要铺满整格：避免内容只占中间导致“选中不连续” -->
+                            <Setter Property="VerticalContentAlignment" Value="Stretch" />
+                            <Setter Property="VerticalAlignment" Value="Stretch" />
+                            <Setter Property="Padding" Value="0" />
                         </Style>
-                    </DataGrid.RowStyle>
+                    </DataGrid.CellStyle>
                     <DataGrid.Resources>
                         <Style x:Key="CenteredDataGridHeaderStyle"
                                TargetType="DataGridColumnHeader"
