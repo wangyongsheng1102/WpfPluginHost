@@ -73,6 +73,6 @@ public partial class App : Application
         if (!Directory.Exists(path))
             return false;
 
-        return Directory.GetFiles(path, "*.deps.json", SearchOption.TopDirectoryOnly).Length > 0;
+        return Directory.GetFiles(path, "*.deps.json", SearchOption.AllDirectories).Length > 0;
     }
 }

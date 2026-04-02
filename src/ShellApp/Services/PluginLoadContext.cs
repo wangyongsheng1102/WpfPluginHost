@@ -32,6 +32,11 @@ public sealed class PluginLoadContext : AssemblyLoadContext
             var flat = Path.Combine(_pluginDirectory, assemblyName.Name + ".dll");
             if (File.Exists(flat))
                 return LoadFromAssemblyPath(flat);
+
+            // オプション: 依存 DLL を plugins/Plugin.XXX/lib/ に分けた場合
+            var lib = Path.Combine(_pluginDirectory, "lib", assemblyName.Name + ".dll");
+            if (File.Exists(lib))
+                return LoadFromAssemblyPath(lib);
         }
 
         return null;

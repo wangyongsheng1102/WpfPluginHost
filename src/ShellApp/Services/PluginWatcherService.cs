@@ -14,7 +14,7 @@ public sealed class PluginWatcherService : IDisposable
 
         _watcher = new FileSystemWatcher(pluginsRoot, "*.dll")
         {
-            IncludeSubdirectories = false,
+            IncludeSubdirectories = true,
             EnableRaisingEvents = false,
             NotifyFilter = NotifyFilters.FileName | NotifyFilters.LastWrite | NotifyFilters.CreationTime
         };

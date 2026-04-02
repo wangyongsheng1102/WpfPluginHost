@@ -27,7 +27,7 @@
 
   <Target Name="CopyPluginToRuntimeFolder" AfterTargets="Build">
     <PropertyGroup>
-      <PluginDropFolder>$(MSBuildThisFileDirectory)..\..\..\plugins\</PluginDropFolder>
+      <PluginDropFolder>$(MSBuildThisFileDirectory)..\..\..\plugins\$(AssemblyName)\</PluginDropFolder>
     </PropertyGroup>
     <MakeDir Directories="$(PluginDropFolder)" />
     <ItemGroup>

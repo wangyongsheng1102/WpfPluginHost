@@ -78,13 +78,17 @@
    - `dotnet build src/Plugins/Plugin.SampleB/Plugin.SampleB.csproj -c Release`
 3. 推奨ディレクトリ構成：
    - `ShellApp` の発行出力（exe / dll を含む）
-   - 同階層の `plugins`（すべてのプラグイン DLL を配置）
+   - 同階層の `plugins`（**プラグインごとにサブフォルダ**で配置。例: `plugins/Plugin.SampleA/Plugin.SampleA.dll` とその依存 DLL）
 
 例：
 
 - `deploy/ShellApp/*`
-- `deploy/plugins/Plugin.SampleA.dll`
-- `deploy/plugins/Plugin.SampleB.dll`
+- `deploy/plugins/Plugin.SampleA/Plugin.SampleA.dll`
+- `deploy/plugins/Plugin.SampleB/Plugin.SampleB.dll`
+
+発行ルートをすっきりさせたい場合（.NET ランタイム DLL を exe 横に大量に置きたくない）:
+- `dotnet publish ... -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true`（自己完結時は `--self-contained true` と併用可）
+- ランタイム DLL を手動で `runtime/` などに移すのは **非推奨**（ローダが解決できず起動失敗しやすい）
 
 ### 本番デプロイの確認項目
 
@@ -137,7 +141,7 @@ private async Task RunTaskAsync()
 
   <Target Name="CopyPluginToRuntimeFolder" AfterTargets="Build">
     <PropertyGroup>
-      <PluginDropFolder>$(MSBuildThisFileDirectory)..\..\..\plugins\</PluginDropFolder>
+      <PluginDropFolder>$(MSBuildThisFileDirectory)..\..\..\plugins\$(AssemblyName)\</PluginDropFolder>
     </PropertyGroup>
     <MakeDir Directories="$(PluginDropFolder)" />
     <Copy SourceFiles="$(TargetPath)"

@@ -39,15 +39,66 @@ public sealed class PluginManager : IDisposable
             UnloadInternal();
 
             // プラグイン本体の DLL のみを対象にする。依存 DLL（Interop、Mvvm 等）はメインと同じ出力にあり、GetTypes で走査しない
-            foreach (var dllPath in Directory.GetFiles(_pluginsRoot, "Plugin.*.dll", SearchOption.TopDirectoryOnly))
+            foreach (var dllPath in EnumeratePluginAssemblyPaths(_pluginsRoot))
             {
-                if (string.Equals(Path.GetFileName(dllPath), "Plugin.Abstractions.dll", StringComparison.OrdinalIgnoreCase))
-                    continue;
                 TryLoadDll(dllPath);
             }
         }
 
         PluginsChanged?.Invoke(this, EventArgs.Empty);
+    }
+
+    /// <summary>
+    /// 1) <c>plugins/Plugin.XXX/Plugin.XXX.dll</c>（専用フォルダ＋依存を同梱）
+    /// 2) 互換: <c>plugins/Plugin.XXX.dll</c>（フラット配置）
+    /// </summary>
+    private static IEnumerable<string> EnumeratePluginAssemblyPaths(string pluginsRoot)
+    {
+        if (!Directory.Exists(pluginsRoot))
+        {
+            yield break;
+        }
+
+        var loadedIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var dir in Directory.GetDirectories(pluginsRoot))
+        {
+            var folderName = Path.GetFileName(dir);
+            if (!folderName.StartsWith("Plugin.", StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            var candidate = Path.Combine(dir, folderName + ".dll");
+            if (!File.Exists(candidate))
+            {
+                continue;
+            }
+
+            if (string.Equals(Path.GetFileName(candidate), "Plugin.Abstractions.dll", StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            loadedIds.Add(Path.GetFileNameWithoutExtension(candidate)!);
+            yield return candidate;
+        }
+
+        foreach (var dllPath in Directory.GetFiles(pluginsRoot, "Plugin.*.dll", SearchOption.TopDirectoryOnly))
+        {
+            if (string.Equals(Path.GetFileName(dllPath), "Plugin.Abstractions.dll", StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            var id = Path.GetFileNameWithoutExtension(dllPath);
+            if (id is not null && loadedIds.Contains(id))
+            {
+                continue;
+            }
+
+            yield return dllPath;
+        }
     }
 
     private void TryLoadDll(string sourceDll)
