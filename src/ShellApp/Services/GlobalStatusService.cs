@@ -17,6 +17,7 @@ public partial class GlobalStatusService : ObservableObject, IPluginContext
     }
 
     private StatusLevel _currentLevel = StatusLevel.Info;
+    private readonly AppConfigService _appConfig;
 
     [ObservableProperty]
     private string _message = "準備完了";
@@ -39,9 +40,24 @@ public partial class GlobalStatusService : ObservableObject, IPluginContext
     [ObservableProperty]
     private bool _isErrorState;
 
-    public GlobalStatusService()
+    public GlobalStatusService(AppConfigService appConfig)
     {
+        _appConfig = appConfig;
         ApplyLevelStyle(StatusLevel.Info, "準備完了", includePrefix: false);
+    }
+
+    public string? GetPluginSetting(string pluginId)
+    {
+        if (_appConfig.Config.PluginSettings.TryGetValue(pluginId, out var element))
+        {
+            return element.GetRawText();
+        }
+        return null;
+    }
+
+    public void SavePluginSetting(string pluginId, string json)
+    {
+        _appConfig.SetPluginSetting(pluginId, JsonDocument.Parse(json).RootElement);
     }
 
     /// <summary>テーマ切り替え後に呼ぶ。現在レベルの色を再適用する。</summary>

@@ -16,25 +16,39 @@ public partial class MainWindowViewModel : ObservableObject
     private readonly PluginManager _pluginManager;
     private readonly ThemeService _themeService;
     private readonly GlobalStatusService _globalStatus;
+    private readonly AppConfigService _appConfig;
     /// <summary>プラグイン Id ごとにビューを再利用し、メニュー切り替え時に各ページの状態を保持する。プラグイン再読み込み後は必ず Clear する。</summary>
     private readonly Dictionary<string, UserControl> _pluginViewCache = new(StringComparer.OrdinalIgnoreCase);
     private UserControl? _homeView;
     private bool _isReloadingPlugins;
 
-    public MainWindowViewModel(PluginManager pluginManager, ThemeService themeService, GlobalStatusService globalStatusService)
+    public MainWindowViewModel(PluginManager pluginManager, ThemeService themeService, GlobalStatusService globalStatusService, AppConfigService appConfigService)
     {
         _pluginManager = pluginManager;
         _themeService = themeService;
         _globalStatus = globalStatusService;
+        _appConfig = appConfigService;
         GlobalStatus = globalStatusService;
         _pluginManager.PluginsChanged += OnPluginsChanged;
 
         ToggleMenuCommand = new RelayCommand(ToggleMenu);
         ReloadPluginsCommand = new AsyncRelayCommand(ReloadPluginsAsync, CanReloadPlugins);
         MenuItems = new ObservableCollection<PluginMenuItemViewModel>();
-        IsDarkTheme = _themeService.IsDarkTheme;
+        
+        // 設定から読み込み
+        IsDarkTheme = _appConfig.Config.IsDarkTheme;
+        IsMenuCollapsed = _appConfig.Config.IsMenuCollapsed;
+        
+        _themeService.ApplyTheme(IsDarkTheme);
+        _globalStatus.RefreshTextBrushAfterThemeChange();
 
         ReloadMenuItems();
+
+        // 最後に選択されていたプラグインを復元
+        if (!string.IsNullOrEmpty(_appConfig.Config.LastSelectedPluginId))
+        {
+            SelectedMenuItem = MenuItems.FirstOrDefault(m => m.Id == _appConfig.Config.LastSelectedPluginId);
+        }
     }
 
     public ObservableCollection<PluginMenuItemViewModel> MenuItems { get; }
@@ -69,11 +83,15 @@ public partial class MainWindowViewModel : ObservableObject
 
     partial void OnSelectedMenuItemChanged(PluginMenuItemViewModel? value)
     {
+        _appConfig.Config.LastSelectedPluginId = value?.Id;
+        _appConfig.Save();
         ApplyCurrentView();
     }
 
     partial void OnIsMenuCollapsedChanged(bool value)
     {
+        _appConfig.Config.IsMenuCollapsed = value;
+        _appConfig.Save();
         OnPropertyChanged(nameof(MenuWidth));
         OnPropertyChanged(nameof(PluginCountNavDisplay));
         OnPropertyChanged(nameof(HomeNavCaption));
@@ -81,6 +99,8 @@ public partial class MainWindowViewModel : ObservableObject
 
     partial void OnIsDarkThemeChanged(bool value)
     {
+        _appConfig.Config.IsDarkTheme = value;
+        _appConfig.Save();
         _themeService.ApplyTheme(value);
         _globalStatus.RefreshTextBrushAfterThemeChange();
         RefreshCurrentViewAfterThemeChange();

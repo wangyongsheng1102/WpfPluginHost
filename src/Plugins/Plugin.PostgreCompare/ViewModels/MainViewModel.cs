@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Text.Json;
 using System.Windows;
 using System.Windows.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -17,6 +19,14 @@ public enum LogLevel
     Warning,
     Error,
     Success
+}
+
+/// <summary>
+/// プラグイン固有の保存設定モデル。
+/// </summary>
+public class PostgreCompareConfig
+{
+    public List<DatabaseConnection> Connections { get; set; } = new();
 }
 
 public partial class MainViewModel : ObservableObject
@@ -48,8 +58,8 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty]
     private CompareViewModel _compareViewModel;
 
-    private readonly ConfigService _configService = new();
     private readonly IPluginContext? _context;
+    private const string PluginId = "postgreCompare";
 
     public MainViewModel(IPluginContext? context)
     {
@@ -70,11 +80,18 @@ public partial class MainViewModel : ObservableObject
     {
         try
         {
-            var connections = _configService.LoadConnections();
-            Connections.Clear();
-            foreach (var conn in connections)
+            var json = _context?.GetPluginSetting(PluginId);
+            if (!string.IsNullOrEmpty(json))
             {
-                Connections.Add(conn);
+                var config = JsonSerializer.Deserialize<PostgreCompareConfig>(json);
+                if (config?.Connections != null)
+                {
+                    Connections.Clear();
+                    foreach (var conn in config.Connections)
+                    {
+                        Connections.Add(conn);
+                    }
+                }
             }
         }
         catch (Exception ex)
@@ -87,7 +104,12 @@ public partial class MainViewModel : ObservableObject
     {
         try
         {
-            _configService.SaveConnections(Connections.ToList());
+            var config = new PostgreCompareConfig
+            {
+                Connections = Connections.ToList()
+            };
+            var json = JsonSerializer.Serialize(config);
+            _context?.SavePluginSetting(PluginId, json);
             ReportSuccess("接続設定を保存しました。");
         }
         catch (Exception ex)

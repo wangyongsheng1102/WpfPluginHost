@@ -11,21 +11,24 @@ public partial class App : Application
     private PluginManager? _pluginManager;
     private PluginWatcherService? _watcherService;
     private ThemeService? _themeService;
+    private AppConfigService? _appConfigService;
 
     protected override void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
 
+        _appConfigService = new AppConfigService();
+
         var pluginRoot = ResolvePluginRoot();
         Directory.CreateDirectory(pluginRoot);
 
         _themeService = new ThemeService();
-        _themeService.ApplyTheme(isDarkTheme: false);
+        _themeService.ApplyTheme(_appConfigService.Config.IsDarkTheme);
 
-        var statusService = new GlobalStatusService();
+        var statusService = new GlobalStatusService(_appConfigService);
 
         _pluginManager = new PluginManager(pluginRoot, statusService);
-        var vm = new MainWindowViewModel(_pluginManager, _themeService, statusService);
+        var vm = new MainWindowViewModel(_pluginManager, _themeService, statusService, _appConfigService);
         _watcherService = new PluginWatcherService(pluginRoot, _pluginManager);
         _watcherService.Start();
 
