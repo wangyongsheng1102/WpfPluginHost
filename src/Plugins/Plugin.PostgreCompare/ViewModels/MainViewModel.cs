@@ -34,9 +34,6 @@ public partial class MainViewModel : ObservableObject
     private DatabaseConnection? _selectedConnection;
 
     [ObservableProperty]
-    private ObservableCollection<string> _wslDistributions = new();
-
-    [ObservableProperty]
     private int _progressValue;
 
     [ObservableProperty]
@@ -51,7 +48,6 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty]
     private CompareViewModel _compareViewModel;
 
-    private readonly WslService _wslService = new();
     private readonly ConfigService _configService = new();
     private readonly IPluginContext? _context;
 
@@ -67,19 +63,7 @@ public partial class MainViewModel : ObservableObject
         ImportExportViewModel.Connections = Connections;
         CompareViewModel.Connections = Connections;
 
-        LoadWslDistributions();
         LoadConnections();
-    }
-
-    private async void LoadWslDistributions()
-    {
-        var distros = await _wslService.GetWslDistributionsAsync();
-        WslDistributions.Clear();
-        foreach (var distro in distros)
-        {
-            WslDistributions.Add(distro);
-        }
-        DbConfigViewModel.WslDistributions = WslDistributions;
     }
 
     private void LoadConnections()

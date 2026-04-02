@@ -35,9 +35,6 @@ public partial class CompareViewModel : ObservableObject
     private ObservableCollection<CsvFileInfo> _csvFileInfos = new();
 
     [ObservableProperty]
-    private int _progressValue;
-
-    [ObservableProperty]
     private bool _isProcessing;
 
     [ObservableProperty]
@@ -233,7 +230,7 @@ public partial class CompareViewModel : ObservableObject
         {
             IsProcessing = true;
             _mainViewModel.AppendLog($"[{allFiles.Count} 件] CSV ファイルの比較を開始しています...", LogLevel.Info);
-            ProgressValue = 0;
+            _mainViewModel.ReportProgress("CSV ファイルの比較を開始しています...", 0, true);
 
             if (IsFileLocked(ExportFilePath))
             {
@@ -263,8 +260,8 @@ public partial class CompareViewModel : ObservableObject
                     if (!AccessLogChecked && csvFileInfo.FileName.Contains("access_log.csv", StringComparison.OrdinalIgnoreCase))
                     {
                         _mainViewModel.AppendLog("access_log.csv の比較はスキップされました。", LogLevel.Warning);
-                        Interlocked.Increment(ref completedCount);
-                        ProgressValue = (int)((long)completedCount * 100 / allFiles.Count);
+                        var completed = Interlocked.Increment(ref completedCount);
+                        _mainViewModel.ReportProgress($"比較中... ({completed}/{allFiles.Count})", (double)completed * 100 / allFiles.Count);
                         return;
                     }
 
@@ -274,9 +271,9 @@ public partial class CompareViewModel : ObservableObject
                         !oldFileMap.TryGetValue(csvFileName, out var oldCsvPath) ||
                         !newFileMap.TryGetValue(csvFileName, out var newCsvPath))
                     {
-                        _mainViewModel.AppendLog($"{csvFileName} が見つかりません。スキップします。", LogLevel.Warning);
-                        Interlocked.Increment(ref completedCount);
-                        ProgressValue = (int)((long)completedCount * 100 / allFiles.Count);
+                        _mainViewModel.AppendLog($"{csvFileName} が见つかりません。スキップします。", LogLevel.Warning);
+                        var completed = Interlocked.Increment(ref completedCount);
+                        _mainViewModel.ReportProgress($"比較中... ({completed}/{allFiles.Count})", (double)completed * 100 / allFiles.Count);
                         return;
                     }
 
@@ -316,8 +313,8 @@ public partial class CompareViewModel : ObservableObject
                     }
                     finally
                     {
-                        Interlocked.Increment(ref completedCount);
-                        ProgressValue = (int)((long)completedCount * 100 / allFiles.Count);
+                        var completed = Interlocked.Increment(ref completedCount);
+                        _mainViewModel.ReportProgress($"比較中... ({completed}/{allFiles.Count})", (double)completed * 100 / allFiles.Count);
                     }
                 });
 
@@ -332,6 +329,7 @@ public partial class CompareViewModel : ObservableObject
         finally
         {
             IsProcessing = false;
+            _mainViewModel.ReportProgress(string.Empty, 100);
         }
     }
 

@@ -14,49 +14,85 @@ namespace Plugin.PostgreCompare.Services;
 
 public class DatabaseService
 {
-    public async Task<List<TableInfo>> GetTablesAsync(string connectionString)
+    public async Task<List<string>> GetSchemasAsync(string connectionString)
     {
-        var builder = new DbConnectionStringBuilder
+        var schemas = new List<string>();
+        try
         {
-            ConnectionString = connectionString
-        };
+            await using var conn = new NpgsqlConnection(connectionString);
+            await conn.OpenAsync();
 
-        string? database = builder.ContainsKey("username") ? builder["username"]?.ToString() : null;
+            const string sql = @"
+                SELECT nspname 
+                FROM pg_namespace 
+                WHERE nspname NOT LIKE 'pg_%' 
+                  AND nspname != 'information_schema'
+                ORDER BY nspname";
 
-        var schema = "public";
-        if (!string.IsNullOrEmpty(database) && database.StartsWith("cis", StringComparison.OrdinalIgnoreCase))
-        {
-            schema = "unisys";
+            await using var cmd = new NpgsqlCommand(sql, conn);
+            await using var reader = await cmd.ExecuteReaderAsync();
+            while (await reader.ReadAsync())
+            {
+                schemas.Add(reader.GetString(0));
+            }
         }
+        catch
+        {
+            // Fallback
+            schemas.Add("public");
+            schemas.Add("unisys");
+        }
+        return schemas;
+    }
 
+    public async Task<List<TableInfo>> GetTablesAsync(string connectionString, string schemaName)
+    {
         var tables = new List<TableInfo>();
 
         await using var conn = new NpgsqlConnection(connectionString);
         await conn.OpenAsync();
 
-        // Use pg_class to get an estimated row count quickly in a single query
         const string sql = @"
         SELECT 
             n.nspname as table_schema,
-            c.relname as table_name,
-            CAST(c.reltuples AS BIGINT) as row_count
+            c.relname as table_name
         FROM pg_class c
         JOIN pg_namespace n ON n.oid = c.relnamespace
         WHERE n.nspname = @schema
           AND c.relkind = 'r'
-        ORDER BY n.nspname, c.relname";
+        ORDER BY c.relname";
 
         await using var cmd = new NpgsqlCommand(sql, conn);
-        cmd.Parameters.AddWithValue("schema", schema);
-        await using var reader = await cmd.ExecuteReaderAsync();
-
-        while (await reader.ReadAsync())
+        cmd.Parameters.AddWithValue("schema", schemaName);
+        
+        var tableList = new List<(string Schema, string Table)>();
+        await using (var reader = await cmd.ExecuteReaderAsync())
         {
+            while (await reader.ReadAsync())
+            {
+                tableList.Add((reader.GetString(0), reader.GetString(1)));
+            }
+        }
+
+        foreach (var (s, t) in tableList)
+        {
+            long rowCount = 0;
+            try
+            {
+                var countSql = $"SELECT COUNT(*) FROM \"{s}\".\"{t}\"";
+                await using var countCmd = new NpgsqlCommand(countSql, conn);
+                rowCount = Convert.ToInt64(await countCmd.ExecuteScalarAsync());
+            }
+            catch
+            {
+                rowCount = -1;
+            }
+
             tables.Add(new TableInfo
             {
-                SchemaName = reader.GetString(0),
-                TableName = reader.GetString(1),
-                RowCount = reader.GetInt64(2)
+                SchemaName = s,
+                TableName = t,
+                RowCount = rowCount
             });
         }
 

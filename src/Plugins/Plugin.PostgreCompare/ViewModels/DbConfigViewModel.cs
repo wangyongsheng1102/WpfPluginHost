@@ -18,10 +18,6 @@ public partial class DbConfigViewModel : ObservableObject
     [ObservableProperty]
     private DatabaseConnection? _selectedConnection;
 
-    [ObservableProperty]
-    private ObservableCollection<string> _wslDistributions = new();
-
-    private readonly WslService _wslService = new();
     private readonly MainViewModel _mainViewModel;
 
     public DbConfigViewModel(MainViewModel mainViewModel)
@@ -58,19 +54,6 @@ public partial class DbConfigViewModel : ObservableObject
         var name = connection.ConfigurationName;
         Connections.Remove(connection);
         _mainViewModel.AppendLog($"接続 '{name}' を削除しました。");
-    }
-
-    [RelayCommand]
-    private async Task RefreshWslDistributions()
-    {
-        _mainViewModel.AppendLog("WSL ディストリビューションリストを更新しています...");
-        var distros = await _wslService.GetWslDistributionsAsync();
-        WslDistributions.Clear();
-        foreach (var distro in distros)
-        {
-            WslDistributions.Add(distro);
-        }
-        _mainViewModel.AppendLog($"{WslDistributions.Count} 個の WSL ディストリビューションを検出しました。");
     }
 
     partial void OnConnectionsChanged(ObservableCollection<DatabaseConnection> value)

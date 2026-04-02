@@ -19,12 +19,15 @@ public partial class ImportExportViewModel : ObservableObject
     private DatabaseConnection? _selectedConnection;
 
     [ObservableProperty]
+    private ObservableCollection<string> _schemas = new();
+
+    [ObservableProperty]
+    private string? _selectedSchema;
+
+    [ObservableProperty]
     private ObservableCollection<TableInfo> _tables = new();
 
     public int SelectedTableCount => Tables.Count(t => t.IsSelected);
-
-    [ObservableProperty]
-    private int _progressValue;
 
     [ObservableProperty]
     private bool _isProcessing;
@@ -43,35 +46,74 @@ public partial class ImportExportViewModel : ObservableObject
         _mainViewModel = mainViewModel;
     }
 
+    async partial void OnSelectedConnectionChanged(DatabaseConnection? value)
+    {
+        Schemas.Clear();
+        SelectedSchema = null;
+        Tables.Clear();
+
+        if (value != null)
+        {
+            var schemas = await _databaseService.GetSchemasAsync(value.GetConnectionString());
+            foreach (var schema in schemas)
+            {
+                Schemas.Add(schema);
+            }
+            SelectedSchema = Schemas.FirstOrDefault(s => s == "public") ?? Schemas.FirstOrDefault();
+        }
+    }
+
+    async partial void OnSelectedSchemaChanged(string? value)
+    {
+        if (value != null && SelectedConnection != null)
+        {
+            await LoadTables();
+        }
+        else
+        {
+            Tables.Clear();
+        }
+    }
+
     [RelayCommand]
     private async Task LoadTables()
     {
-        if (SelectedConnection == null)
+        if (SelectedConnection == null || string.IsNullOrEmpty(SelectedSchema))
         {
-            _mainViewModel.AppendLog("接続を選択してください。", LogLevel.Error);
             return;
         }
 
-        IsProcessing = true;
-        _mainViewModel.AppendLog("テーブルリストを取得しています...");
-
-        var tables = await _databaseService.GetTablesAsync(SelectedConnection.GetConnectionString());
-        Tables.Clear();
-        foreach (var table in tables)
+        try
         {
-            table.PropertyChanged += (s, e) =>
-            {
-                if (e.PropertyName == nameof(TableInfo.IsSelected))
-                {
-                    OnPropertyChanged(nameof(SelectedTableCount));
-                }
-            };
-            Tables.Add(table);
-        }
+            IsProcessing = true;
+            _mainViewModel.ReportProgress("テーブルリストを取得しています...", 0, true);
 
-        OnPropertyChanged(nameof(SelectedTableCount));
-        IsProcessing = false;
-        _mainViewModel.AppendLog($"{Tables.Count} 個のテーブルを取得しました。", LogLevel.Success);
+            var tables = await _databaseService.GetTablesAsync(SelectedConnection.GetConnectionString(), SelectedSchema);
+            Tables.Clear();
+            foreach (var table in tables)
+            {
+                table.PropertyChanged += (s, e) =>
+                {
+                    if (e.PropertyName == nameof(TableInfo.IsSelected))
+                    {
+                        OnPropertyChanged(nameof(SelectedTableCount));
+                    }
+                };
+                Tables.Add(table);
+            }
+
+            OnPropertyChanged(nameof(SelectedTableCount));
+            _mainViewModel.AppendLog($"{Tables.Count} 個のテーブルを取得しました。", LogLevel.Success);
+        }
+        catch (Exception ex)
+        {
+            _mainViewModel.AppendLog($"テーブル取得に失敗しました: {ex.Message}", LogLevel.Error);
+        }
+        finally
+        {
+            IsProcessing = false;
+            _mainViewModel.ReportProgress(string.Empty, 100);
+        }
     }
 
     [RelayCommand]
@@ -97,9 +139,9 @@ public partial class ImportExportViewModel : ObservableObject
     [RelayCommand]
     private async Task ExportTables()
     {
-        if (SelectedConnection == null)
+        if (SelectedConnection == null || string.IsNullOrEmpty(SelectedSchema))
         {
-            _mainViewModel.AppendLog("接続を選択してください。", LogLevel.Error);
+            _mainViewModel.AppendLog("接続とスキーマを選択してください。", LogLevel.Error);
             return;
         }
 
@@ -124,7 +166,6 @@ public partial class ImportExportViewModel : ObservableObject
             Directory.CreateDirectory(exportDir);
 
             _mainViewModel.AppendLog($"エクスポートを開始しています... ({selectedTables.Count} テーブル)", LogLevel.Info);
-            ProgressValue = 0;
 
             var connectionString = SelectedConnection.GetConnectionString();
             int completed = 0;
@@ -140,19 +181,20 @@ public partial class ImportExportViewModel : ObservableObject
                     new Progress<string>(msg => _mainViewModel.AppendLog(msg)));
 
                 completed++;
-                ProgressValue = (int)(completed * 100 / selectedTables.Count);
+                var percentage = (double)completed * 100 / selectedTables.Count;
+                _mainViewModel.ReportProgress($"エクスポート中... ({completed}/{selectedTables.Count})", percentage);
             }
 
             _mainViewModel.AppendLog($"{selectedTables.Count} 個のテーブルをエクスポートしました。保存先: {exportDir}", LogLevel.Success);
         }
         catch (Exception ex)
         {
-            _mainViewModel.AppendLog($"エクスポートに失敗しました: {ex.Message}", LogLevel.Error);
+            _mainViewModel.AppendLog($"エクスポートに失败しました: {ex.Message}", LogLevel.Error);
         }
         finally
         {
             IsProcessing = false;
-            ProgressValue = 0;
+            _mainViewModel.ReportProgress(string.Empty, 100);
         }
     }
 
@@ -185,9 +227,9 @@ public partial class ImportExportViewModel : ObservableObject
     [RelayCommand]
     private async Task ImportTables()
     {
-        if (SelectedConnection == null)
+        if (SelectedConnection == null || string.IsNullOrEmpty(SelectedSchema))
         {
-            _mainViewModel.AppendLog("接続を選択してください。", LogLevel.Error);
+            _mainViewModel.AppendLog("接続とスキーマを選択してください。", LogLevel.Error);
             return;
         }
 
@@ -208,53 +250,36 @@ public partial class ImportExportViewModel : ObservableObject
         {
             IsProcessing = true;
             _mainViewModel.AppendLog($"インポートを開始しています... ({csvFiles.Length} ファイル)", LogLevel.Info);
-            ProgressValue = 0;
 
             var connectionString = SelectedConnection.GetConnectionString();
             int completed = 0;
 
-            string schemaName = GetSchemaFromUsername(SelectedConnection.User);
-
             foreach (var csvFile in csvFiles)
             {
                 var tableName = Path.GetFileNameWithoutExtension(csvFile);
-
-                _mainViewModel.AppendLog($"{csvFile} をインポートしています...", LogLevel.Info);
-
                 await _databaseService.ImportTableFromCsvAsync(
                     connectionString,
-                    schemaName,
+                    SelectedSchema,
                     tableName,
                     csvFile,
                     new Progress<string>(msg => _mainViewModel.AppendLog(msg)));
 
                 completed++;
-                ProgressValue = (int)(completed * 100 / csvFiles.Length);
+                var percentage = (double)completed * 100 / csvFiles.Length;
+                _mainViewModel.ReportProgress($"インポート中... ({completed}/{csvFiles.Length})", percentage);
             }
 
-            _mainViewModel.AppendLog($"インポートが完了しました。{csvFiles.Length} ファイル処理しました。", LogLevel.Success);
+            _mainViewModel.AppendLog($"{csvFiles.Length} 個のファイルをインポートしました。", LogLevel.Success);
         }
         catch (Exception ex)
         {
-            _mainViewModel.AppendLog($"インポートに失敗しました: {ex.Message}", LogLevel.Error);
+            _mainViewModel.AppendLog($"インポートに失败しました: {ex.Message}", LogLevel.Error);
         }
         finally
         {
             IsProcessing = false;
-            ProgressValue = 0;
+            _mainViewModel.ReportProgress(string.Empty, 100);
         }
-    }
-
-    private static string GetSchemaFromUsername(string userName)
-    {
-        if (string.IsNullOrWhiteSpace(userName))
-        {
-            return "public";
-        }
-
-        return userName.StartsWith("cis", StringComparison.OrdinalIgnoreCase)
-            ? "unisys"
-            : "public";
     }
 }
 

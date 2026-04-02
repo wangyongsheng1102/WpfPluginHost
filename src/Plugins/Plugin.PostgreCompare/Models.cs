@@ -18,8 +18,6 @@ public partial class DatabaseConnection : ObservableObject
     private string _user = string.Empty;
     [ObservableProperty]
     private string _password = string.Empty;
-    [ObservableProperty]
-    private string _wslDistro = string.Empty;
 
     public string GetConnectionString()
     {
