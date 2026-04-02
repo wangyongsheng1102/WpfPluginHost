@@ -350,10 +350,10 @@
                                        Margin="0,0,0,8" />
 
                             <ProgressBar Grid.Row="2"
-                                         Height="6"
                                          Margin="0,4,0,0"
                                          Minimum="0"
                                          Maximum="100"
+                                         Style="{StaticResource AppStatusProgressBarStyle}"
                                          Value="{Binding CompareViewModel.ProgressValue}" />
                         </Grid>
                     </Border>

@@ -587,8 +587,97 @@
         <Setter Property="Background" Value="{DynamicResource ShellBackgroundBrush}" />
         <Setter Property="BorderBrush" Value="{DynamicResource BorderSubtleBrush}" />
         <Setter Property="BorderThickness" Value="0" />
-        <Setter Property="Height" Value="10" />
+        <Setter Property="Height" Value="6" />
         <Setter Property="SnapsToDevicePixels" Value="True" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ProgressBar">
+                    <Grid x:Name="TemplateRoot">
+                        <Border x:Name="PART_Track"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="3">
+                            <Border.Background>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                    <GradientStop Offset="0" Color="#10000000" />
+                                    <GradientStop Offset="1" Color="#05000000" />
+                                </LinearGradientBrush>
+                            </Border.Background>
+                        </Border>
+                        <Grid x:Name="PART_Indicator"
+                              HorizontalAlignment="Left"
+                              ClipToBounds="True">
+                            <Grid.RenderTransform>
+                                <TranslateTransform X="0" />
+                            </Grid.RenderTransform>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Border x:Name="Animation"
+                                    Background="{TemplateBinding Foreground}"
+                                    CornerRadius="3">
+                                <Border.Effect>
+                                    <DropShadowEffect BlurRadius="6"
+                                                      Color="{Binding Color, Source={StaticResource IndicatorBrush}}"
+                                                      Direction="0"
+                                                      Opacity="0.4"
+                                                      ShadowDepth="0" />
+                                </Border.Effect>
+                                <Grid x:Name="OverlayGrid">
+                                    <Border Background="{TemplateBinding Foreground}" CornerRadius="3" />
+                                    <!-- シマー効果（光沢が流れるアニメーション） -->
+                                    <Border x:Name="Glow" Margin="-150,0,0,0" Width="150" HorizontalAlignment="Left">
+                                        <Border.Background>
+                                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                                <GradientStop Offset="0" Color="Transparent" />
+                                                <GradientStop Offset="0.5" Color="#30FFFFFF" />
+                                                <GradientStop Offset="1" Color="Transparent" />
+                                            </LinearGradientBrush>
+                                        </Border.Background>
+                                        <Border.RenderTransform>
+                                            <TranslateTransform x:Name="GlowTransform" X="0" />
+                                        </Border.RenderTransform>
+                                    </Border>
+                                </Grid>
+                            </Border>
+                        </Grid>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsIndeterminate" Value="True">
+                            <Setter TargetName="PART_Indicator" Property="Width" Value="100" />
+                            <Trigger.EnterActions>
+                                <BeginStoryboard x:Name="IndeterminateStoryboard">
+                                    <Storyboard RepeatBehavior="Forever">
+                                        <DoubleAnimation Storyboard.TargetName="PART_Indicator"
+                                                         Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.X)"
+                                                         From="-100" To="400" Duration="0:0:1.5">
+                                            <DoubleAnimation.EasingFunction>
+                                                <QuadraticEase EasingMode="EaseInOut" />
+                                            </DoubleAnimation.EasingFunction>
+                                        </DoubleAnimation>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </Trigger.EnterActions>
+                            <Trigger.ExitActions>
+                                <StopStoryboard BeginStoryboardName="IndeterminateStoryboard" />
+                            </Trigger.ExitActions>
+                        </Trigger>
+                        <!-- 通常の進捗時のシマーアニメーション -->
+                        <Trigger Property="IsIndeterminate" Value="False">
+                            <Trigger.EnterActions>
+                                <BeginStoryboard>
+                                    <Storyboard RepeatBehavior="Forever">
+                                        <DoubleAnimation Storyboard.TargetName="GlowTransform"
+                                                         Storyboard.TargetProperty="X"
+                                                         From="0" To="600" Duration="0:0:3" />
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </Trigger.EnterActions>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
     </Style>
 
     <!-- 太陽／月（SVG ベクター）。ライト＝太陽、ダーク＝月（IsChecked はダークテーマ） -->
