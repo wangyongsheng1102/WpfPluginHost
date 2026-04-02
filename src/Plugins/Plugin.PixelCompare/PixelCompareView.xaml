@@ -106,7 +106,7 @@
         <Grid Grid.Row="1" Margin="0,0,0,0">
             <Grid.ColumnDefinitions>
                 <!-- 比較一覧エリアはテーブルの内容幅に追従、プレビューは残り幅を使用 -->
-                <ColumnDefinition Width="Auto" MinWidth="300" />
+                <ColumnDefinition Width="Auto" MinWidth="0" />
                 <ColumnDefinition Width="16" />
                 <ColumnDefinition Width="*" MinWidth="400" />
             </Grid.ColumnDefinitions>
@@ -115,7 +115,8 @@
                     Background="{DynamicResource CardElevatedBrush}"
                     CornerRadius="{StaticResource PanelRadius}"
                     BorderThickness="1"
-                    BorderBrush="{DynamicResource BorderSubtleBrush}">
+                    BorderBrush="{DynamicResource BorderSubtleBrush}"
+                    HorizontalAlignment="Left">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
@@ -125,7 +126,7 @@
                                Text="比較一覧"
                                Style="{DynamicResource SubtitleTextStyle}"
                                Margin="0,0,0,10" />
-                    <Grid Grid.Row="1" Grid.IsSharedSizeScope="True">
+                    <Grid Grid.Row="1" Grid.IsSharedSizeScope="True" HorizontalAlignment="Left">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto" />
                             <RowDefinition Height="*" />
@@ -135,8 +136,11 @@
                         <Grid Grid.Row="0" Margin="8,0,8,8">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto" SharedSizeGroup="PcRowIndex" />
+                                <ColumnDefinition Width="12" />
                                 <ColumnDefinition Width="Auto" SharedSizeGroup="PcStatus" />
+                                <ColumnDefinition Width="12" />
                                 <ColumnDefinition Width="Auto" SharedSizeGroup="PcDiffCount" />
+                                <ColumnDefinition Width="12" />
                                 <ColumnDefinition Width="Auto" SharedSizeGroup="PcDiffPct" />
                             </Grid.ColumnDefinitions>
 
@@ -145,17 +149,17 @@
                                        Style="{DynamicResource CaptionTextStyle}"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center" />
-                            <TextBlock Grid.Column="1"
+                            <TextBlock Grid.Column="2"
                                        Text="結果"
                                        Style="{DynamicResource CaptionTextStyle}"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center" />
-                            <TextBlock Grid.Column="2"
+                            <TextBlock Grid.Column="4"
                                        Text="差異数"
                                        Style="{DynamicResource CaptionTextStyle}"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center" />
-                            <TextBlock Grid.Column="3"
+                            <TextBlock Grid.Column="6"
                                        Text="差異率"
                                        Style="{DynamicResource CaptionTextStyle}"
                                        HorizontalAlignment="Center"
@@ -187,8 +191,11 @@
                                         <Grid>
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="Auto" SharedSizeGroup="PcRowIndex" />
+                                                <ColumnDefinition Width="12" />
                                                 <ColumnDefinition Width="Auto" SharedSizeGroup="PcStatus" />
+                                                <ColumnDefinition Width="12" />
                                                 <ColumnDefinition Width="Auto" SharedSizeGroup="PcDiffCount" />
+                                                <ColumnDefinition Width="12" />
                                                 <ColumnDefinition Width="Auto" SharedSizeGroup="PcDiffPct" />
                                             </Grid.ColumnDefinitions>
 
@@ -198,14 +205,14 @@
                                                        HorizontalAlignment="Center"
                                                        Style="{DynamicResource BodyTextStyle}"
                                                        TextAlignment="Center" />
-                                            <TextBlock Grid.Column="1"
+                                            <TextBlock Grid.Column="2"
                                                        Text="{Binding StatusText}"
                                                        VerticalAlignment="Center"
                                                        HorizontalAlignment="Center"
                                                        Style="{DynamicResource BodyTextStyle}"
                                                        TextAlignment="Center" />
 
-                                            <Border Grid.Column="2" Background="Transparent">
+                                            <Border Grid.Column="4" Background="Transparent">
                                                 <Border.Resources>
                                                     <Style x:Key="PcDiffCountTextStyle" TargetType="TextBlock">
                                                         <Setter Property="FontSize" Value="{DynamicResource BodyFontSize}" />
@@ -237,7 +244,7 @@
                                                 </TextBlock>
                                             </Border>
 
-                                            <TextBlock Grid.Column="3"
+                                            <TextBlock Grid.Column="6"
                                                        Text="{Binding DifferencePercentageText}"
                                                        VerticalAlignment="Center"
                                                        HorizontalAlignment="Center"

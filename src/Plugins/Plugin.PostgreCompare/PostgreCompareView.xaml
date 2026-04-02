@@ -254,7 +254,7 @@
                         <!-- テーブル一覧 -->
                         <Border Grid.Column="0"
                                 HorizontalAlignment="Left"
-                                MinWidth="260"
+                                MinWidth="0"
                                 Background="{DynamicResource CardElevatedBrush}"
                                 CornerRadius="{StaticResource PanelRadius}"
                                 BorderBrush="{DynamicResource BorderSubtleBrush}"
@@ -288,14 +288,17 @@
                                     <Grid Grid.Row="0" Margin="8,0,8,8">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="Auto" SharedSizeGroup="PgTblChk" />
+                                            <ColumnDefinition Width="12" />
                                             <ColumnDefinition Width="Auto" SharedSizeGroup="PgTblSchema" />
+                                            <ColumnDefinition Width="12" />
                                             <ColumnDefinition Width="Auto" SharedSizeGroup="PgTblName" />
+                                            <ColumnDefinition Width="12" />
                                             <ColumnDefinition Width="Auto" SharedSizeGroup="PgTblRows" />
                                         </Grid.ColumnDefinitions>
                                         <TextBlock Grid.Column="0" Text="選択" Style="{DynamicResource CaptionTextStyle}" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                                        <TextBlock Grid.Column="1" Text="スキーマ" Style="{DynamicResource CaptionTextStyle}" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                                        <TextBlock Grid.Column="2" Text="テーブル" Style="{DynamicResource CaptionTextStyle}" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="8,0,0,0" />
-                                        <TextBlock Grid.Column="3" Text="行数" Style="{DynamicResource CaptionTextStyle}" HorizontalAlignment="Right" VerticalAlignment="Center" />
+                                        <TextBlock Grid.Column="2" Text="スキーマ" Style="{DynamicResource CaptionTextStyle}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                        <TextBlock Grid.Column="4" Text="テーブル" Style="{DynamicResource CaptionTextStyle}" HorizontalAlignment="Left" VerticalAlignment="Center" />
+                                        <TextBlock Grid.Column="6" Text="行数" Style="{DynamicResource CaptionTextStyle}" HorizontalAlignment="Right" VerticalAlignment="Center" />
                                     </Grid>
 
                                     <ListBox Grid.Row="1"
@@ -317,21 +320,24 @@
                                                     <Grid>
                                                         <Grid.ColumnDefinitions>
                                                             <ColumnDefinition Width="Auto" SharedSizeGroup="PgTblChk" />
+                                                            <ColumnDefinition Width="12" />
                                                             <ColumnDefinition Width="Auto" SharedSizeGroup="PgTblSchema" />
+                                                            <ColumnDefinition Width="12" />
                                                             <ColumnDefinition Width="Auto" SharedSizeGroup="PgTblName" />
+                                                            <ColumnDefinition Width="12" />
                                                             <ColumnDefinition Width="Auto" SharedSizeGroup="PgTblRows" />
                                                         </Grid.ColumnDefinitions>
                                                         <CheckBox Grid.Column="0" IsChecked="{Binding IsSelected}" VerticalAlignment="Center" HorizontalAlignment="Center" />
-                                                        <TextBlock Grid.Column="1" Text="{Binding SchemaName}" VerticalAlignment="Center" HorizontalAlignment="Center" Style="{DynamicResource CaptionTextStyle}" TextTrimming="CharacterEllipsis" />
-                                                        <TextBlock Grid.Column="2"
+                                                        <TextBlock Grid.Column="2" Text="{Binding SchemaName}" VerticalAlignment="Center" HorizontalAlignment="Center" Style="{DynamicResource CaptionTextStyle}" TextTrimming="CharacterEllipsis" />
+                                                        <TextBlock Grid.Column="4"
                                                                    Text="{Binding TableName}"
                                                                    VerticalAlignment="Center"
                                                                    HorizontalAlignment="Left"
-                                                                   Margin="8,0,0,0"
+                                                                   Margin="0"
                                                                    MaxWidth="520"
                                                                    Style="{DynamicResource BodyTextStyle}"
                                                                    TextTrimming="CharacterEllipsis" />
-                                                        <TextBlock Grid.Column="3" Text="{Binding RowCount, StringFormat='{}{0:N0} 行'}" VerticalAlignment="Center" HorizontalAlignment="Right" Style="{DynamicResource CaptionTextStyle}" />
+                                                        <TextBlock Grid.Column="6" Text="{Binding RowCount, StringFormat='{}{0:N0} 行'}" VerticalAlignment="Center" HorizontalAlignment="Right" Style="{DynamicResource CaptionTextStyle}" />
                                                     </Grid>
                                                 </Border>
                                             </DataTemplate>
