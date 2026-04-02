@@ -546,6 +546,41 @@
         </Setter>
     </Style>
 
+    <!-- テーブル風 ListBox 行：インポート一覧など。選択行は SelectedBrush で全面ハイライト -->
+    <Style x:Key="AppFlatSelectableRowListBoxItemStyle" TargetType="ListBoxItem">
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="Margin" Value="0" />
+        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ListBoxItem">
+                    <Border x:Name="ItemBd"
+                            Background="Transparent"
+                            SnapsToDevicePixels="True">
+                        <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                          VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="ItemBd" Property="Background" Value="{DynamicResource ButtonHoverGradientBrush}" />
+                        </Trigger>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter TargetName="ItemBd" Property="Background" Value="{DynamicResource SelectedBrush}" />
+                        </Trigger>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsSelected" Value="True" />
+                                <Condition Property="Selector.IsSelectionActive" Value="False" />
+                            </MultiTrigger.Conditions>
+                            <Setter TargetName="ItemBd" Property="Background" Value="{DynamicResource NavBackgroundBrush}" />
+                        </MultiTrigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <Style x:Key="NavIconStyle" TargetType="TextBlock">
         <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}" />
         <Setter Property="HorizontalAlignment" Value="Left" />
@@ -892,7 +927,7 @@
         </Setter>
     </Style>
 
-    <!-- DataGrid：選択は下線のみで示し、行背景は変えない -->
+    <!-- DataGrid 行：ListBox テーブル一覧と同様、選択行は SelectedBrush で全面ハイライト -->
     <Style TargetType="DataGridRow" BasedOn="{StaticResource {x:Type DataGridRow}}">
         <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
         <Setter Property="TextElement.Foreground" Value="{DynamicResource PrimaryTextBrush}" />
@@ -900,21 +935,25 @@
         <Setter Property="BorderThickness" Value="0,0,0,1" />
         <Setter Property="BorderBrush" Value="{DynamicResource BorderSubtleBrush}" />
         <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="{DynamicResource ButtonHoverGradientBrush}" />
+            </Trigger>
             <Trigger Property="IsSelected" Value="True">
-                <Setter Property="BorderBrush" Value="{DynamicResource DataGridRowSelectedBorderBrush}" />
-                <Setter Property="BorderThickness" Value="0,0,0,1.5" />
-                <Setter Property="Foreground" Value="{DynamicResource DataGridRowSelectedTextBrush}" />
-                <Setter Property="TextElement.Foreground" Value="{DynamicResource DataGridRowSelectedTextBrush}" />
+                <Setter Property="Background" Value="{DynamicResource SelectedBrush}" />
+                <Setter Property="BorderBrush" Value="{DynamicResource BorderSubtleBrush}" />
+                <Setter Property="BorderThickness" Value="0,0,0,1" />
+                <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+                <Setter Property="TextElement.Foreground" Value="{DynamicResource PrimaryTextBrush}" />
             </Trigger>
             <MultiTrigger>
                 <MultiTrigger.Conditions>
                     <Condition Property="IsSelected" Value="True" />
                     <Condition Property="Selector.IsSelectionActive" Value="False" />
                 </MultiTrigger.Conditions>
-                <Setter Property="BorderBrush" Value="{DynamicResource DataGridRowSelectedBorderBrush}" />
-                <Setter Property="BorderThickness" Value="0,0,0,1.5" />
-                <Setter Property="Foreground" Value="{DynamicResource DataGridRowSelectedTextBrush}" />
-                <Setter Property="TextElement.Foreground" Value="{DynamicResource DataGridRowSelectedTextBrush}" />
+                <Setter Property="Background" Value="{DynamicResource NavBackgroundBrush}" />
+                <Setter Property="BorderBrush" Value="{DynamicResource BorderSubtleBrush}" />
+                <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+                <Setter Property="TextElement.Foreground" Value="{DynamicResource PrimaryTextBrush}" />
             </MultiTrigger>
         </Style.Triggers>
     </Style>
@@ -934,8 +973,8 @@
                 <Setter Property="Background" Value="Transparent" />
                 <Setter Property="BorderThickness" Value="0" />
                 <Setter Property="BorderBrush" Value="Transparent" />
-                <Setter Property="Foreground" Value="{DynamicResource DataGridRowSelectedTextBrush}" />
-                <Setter Property="TextElement.Foreground" Value="{DynamicResource DataGridRowSelectedTextBrush}" />
+                <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+                <Setter Property="TextElement.Foreground" Value="{DynamicResource PrimaryTextBrush}" />
             </Trigger>
             <MultiTrigger>
                 <MultiTrigger.Conditions>
@@ -945,8 +984,8 @@
                 <Setter Property="Background" Value="Transparent" />
                 <Setter Property="BorderThickness" Value="0" />
                 <Setter Property="BorderBrush" Value="Transparent" />
-                <Setter Property="Foreground" Value="{DynamicResource DataGridRowSelectedTextBrush}" />
-                <Setter Property="TextElement.Foreground" Value="{DynamicResource DataGridRowSelectedTextBrush}" />
+                <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+                <Setter Property="TextElement.Foreground" Value="{DynamicResource PrimaryTextBrush}" />
             </MultiTrigger>
         </Style.Triggers>
     </Style>
@@ -1103,6 +1142,70 @@
             </Setter.Value>
         </Setter>
     </Style>
+
+    <!-- アプリ全体の CheckBox：Indicator / 境界線はテーマ連動、本文は Body サイズ -->
+    <Style x:Key="AppCheckBoxStyle" TargetType="CheckBox">
+        <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}" />
+        <Setter Property="FontSize" Value="{StaticResource BodyFontSize}" />
+        <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="VerticalContentAlignment" Value="Center" />
+        <Setter Property="Cursor" Value="Hand" />
+        <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="CheckBox">
+                    <BulletDecorator Background="Transparent" SnapsToDevicePixels="True">
+                        <BulletDecorator.Bullet>
+                            <Grid Width="18" Height="18" UseLayoutRounding="True">
+                                <Border x:Name="CheckBoxBorder"
+                                        CornerRadius="{StaticResource SmallRadius}"
+                                        BorderBrush="{DynamicResource BorderSubtleBrush}"
+                                        BorderThickness="1.5"
+                                        Background="{DynamicResource ContentBackgroundBrush}" />
+                                <Path x:Name="CheckMark"
+                                      Visibility="Collapsed"
+                                      Data="M 3.2,9 L 7.2,13 L 14.5,4.2"
+                                      Stroke="{DynamicResource PrimaryButtonTextBrush}"
+                                      StrokeThickness="2"
+                                      StrokeStartLineCap="Round"
+                                      StrokeEndLineCap="Round"
+                                      StrokeLineJoin="Round"
+                                      SnapsToDevicePixels="True" />
+                            </Grid>
+                        </BulletDecorator.Bullet>
+                        <ContentPresenter Margin="10,0,0,0"
+                                          VerticalAlignment="Center"
+                                          RecognizesAccessKey="True" />
+                    </BulletDecorator>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsChecked" Value="True">
+                            <Setter TargetName="CheckBoxBorder" Property="Background" Value="{DynamicResource IndicatorBrush}" />
+                            <Setter TargetName="CheckBoxBorder" Property="BorderBrush" Value="{DynamicResource IndicatorBrush}" />
+                            <Setter TargetName="CheckMark" Property="Visibility" Value="Visible" />
+                        </Trigger>
+                        <Trigger Property="IsChecked" Value="{x:Null}">
+                            <Setter TargetName="CheckBoxBorder" Property="BorderBrush" Value="{DynamicResource IndicatorBrush}" />
+                            <Setter TargetName="CheckMark" Property="Visibility" Value="Collapsed" />
+                        </Trigger>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsMouseOver" Value="True" />
+                                <Condition Property="IsChecked" Value="False" />
+                            </MultiTrigger.Conditions>
+                            <Setter TargetName="CheckBoxBorder" Property="BorderBrush" Value="{DynamicResource HoverBrush}" />
+                            <Setter TargetName="CheckBoxBorder" Property="Background" Value="{DynamicResource NavBackgroundBrush}" />
+                        </MultiTrigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Opacity" Value="0.45" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="CheckBox" BasedOn="{StaticResource AppCheckBoxStyle}" />
 
     <!-- プラグイン等の UserControl は既定でコンテンツ領域の背景色を使用し、Transparent による下層の既定の白の透けを防ぐ -->
     <Style TargetType="UserControl">

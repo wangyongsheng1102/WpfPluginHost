@@ -244,15 +244,17 @@
                         </Grid>
                     </Border>
 
-                    <!-- テーブル一覧と操作 -->
+                    <!-- テーブル一覧と操作：左は内容幅に追従、右は残り幅 -->
                     <Grid Grid.Row="1">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="400" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" MinWidth="320" />
                         </Grid.ColumnDefinitions>
 
                         <!-- テーブル一覧 -->
                         <Border Grid.Column="0"
+                                HorizontalAlignment="Left"
+                                MinWidth="260"
                                 Background="{DynamicResource CardElevatedBrush}"
                                 CornerRadius="{StaticResource PanelRadius}"
                                 BorderBrush="{DynamicResource BorderSubtleBrush}"
@@ -276,29 +278,66 @@
 
                                 <TextBlock Grid.Row="2" Text="{Binding ImportExportViewModel.SelectedTableCount, StringFormat='選択中: {0} 件'}" Style="{DynamicResource CaptionTextStyle}" Margin="0,0,0,10" />
 
-                                <ListBox Grid.Row="3"
-                                         ItemsSource="{Binding ImportExportViewModel.Tables}"
-                                         Background="Transparent"
-                                         BorderThickness="0">
-                                    <ListBox.ItemTemplate>
-                                        <DataTemplate>
-                                            <Border BorderBrush="{DynamicResource BorderSubtleBrush}" BorderThickness="0,0,0,1" Padding="8">
-                                                <Grid>
-                                                    <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="40" />
-                                                        <ColumnDefinition Width="120" />
-                                                        <ColumnDefinition Width="*" />
-                                                        <ColumnDefinition Width="100" />
-                                                    </Grid.ColumnDefinitions>
-                                                    <CheckBox Grid.Column="0" IsChecked="{Binding IsSelected}" VerticalAlignment="Center" HorizontalAlignment="Center" />
-                                                    <TextBlock Grid.Column="1" Text="{Binding SchemaName}" VerticalAlignment="Center" HorizontalAlignment="Center" Style="{DynamicResource CaptionTextStyle}" />
-                                                    <TextBlock Grid.Column="2" Text="{Binding TableName}" VerticalAlignment="Center" HorizontalAlignment="Center" Style="{DynamicResource BodyTextStyle}" />
-                                                    <TextBlock Grid.Column="3" Text="{Binding RowCount, StringFormat='{}{0:N0} 行'}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,10,0" Style="{DynamicResource CaptionTextStyle}" />
-                                                </Grid>
-                                            </Border>
-                                        </DataTemplate>
-                                    </ListBox.ItemTemplate>
-                                </ListBox>
+                                <Grid Grid.Row="3" Grid.IsSharedSizeScope="True">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto" />
+                                        <RowDefinition Height="*" />
+                                    </Grid.RowDefinitions>
+
+                                    <!-- 列見出し（SharedSizeGroup で各行と列幅を共有） -->
+                                    <Grid Grid.Row="0" Margin="8,0,8,8">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" SharedSizeGroup="PgTblChk" />
+                                            <ColumnDefinition Width="Auto" SharedSizeGroup="PgTblSchema" />
+                                            <ColumnDefinition Width="Auto" SharedSizeGroup="PgTblName" />
+                                            <ColumnDefinition Width="Auto" SharedSizeGroup="PgTblRows" />
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="選択" Style="{DynamicResource CaptionTextStyle}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                        <TextBlock Grid.Column="1" Text="スキーマ" Style="{DynamicResource CaptionTextStyle}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                        <TextBlock Grid.Column="2" Text="テーブル" Style="{DynamicResource CaptionTextStyle}" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="8,0,0,0" />
+                                        <TextBlock Grid.Column="3" Text="行数" Style="{DynamicResource CaptionTextStyle}" HorizontalAlignment="Right" VerticalAlignment="Center" />
+                                    </Grid>
+
+                                    <ListBox Grid.Row="1"
+                                             ItemsSource="{Binding ImportExportViewModel.Tables}"
+                                             Background="Transparent"
+                                             BorderThickness="0"
+                                             HorizontalAlignment="Left"
+                                             HorizontalContentAlignment="Left"
+                                             ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                                             ScrollViewer.VerticalScrollBarVisibility="Auto">
+                                        <ListBox.ItemContainerStyle>
+                                            <Style TargetType="ListBoxItem" BasedOn="{StaticResource AppFlatSelectableRowListBoxItemStyle}">
+                                                <Setter Property="HorizontalContentAlignment" Value="Left" />
+                                            </Style>
+                                        </ListBox.ItemContainerStyle>
+                                        <ListBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <Border BorderBrush="{DynamicResource BorderSubtleBrush}" BorderThickness="0,0,0,1" Padding="8,6">
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="Auto" SharedSizeGroup="PgTblChk" />
+                                                            <ColumnDefinition Width="Auto" SharedSizeGroup="PgTblSchema" />
+                                                            <ColumnDefinition Width="Auto" SharedSizeGroup="PgTblName" />
+                                                            <ColumnDefinition Width="Auto" SharedSizeGroup="PgTblRows" />
+                                                        </Grid.ColumnDefinitions>
+                                                        <CheckBox Grid.Column="0" IsChecked="{Binding IsSelected}" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                                                        <TextBlock Grid.Column="1" Text="{Binding SchemaName}" VerticalAlignment="Center" HorizontalAlignment="Center" Style="{DynamicResource CaptionTextStyle}" TextTrimming="CharacterEllipsis" />
+                                                        <TextBlock Grid.Column="2"
+                                                                   Text="{Binding TableName}"
+                                                                   VerticalAlignment="Center"
+                                                                   HorizontalAlignment="Left"
+                                                                   Margin="8,0,0,0"
+                                                                   MaxWidth="520"
+                                                                   Style="{DynamicResource BodyTextStyle}"
+                                                                   TextTrimming="CharacterEllipsis" />
+                                                        <TextBlock Grid.Column="3" Text="{Binding RowCount, StringFormat='{}{0:N0} 行'}" VerticalAlignment="Center" HorizontalAlignment="Right" Style="{DynamicResource CaptionTextStyle}" />
+                                                    </Grid>
+                                                </Border>
+                                            </DataTemplate>
+                                        </ListBox.ItemTemplate>
+                                    </ListBox>
+                                </Grid>
                             </Grid>
                         </Border>
 
