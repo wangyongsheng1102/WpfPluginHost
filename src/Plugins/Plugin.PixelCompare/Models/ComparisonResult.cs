@@ -11,4 +11,6 @@ public sealed class ComparisonResult
     public string? DifferenceImagePath { get; init; }
     public string? MarkedImage1Path { get; init; }
     public string? MarkedImage2Path { get; init; }
+    public string? Image1Path { get; init; }
+    public string? Image2Path { get; init; }
 }

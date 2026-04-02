@@ -49,52 +49,63 @@ public sealed class ImageComparisonService
                     };
                 }
 
-                using var img1Gray = img1.Clone();
-                using var img2Gray = img2.Clone();
-                img1Gray.Mutate(x => x.Grayscale());
-                img2Gray.Mutate(x => x.Grayscale());
-
                 var width = img1.Width;
                 var height = img1.Height;
-                var totalPixels = width * height;
+                var totalPixels = (long)width * height;
                 var differentPixels = 0;
                 var diffMap = new bool[width, height];
+                var threshold = options.DiffThreshold;
 
-                for (var y = 0; y < height; y++)
+                img1.ProcessPixelRows(img2, (accessor1, accessor2) =>
                 {
-                    for (var x = 0; x < width; x++)
+                    for (var y = 0; y < height; y++)
                     {
-                        var diff = Math.Abs(img1Gray[x, y].R - img2Gray[x, y].R);
-                        if (diff > options.DiffThreshold)
+                        var row1 = accessor1.GetRowSpan(y);
+                        var row2 = accessor2.GetRowSpan(y);
+                        for (var x = 0; x < width; x++)
                         {
-                            differentPixels++;
-                            diffMap[x, y] = true;
+                            ref var p1 = ref row1[x];
+                            ref var p2 = ref row2[x];
+
+                            var diffR = Math.Abs(p1.R - p2.R);
+                            var diffG = Math.Abs(p1.G - p2.G);
+                            var diffB = Math.Abs(p1.B - p2.B);
+
+                            if (diffR > threshold || diffG > threshold || diffB > threshold)
+                            {
+                                differentPixels++;
+                                diffMap[x, y] = true;
+                            }
                         }
                     }
-                }
+                });
 
                 var expanded = _differenceRegionService.ExpandDiffMap(diffMap, width, height, options.ExpandPixels);
                 var regions = _differenceRegionService.FindDifferenceRegions(expanded, width, height, options.MinRegionArea);
                 regions = _differenceRegionService.MergeNearbyRegions(regions, options.MergeDistance);
 
-                using var diffImage = img2.Clone();
-                diffImage.Mutate(_ =>
+                using var diffImage = new Image<Rgba32>(width, height);
+                diffImage.ProcessPixelRows(img1, img2, (accessorDiff, accessor1, accessor2) =>
                 {
                     for (var y = 0; y < height; y++)
                     {
+                        var rowDiff = accessorDiff.GetRowSpan(y);
+                        var row1 = accessor1.GetRowSpan(y);
+                        var row2 = accessor2.GetRowSpan(y);
                         for (var x = 0; x < width; x++)
                         {
                             if (!diffMap[x, y])
                             {
+                                rowDiff[x] = new Rgba32(0, 0, 0, 255); // 背景は黒
                                 continue;
                             }
 
-                            var p1 = img1[x, y];
-                            var p2 = img2[x, y];
-                            var r = Math.Min(255, Math.Abs(p1.R - p2.R) * 3);
-                            var g = Math.Min(255, Math.Abs(p1.G - p2.G) * 3);
-                            var b = Math.Min(255, Math.Abs(p1.B - p2.B) * 3);
-                            diffImage[x, y] = new Rgba32((byte)r, (byte)g, (byte)b, 255);
+                            var p1 = row1[x];
+                            var p2 = row2[x];
+                            var r = (byte)Math.Min(255, Math.Abs(p1.R - p2.R) * 3);
+                            var g = (byte)Math.Min(255, Math.Abs(p1.G - p2.G) * 3);
+                            var b = (byte)Math.Min(255, Math.Abs(p1.B - p2.B) * 3);
+                            rowDiff[x] = new Rgba32(r, g, b, 255);
                         }
                     }
                 });
@@ -124,7 +135,9 @@ public sealed class ImageComparisonService
                     SizeInfo = sizeInfo,
                     DifferenceImagePath = diffImagePath,
                     MarkedImage1Path = markedImage1Path,
-                    MarkedImage2Path = markedImage2Path
+                    MarkedImage2Path = markedImage2Path,
+                    Image1Path = image1Path,
+                    Image2Path = image2Path
                 };
             }
             catch (Exception ex)

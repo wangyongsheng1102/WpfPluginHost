@@ -26,6 +26,7 @@ public sealed class ExcelImageExtractorService
 
             foreach (var worksheet in package.Workbook.Worksheets)
             {
+                var drawings = IndexDrawings(worksheet);
                 var leftColumnIndex = GetColumnIndex(leftColumnName);
                 var rightColumnIndex = GetColumnIndex(rightColumnName);
                 var rowCount = GetActualLastRow(worksheet);
@@ -33,8 +34,8 @@ public sealed class ExcelImageExtractorService
                 var hasPair = false;
                 for (var row = 2; row <= rowCount; row++)
                 {
-                    var left = GetPictureAtCell(worksheet, row, leftColumnIndex);
-                    var right = GetPictureAtCell(worksheet, row, rightColumnIndex);
+                    var left = GetPictureAtCell(drawings, row, leftColumnIndex);
+                    var right = GetPictureAtCell(drawings, row, rightColumnIndex);
                     if (left != null && right != null)
                     {
                         hasPair = true;
@@ -71,12 +72,13 @@ public sealed class ExcelImageExtractorService
             var leftColumnIndex = GetColumnIndex(leftColumnName);
             var rightColumnIndex = GetColumnIndex(rightColumnName);
             var rowCount = GetActualLastRow(worksheet);
+            var drawings = IndexDrawings(worksheet);
             var list = new List<ExtractedImagePair>();
 
             for (var row = 2; row <= rowCount; row++)
             {
-                var left = GetPictureAtCell(worksheet, row, leftColumnIndex);
-                var right = GetPictureAtCell(worksheet, row, rightColumnIndex);
+                var left = GetPictureAtCell(drawings, row, leftColumnIndex);
+                var right = GetPictureAtCell(drawings, row, rightColumnIndex);
                 if (left is null || right is null)
                 {
                     continue;
@@ -97,19 +99,25 @@ public sealed class ExcelImageExtractorService
         });
     }
 
-    private static ExcelPicture? GetPictureAtCell(ExcelWorksheet worksheet, int rowIndex, int columnIndex)
+    private static Dictionary<(int row, int col), ExcelPicture> IndexDrawings(ExcelWorksheet worksheet)
     {
+        var index = new Dictionary<(int row, int col), ExcelPicture>();
         foreach (var drawing in worksheet.Drawings)
         {
-            if (drawing is ExcelPicture pic &&
-                pic.From.Row == rowIndex - 1 &&
-                pic.From.Column == columnIndex - 1)
+            if (drawing is ExcelPicture pic)
             {
-                return pic;
+                // pic.From は 0-indexed なので 1-indexed に合わせてキーにする
+                var row = pic.From.Row + 1;
+                var col = pic.From.Column + 1;
+                index.TryAdd((row, col), pic);
             }
         }
+        return index;
+    }
 
-        return null;
+    private static ExcelPicture? GetPictureAtCell(Dictionary<(int row, int col), ExcelPicture> drawings, int rowIndex, int columnIndex)
+    {
+        return drawings.TryGetValue((rowIndex, columnIndex), out var pic) ? pic : null;
     }
 
     private static string SavePictureToTempFile(ExcelPicture picture, int rowIndex, string suffix)

@@ -19,8 +19,14 @@ public partial class PixelCompareView : UserControl
     {
         InitializeComponent();
         DataContextChanged += OnDataContextChanged;
+        Unloaded += OnUnloaded;
         DataContext = new PixelCompareViewModel(context);
         AttachViewModel(DataContext as PixelCompareViewModel);
+    }
+
+    private void OnUnloaded(object sender, RoutedEventArgs e)
+    {
+        _viewModel?.Dispose();
     }
 
     private void OnDataContextChanged(object sender, DependencyPropertyChangedEventArgs e)

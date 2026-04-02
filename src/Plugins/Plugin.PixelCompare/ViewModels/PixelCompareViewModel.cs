@@ -14,13 +14,14 @@ using System.Windows.Threading;
 
 namespace Plugin.PixelCompare.ViewModels;
 
-public partial class PixelCompareViewModel : ObservableObject
+public partial class PixelCompareViewModel : ObservableObject, IDisposable
 {
     private readonly IPluginContext? _context;
     private readonly ExcelImageExtractorService _excelExtractorService = new();
     private readonly ImageComparisonService _imageComparisonService = new(new DifferenceRegionService(), new ImageAnnotationService());
     private readonly HtmlReportService _htmlReportService = new();
     private readonly CompareOptions _options = new();
+    private bool _isDisposed;
 
     public ObservableCollection<string> AvailableSheets { get; } = new();
     public ObservableCollection<string> AvailableColumns { get; } = new();
@@ -74,9 +75,17 @@ public partial class PixelCompareViewModel : ObservableObject
     public PixelCompareViewModel(IPluginContext? context)
     {
         _context = context;
+        // 常用範囲の列名をプリセット (A-Z, AA-ZZ)
         for (var c = 'A'; c <= 'Z'; c++)
         {
             AvailableColumns.Add(c.ToString());
+        }
+        for (var c1 = 'A'; c1 <= 'Z'; c1++)
+        {
+            for (var c2 = 'A'; c2 <= 'Z'; c2++)
+            {
+                AvailableColumns.Add($"{c1}{c2}");
+            }
         }
 
         CompareItems.CollectionChanged += OnCompareItemsCollectionChanged;
@@ -266,21 +275,45 @@ public partial class PixelCompareViewModel : ObservableObject
 
             var allResults = new List<(string SheetName, int RowIndex, ComparisonResult Result)>();
             var totalSheets = sheets.Count;
-            for (var i = 0; i < totalSheets; i++)
+            var sheetsProcessed = 0;
+
+            foreach (var sheet in sheets)
             {
-                var sheet = sheets[i];
-                var progress = totalSheets == 0 ? 0 : i * 100.0 / totalSheets;
-                _context?.ReportProgress($"レポート用比較中... {i + 1}/{totalSheets} ({sheet})", progress, true);
+                var currentSheetIdx = Interlocked.Increment(ref sheetsProcessed);
+                var progress = (double)(currentSheetIdx - 1) / totalSheets * 100.0;
+                _context?.ReportProgress($"レポート作成準備中 ({currentSheetIdx}/{totalSheets}): {sheet}", progress, true);
 
                 var pairs = await _excelExtractorService.ExtractPairsAsync(ExcelPath, sheet, LeftColumnName, RightColumnName);
-                foreach (var pair in pairs.OrderBy(x => x.RowIndex))
+                if (pairs.Count == 0) continue;
+
+                var sheetResults = new List<(string SheetName, int RowIndex, ComparisonResult Result)>();
+                using var semaphore = new SemaphoreSlim(5);
+                var compareTasks = pairs.Select(async pair =>
                 {
-                    var result = await _imageComparisonService.CompareAsync(pair.Image1Path, pair.Image2Path, pair.RowIndex, _options);
-                    allResults.Add((sheet, pair.RowIndex, result));
+                    await semaphore.WaitAsync();
+                    try
+                    {
+                        var result = await _imageComparisonService.CompareAsync(pair.Image1Path, pair.Image2Path, pair.RowIndex, _options);
+                        lock (sheetResults)
+                        {
+                            sheetResults.Add((sheet, pair.RowIndex, result));
+                        }
+                    }
+                    finally
+                    {
+                        semaphore.Release();
+                    }
+                });
+
+                await Task.WhenAll(compareTasks);
+                lock (allResults)
+                {
+                    allResults.AddRange(sheetResults);
                 }
             }
 
-            await _htmlReportService.ExportAsync(dialog.FileName, ExcelPath, allResults);
+            _context?.ReportProgress("HTMLレポートを生成中...", 95, true);
+            await _htmlReportService.ExportAsync(dialog.FileName, ExcelPath, allResults.OrderBy(x => x.SheetName).ThenBy(x => x.RowIndex).ToList());
             CleanupCurrentTempFiles();
             CleanupReportTempFiles(allResults.Select(x => x.Result));
             _context?.ReportSuccess("レポートの出力が完了しました。");
@@ -405,7 +438,9 @@ public partial class PixelCompareViewModel : ObservableObject
             {
                 x.DifferenceImagePath,
                 x.MarkedImage1Path,
-                x.MarkedImage2Path
+                x.MarkedImage2Path,
+                x.Image1Path,
+                x.Image2Path
             })
             .Where(x => !string.IsNullOrWhiteSpace(x))
             .Distinct(StringComparer.OrdinalIgnoreCase)
@@ -425,5 +460,17 @@ public partial class PixelCompareViewModel : ObservableObject
                 // 一時ファイル削除失敗時もレポート出力結果は維持する。
             }
         }
+    }
+
+    public void Dispose()
+    {
+        if (_isDisposed)
+        {
+            return;
+        }
+
+        CleanupCurrentTempFiles();
+        _isDisposed = true;
+        GC.SuppressFinalize(this);
     }
 }
