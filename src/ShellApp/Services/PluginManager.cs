@@ -109,10 +109,19 @@ public sealed class PluginManager : IDisposable
             Directory.CreateDirectory(shadowDir);
 
             var sourceDir = Path.GetDirectoryName(sourceDll)!;
-            foreach (var file in Directory.GetFiles(sourceDir))
+            // lib/ や言語フォルダ（ja 等）も含め、プラグインフォルダ全体をコピーしないと
+            // AssemblyDependencyResolver が解決したパス先のファイルがシャドウに存在せず読み込みに失敗する。
+            foreach (var file in Directory.EnumerateFiles(sourceDir, "*", SearchOption.AllDirectories))
             {
-                var targetFile = Path.Combine(shadowDir, Path.GetFileName(file));
-                File.Copy(file, targetFile, overwrite: true);
+                var relative = Path.GetRelativePath(sourceDir, file);
+                var dest = Path.Combine(shadowDir, relative);
+                var destParent = Path.GetDirectoryName(dest);
+                if (!string.IsNullOrEmpty(destParent))
+                {
+                    Directory.CreateDirectory(destParent);
+                }
+
+                File.Copy(file, dest, overwrite: true);
             }
 
             var shadowDll = Path.Combine(shadowDir, Path.GetFileName(sourceDll));

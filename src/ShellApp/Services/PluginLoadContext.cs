@@ -37,6 +37,14 @@ public sealed class PluginLoadContext : AssemblyLoadContext
             var lib = Path.Combine(_pluginDirectory, "lib", assemblyName.Name + ".dll");
             if (File.Exists(lib))
                 return LoadFromAssemblyPath(lib);
+
+            // サテライト（言語リソース）: ja\PluginName.resources.dll など
+            if (!string.IsNullOrEmpty(assemblyName.CultureName))
+            {
+                var satellite = Path.Combine(_pluginDirectory, assemblyName.CultureName, assemblyName.Name + ".dll");
+                if (File.Exists(satellite))
+                    return LoadFromAssemblyPath(satellite);
+            }
         }
 
         return null;
