@@ -67,7 +67,7 @@ public partial class MainWindowViewModel : ObservableObject
     [ObservableProperty]
     private bool isDarkTheme;
 
-    public double MenuWidth => IsMenuCollapsed ? 84 : 260;
+    public double MenuWidth => IsMenuCollapsed ? Plugin.Abstractions.ThemeDimensions.NavCollapsedWidth : Plugin.Abstractions.ThemeDimensions.NavExpandedWidth;
 
     public string PluginCountText => $"プラグイン数: {MenuItems.Count}";
 
