@@ -23,7 +23,7 @@ public partial class AuthorWindowViewModel : ObservableObject
 
     public string ProductName => "WPF Plugin Shell";
 
-    public string VersionDisplay => "Version 1.0.0";
+    public string VersionDisplay => "Version 1.3.0";
 
     public string ProfileGlyph => "👤";
 
@@ -45,28 +45,46 @@ public partial class AuthorWindowViewModel : ObservableObject
 
     private static IEnumerable<ReleaseNoteItem> BuildReleaseNotes()
     {
-        // yield return new ReleaseNoteItem
-        // {
-        //     VersionTitle = "v1.2.0 - プレシジョン・アップデート",
-        //     DateLabel = "2026/03",
-        //     IsHighlight = true,
-        //     Notes =
-        //         "• Windows 11 Fluent Design（アクリル背景・角丸・シャドウ）を全体設計に導入\n" +
-        //         "• SampleA: ドラッグ＆ドロップ対応のバッチ処理キューシステムへ完全にアップグレード\n" +
-        //         "• SampleA: 操作性を向上させる独立ステータスバーを実装\n" +
-        //         "• SampleA: 「外部リンクの自動切断」安全機能を追加\n" +
-        //         "• ダーク／ライトモードのシームレスなホットリロードを最適化"
-        // };
-        // yield return new ReleaseNoteItem
-        // {
-        //     VersionTitle = "v1.1.0 - アーキテクチャ強化",
-        //     DateLabel = "2026/02",
-        //     IsHighlight = false,
-        //     Notes =
-        //         "• プラグインのダイナミック・ホットリロード機構（再起動不要）を実装\n" +
-        //         "• 共有依存関係（Excel COM等）のアセンブリ分離と安定性向上\n" +
-        //         "• MVVMアーキテクチャの標準化とCommunityToolkitの導入"
-        // };
+        yield return new ReleaseNoteItem
+        {
+            VersionTitle = "v1.3.0 - UI 統一管理 & テーマ基盤強化",
+            DateLabel = "2026/04",
+            IsHighlight = true,
+            Notes =
+                "• ThemeDimensions を 100+ 定数に拡張し、UI 数値の一元管理を実現\n" +
+                "• フォント・ウィンドウサイズ・ナビ幅・アイコンサイズ・余白・角丸・影・透過度・アニメーション時間をすべて定数化\n" +
+                "• MainWindow / AuthorWindow / HomeView のハードコード値を x:Static 参照に統一\n" +
+                "• WPF の GridLength / CornerRadius / Thickness 型制約に対応した設計ガイドラインを確立"
+        };
+        yield return new ReleaseNoteItem
+        {
+            VersionTitle = "v1.2.0 - ナビゲーションメニュー・アニメーション改善",
+            DateLabel = "2026/04",
+            IsHighlight = false,
+            Notes =
+                "• 左メニューの展開・収縮アニメーションを全面刷新（QuarticEase → CubicEase EaseOut）\n" +
+                "• 不要な横シフト・透明度フラッシュアニメーションを除去\n" +
+                "• メニュー項目テキストのフェード・イン/アウトにイージングと遅延を追加\n" +
+                "• 下部パネル（リロード・テーマ切替・プラグイン数）の展開時の跳動を解消\n" +
+                "• NavPanel に ClipToBounds を追加し、幅アニメーション中のオーバーフローを防止\n" +
+                "• プラグイン数テキストの折り返しによるレイアウト突変を解消（NoWrap + Ellipsis）"
+        };
+        yield return new ReleaseNoteItem
+        {
+            VersionTitle = "v1.1.0 - パフォーマンス最適化",
+            DateLabel = "2026/04",
+            IsHighlight = false,
+            Notes =
+                "• PixelCompare: 2パス画像走査を1パスに統合、差分検出と可視化を同時実行\n" +
+                "• PixelCompare: diffMap を 2D bool[,] から 1D byte[] に変更（キャッシュ効率向上）\n" +
+                "• PixelCompare: ExpandDiffMap を可分離ボックスフィルタ化（O(N×expand²) → O(N)）\n" +
+                "• PixelCompare: BFS を線形インデックス化し、タプル割当を排除\n" +
+                "• PixelCompare: Clone() 廃止・PNG BestSpeed 圧縮・3画像並列保存\n" +
+                "• PostgreCompare: CSV 事前スキャン廃止（行数を読込中にカウント）\n" +
+                "• PostgreCompare: SHA256 → System.HashCode（非暗号用途で約10倍高速化）\n" +
+                "• PostgreCompare: 辞書型主キー → 文字列複合キー（O(n log n) → O(k) ハッシュ）\n" +
+                "• PostgreCompare: DB インポート/エクスポートを Raw Binary Copy + 64KB バッファに変更"
+        };
         yield return new ReleaseNoteItem
         {
             VersionTitle = "v1.0.0 - 初期リリース",
