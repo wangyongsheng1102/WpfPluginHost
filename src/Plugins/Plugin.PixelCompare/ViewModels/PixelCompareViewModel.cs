@@ -216,20 +216,32 @@ public partial class PixelCompareViewModel : ObservableObject, IDisposable
             ExportReportCommand.NotifyCanExecuteChanged();
 
             _context?.ReportProgress("画像を抽出中です...", 5, true);
-            var pairs = await _excelExtractorService.ExtractPairsAsync(ExcelPath, SelectedSheet, LeftColumnName, RightColumnName);
-            if (pairs.Count == 0)
+            IReadOnlyList<PixelCompareRowExtract> extracts;
+            try
+            {
+                extracts = await _excelExtractorService.ExtractRowsAsync(ExcelPath, SelectedSheet, LeftColumnName, RightColumnName);
+            }
+            catch (ArgumentException ex)
+            {
+                _context?.ReportWarning(ex.Message);
+                return;
+            }
+
+            if (extracts.Count == 0)
             {
                 _context?.ReportWarning("このシートには比較対象データがありません。");
                 return;
             }
 
-            foreach (var pair in pairs.OrderBy(x => x.RowIndex))
+            foreach (var ext in extracts.OrderBy(x => x.RowIndex))
             {
                 CompareItems.Add(new CompareRowItem
                 {
-                    RowIndex = pair.RowIndex,
-                    Image1Path = pair.Image1Path,
-                    Image2Path = pair.Image2Path
+                    RowIndex = ext.RowIndex,
+                    Image1Path = ext.Image1Path,
+                    Image2Path = ext.Image2Path,
+                    IsRowValidationError = !ext.IsPixelComparable,
+                    RowValidationMessageJa = ext.ValidationMessageJa
                 });
             }
 
@@ -283,20 +295,38 @@ public partial class PixelCompareViewModel : ObservableObject, IDisposable
                 var progress = (double)(currentSheetIdx - 1) / totalSheets * 100.0;
                 _context?.ReportProgress($"レポート作成準備中 ({currentSheetIdx}/{totalSheets}): {sheet}", progress, true);
 
-                var pairs = await _excelExtractorService.ExtractPairsAsync(ExcelPath, sheet, LeftColumnName, RightColumnName);
-                if (pairs.Count == 0) continue;
+                IReadOnlyList<PixelCompareRowExtract> extracts;
+                try
+                {
+                    extracts = await _excelExtractorService.ExtractRowsAsync(ExcelPath, sheet, LeftColumnName, RightColumnName);
+                }
+                catch (ArgumentException)
+                {
+                    continue;
+                }
+
+                if (extracts.Count == 0) continue;
 
                 var sheetResults = new List<(string SheetName, int RowIndex, ComparisonResult Result)>();
                 using var semaphore = new SemaphoreSlim(5);
-                var compareTasks = pairs.Select(async pair =>
+                var compareTasks = extracts.Select(async ext =>
                 {
                     await semaphore.WaitAsync();
                     try
                     {
-                        var result = await _imageComparisonService.CompareAsync(pair.Image1Path, pair.Image2Path, pair.RowIndex, _options);
+                        ComparisonResult result;
+                        if (ext.IsPixelComparable)
+                        {
+                            result = await _imageComparisonService.CompareAsync(ext.Image1Path, ext.Image2Path, ext.RowIndex, _options);
+                        }
+                        else
+                        {
+                            result = BuildRowValidationComparisonResult(ext);
+                        }
+
                         lock (sheetResults)
                         {
-                            sheetResults.Add((sheet, pair.RowIndex, result));
+                            sheetResults.Add((sheet, ext.RowIndex, result));
                         }
                     }
                     finally
@@ -330,6 +360,19 @@ public partial class PixelCompareViewModel : ObservableObject, IDisposable
 
     private bool CanExportReport() => !IsProcessing && CompareItems.Any(x => x.IsComparisonLoaded);
 
+    private static ComparisonResult BuildRowValidationComparisonResult(PixelCompareRowExtract ext)
+    {
+        return new ComparisonResult
+        {
+            IsRowValidationError = true,
+            RowValidationMessageJa = ext.ValidationMessageJa ?? string.Empty,
+            Image1Path = ext.Image1Path,
+            Image2Path = ext.Image2Path,
+            MarkedImage1Path = string.IsNullOrWhiteSpace(ext.Image1Path) ? null : ext.Image1Path,
+            MarkedImage2Path = string.IsNullOrWhiteSpace(ext.Image2Path) ? null : ext.Image2Path
+        };
+    }
+
     private async Task RunComparisonForItemsAsync(IEnumerable<CompareRowItem> items)
     {
         var itemList = items.ToList();
@@ -342,20 +385,39 @@ public partial class PixelCompareViewModel : ObservableObject, IDisposable
             try
             {
                 await RunOnUiAsync(() => item.IsLoading = true);
-                var result = await _imageComparisonService.CompareAsync(item.Image1Path, item.Image2Path, item.RowIndex, _options);
-                await RunOnUiAsync(() =>
+                if (item.IsRowValidationError)
                 {
-                    item.IsLoading = false;
-                    item.IsComparisonLoaded = true;
-                    item.DiffCount = result.DiffCount;
-                    item.DifferencePercentage = result.DifferencePercentage;
-                    item.IsSizeMismatch = result.IsSizeMismatch;
-                    item.SizeInfo = result.SizeInfo;
-                    item.ErrorMessage = result.HasError ? result.ErrorMessage : null;
-                    item.DifferenceImagePath = result.DifferenceImagePath;
-                    item.MarkedImage1Path = result.MarkedImage1Path;
-                    item.MarkedImage2Path = result.MarkedImage2Path;
-                });
+                    await RunOnUiAsync(() =>
+                    {
+                        item.IsLoading = false;
+                        item.IsComparisonLoaded = true;
+                        item.DiffCount = 0;
+                        item.DifferencePercentage = 0;
+                        item.IsSizeMismatch = false;
+                        item.SizeInfo = string.Empty;
+                        item.ErrorMessage = null;
+                        item.DifferenceImagePath = null;
+                        item.MarkedImage1Path = string.IsNullOrWhiteSpace(item.Image1Path) ? null : item.Image1Path;
+                        item.MarkedImage2Path = string.IsNullOrWhiteSpace(item.Image2Path) ? null : item.Image2Path;
+                    });
+                }
+                else
+                {
+                    var result = await _imageComparisonService.CompareAsync(item.Image1Path, item.Image2Path, item.RowIndex, _options);
+                    await RunOnUiAsync(() =>
+                    {
+                        item.IsLoading = false;
+                        item.IsComparisonLoaded = true;
+                        item.DiffCount = result.DiffCount;
+                        item.DifferencePercentage = result.DifferencePercentage;
+                        item.IsSizeMismatch = result.IsSizeMismatch;
+                        item.SizeInfo = result.SizeInfo;
+                        item.ErrorMessage = result.HasError ? result.ErrorMessage : null;
+                        item.DifferenceImagePath = result.DifferenceImagePath;
+                        item.MarkedImage1Path = result.MarkedImage1Path;
+                        item.MarkedImage2Path = result.MarkedImage2Path;
+                    });
+                }
             }
             finally
             {

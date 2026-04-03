@@ -56,7 +56,7 @@ public sealed class HtmlReportService
             var rowIndex = entry.RowIndex;
             var sheetName = entry.SheetName;
             var result = entry.Result;
-            var diffCountText = result.IsSizeMismatch ? "∞" : result.HasError ? "-" : result.DiffCount.ToString();
+            var diffCountText = result.IsSizeMismatch || result.IsRowValidationError ? "∞" : result.HasError ? "-" : result.DiffCount.ToString();
             html.AppendLine($"<li><a href=\"#{anchorId}\">{EscapeHtml(sheetName)} / {rowIndex} 行目（差異数: {diffCountText}）</a></li>");
         }
         html.AppendLine("</ul></div>");
@@ -69,7 +69,13 @@ public sealed class HtmlReportService
             var result = entry.Result;
             html.AppendLine($"<div class=\"section\" id=\"{anchorId}\"><h3>{EscapeHtml(sheetName)} / {rowIndex} 行目</h3>");
 
-            if (result.IsSizeMismatch)
+            if (result.IsRowValidationError)
+            {
+                html.AppendLine($"<div class=\"err\">差異数: ∞ / 差異率: {EscapeHtml(result.RowValidationMessageJa)}</div>");
+                AppendImageIfExists(html, result.MarkedImage1Path, "左画像");
+                AppendImageIfExists(html, result.MarkedImage2Path, "右画像");
+            }
+            else if (result.IsSizeMismatch)
             {
                 html.AppendLine($"<div class=\"warn\">サイズが一致しません: {result.SizeInfo}</div>");
             }

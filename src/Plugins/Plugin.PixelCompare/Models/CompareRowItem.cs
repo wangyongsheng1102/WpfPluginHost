@@ -22,8 +22,16 @@ public partial class CompareRowItem : ObservableObject
     private double _differencePercentage;
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(DifferencePercentageText), nameof(DiffCountDisplay), nameof(HasNonZeroDiffCount))]
+    [NotifyPropertyChangedFor(nameof(DifferencePercentageText), nameof(DiffCountDisplay), nameof(HasNonZeroDiffCount), nameof(HasInfinityStyleDiffCount))]
     private bool _isSizeMismatch;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(DifferencePercentageText), nameof(DiffCountDisplay), nameof(HasNonZeroDiffCount), nameof(HasInfinityStyleDiffCount))]
+    private bool _isRowValidationError;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(DifferencePercentageText))]
+    private string? _rowValidationMessageJa;
 
     [ObservableProperty]
     private string _sizeInfo = string.Empty;
@@ -46,13 +54,18 @@ public partial class CompareRowItem : ObservableObject
     private bool _isLoading;
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(StatusText))]
+    [NotifyPropertyChangedFor(nameof(StatusText), nameof(DifferencePercentageText))]
     private string? _errorMessage;
 
     public string DifferencePercentageText
     {
         get
         {
+            if (IsRowValidationError && !string.IsNullOrWhiteSpace(RowValidationMessageJa))
+            {
+                return RowValidationMessageJa;
+            }
+
             if (IsSizeMismatch)
             {
                 return "サイズ不一致";
@@ -85,9 +98,12 @@ public partial class CompareRowItem : ObservableObject
         }
     }
 
-    /// <summary>サイズ不一致時は一覧上で差異数を ∞（深紅）で示す。</summary>
-    public string DiffCountDisplay => IsSizeMismatch ? "\u221E" : DiffCount.ToString();
+    /// <summary>サイズ不一致・行検証エラー時は一覧上で差異数を ∞（深紅）で示す。</summary>
+    public string DiffCountDisplay => HasInfinityStyleDiffCount ? "\u221E" : DiffCount.ToString();
 
-    /// <summary>ピクセル差異数が 0 より大きい（サイズ不一致は除く）。</summary>
-    public bool HasNonZeroDiffCount => !IsSizeMismatch && DiffCount > 0;
+    /// <summary>∞ 表示と同じスタイル（深紅・強調）を当てる。</summary>
+    public bool HasInfinityStyleDiffCount => IsSizeMismatch || IsRowValidationError;
+
+    /// <summary>ピクセル差異数が 0 より大きい（サイズ不一致・行検証エラーは除く）。</summary>
+    public bool HasNonZeroDiffCount => !IsSizeMismatch && !IsRowValidationError && DiffCount > 0;
 }

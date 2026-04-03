@@ -231,7 +231,7 @@
                                                     <TextBlock.Style>
                                                         <Style TargetType="TextBlock" BasedOn="{StaticResource PcDiffCountTextStyle}">
                                                             <Style.Triggers>
-                                                                <DataTrigger Binding="{Binding IsSizeMismatch}" Value="True">
+                                                                <DataTrigger Binding="{Binding HasInfinityStyleDiffCount}" Value="True">
                                                                     <Setter Property="Foreground" Value="{StaticResource PixelCompareInfinityForegroundBrush}" />
                                                                     <Setter Property="FontSize" Value="{x:Static abstractions:ThemeDimensions.SubtitleFontSize}" />
                                                                     <Setter Property="FontWeight" Value="SemiBold" />
