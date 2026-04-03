@@ -8,16 +8,16 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
         Title="WPF プラグインシェル"
-        Height="900"
-        Width="1250"
-        MinHeight="700"
-        MinWidth="950"
+        Height="{x:Static abstractions:ThemeDimensions.MainWindowHeight}"
+        Width="{x:Static abstractions:ThemeDimensions.MainWindowWidth}"
+        MinHeight="{x:Static abstractions:ThemeDimensions.MainWindowMinHeight}"
+        MinWidth="{x:Static abstractions:ThemeDimensions.MainWindowMinWidth}"
         AllowsTransparency="False"
         WindowStyle="SingleBorderWindow"
         WindowStartupLocation="CenterScreen"
         Background="{DynamicResource ShellBackgroundBrush}">
     <WindowChrome.WindowChrome>
-        <WindowChrome GlassFrameThickness="0,0,0,1" CornerRadius="0" CaptionHeight="52" ResizeBorderThickness="8" UseAeroCaptionButtons="False" />
+        <WindowChrome GlassFrameThickness="0,0,0,1" CornerRadius="0" CaptionHeight="{x:Static abstractions:ThemeDimensions.CaptionBarHeight}" ResizeBorderThickness="8" UseAeroCaptionButtons="False" />
     </WindowChrome.WindowChrome>
 
     <Window.Resources>
@@ -34,7 +34,7 @@
 
             <Grid x:Name="NavPanel"
                   HorizontalAlignment="Left"
-                  Width="260"
+                  Width="{x:Static abstractions:ThemeDimensions.NavExpandedWidth}"
                   ClipToBounds="True">
                 <Border Background="{DynamicResource NavBackgroundBrush}"
                         CornerRadius="8,0,0,8" />
@@ -48,8 +48,8 @@
                     </Grid.RowDefinitions>
 
                     <Button Margin="10,14,10,4"
-                            Width="40"
-                            Height="40"
+                            Width="{x:Static abstractions:ThemeDimensions.IconButtonSize}"
+                            Height="{x:Static abstractions:ThemeDimensions.IconButtonSize}"
                             HorizontalAlignment="Center"
                             Command="{Binding ToggleMenuCommand}"
                             WindowChrome.IsHitTestVisibleInChrome="True"
@@ -106,17 +106,16 @@
                                 </BeginStoryboard>
                             </EventTrigger>
                         </Button.Triggers>
-                        <!-- 矢量三横（フォント glyph 依存を排除） -->
-                        <Grid Width="22"
-                              Height="22">
+                        <Grid Width="{x:Static abstractions:ThemeDimensions.HamburgerGridSize}"
+                              Height="{x:Static abstractions:ThemeDimensions.HamburgerGridSize}">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="1*" />
                                 <RowDefinition Height="1*" />
                                 <RowDefinition Height="1*" />
                             </Grid.RowDefinitions>
                             <Rectangle Grid.Row="0"
-                                       Width="16"
-                                       Height="2"
+                                       Width="{x:Static abstractions:ThemeDimensions.HamburgerBarWidth}"
+                                       Height="{x:Static abstractions:ThemeDimensions.HamburgerBarHeight}"
                                        RadiusX="1"
                                        RadiusY="1"
                                        Fill="{DynamicResource PrimaryTextBrush}"
@@ -127,8 +126,8 @@
                                 </Rectangle.RenderTransform>
                             </Rectangle>
                             <Rectangle Grid.Row="1"
-                                       Width="16"
-                                       Height="2"
+                                       Width="{x:Static abstractions:ThemeDimensions.HamburgerBarWidth}"
+                                       Height="{x:Static abstractions:ThemeDimensions.HamburgerBarHeight}"
                                        RadiusX="1"
                                        RadiusY="1"
                                        Fill="{DynamicResource PrimaryTextBrush}"
@@ -139,8 +138,8 @@
                                 </Rectangle.RenderTransform>
                             </Rectangle>
                             <Rectangle Grid.Row="2"
-                                       Width="16"
-                                       Height="2"
+                                       Width="{x:Static abstractions:ThemeDimensions.HamburgerBarWidth}"
+                                       Height="{x:Static abstractions:ThemeDimensions.HamburgerBarHeight}"
                                        RadiusX="1"
                                        RadiusY="1"
                                        Fill="{DynamicResource PrimaryTextBrush}"
@@ -155,7 +154,7 @@
 
                     <Button Grid.Row="1"
                             Margin="10,0,10,8"
-                            Height="40"
+                            Height="{x:Static abstractions:ThemeDimensions.IconButtonSize}"
                             HorizontalAlignment="Stretch"
                             Padding="10,8"
                             ToolTip="ホーム"
@@ -172,8 +171,8 @@
                         <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
                             <Image x:Name="HomeIcon"
                                    Source="/Assets/Images/icons8-eclipse-50.png"
-                                   Width="32"
-                                   Height="32"
+                                   Width="{x:Static abstractions:ThemeDimensions.HomeIconSize}"
+                                   Height="{x:Static abstractions:ThemeDimensions.HomeIconSize}"
                                    Stretch="Uniform"
                                    HorizontalAlignment="Center"
                                    VerticalAlignment="Center"
@@ -279,8 +278,8 @@
                                 Orientation="Vertical"
                                 HorizontalAlignment="Stretch"
                                 VerticalAlignment="Bottom">
-                        <Button Width="40"
-                                Height="40"
+                        <Button Width="{x:Static abstractions:ThemeDimensions.IconButtonSize}"
+                                Height="{x:Static abstractions:ThemeDimensions.IconButtonSize}"
                                 HorizontalAlignment="Center"
                                 Style="{StaticResource ThemeIconActionButtonStyle}"
                                 Command="{Binding ReloadPluginsCommand}"
@@ -311,27 +310,26 @@
                                 </EventTrigger>
                             </Button.Triggers>
 
-                            <Grid Width="22"
-                                  Height="22"
+                            <Grid Width="{x:Static abstractions:ThemeDimensions.IconViewboxSmall}"
+                                  Height="{x:Static abstractions:ThemeDimensions.IconViewboxSmall}"
                                   HorizontalAlignment="Center"
                                   VerticalAlignment="Center"
                                   ClipToBounds="True">
-                                <!-- 外枠は固定、双矢印のみ回転 -->
-                                <Canvas Width="24"
-                                        Height="24"
+                                <Canvas Width="{x:Static abstractions:ThemeDimensions.IconCanvasSize}"
+                                        Height="{x:Static abstractions:ThemeDimensions.IconCanvasSize}"
                                         HorizontalAlignment="Center"
                                         VerticalAlignment="Center">
                                     <Path Data="{StaticResource RefreshFrameOutlineGeometry}"
                                           Stroke="{DynamicResource PrimaryTextBrush}"
-                                          StrokeThickness="1.5"
+                                          StrokeThickness="{x:Static abstractions:ThemeDimensions.StrokeThin}"
                                           StrokeStartLineCap="Round"
                                           StrokeEndLineCap="Round"
                                           StrokeLineJoin="Round"
                                           Fill="Transparent"
-                                          Opacity="0.5" />
+                                          Opacity="{x:Static abstractions:ThemeDimensions.OpacitySubtle}" />
                                 </Canvas>
-                                <Canvas Width="24"
-                                        Height="24"
+                                <Canvas Width="{x:Static abstractions:ThemeDimensions.IconCanvasSize}"
+                                        Height="{x:Static abstractions:ThemeDimensions.IconCanvasSize}"
                                         HorizontalAlignment="Center"
                                         VerticalAlignment="Center">
                                     <Canvas.RenderTransform>
@@ -355,7 +353,7 @@
 
                         <TextBlock Margin="0,12,0,0"
                                    HorizontalAlignment="Center"
-                                   MaxWidth="248"
+                                   MaxWidth="{x:Static abstractions:ThemeDimensions.PluginCountMaxWidth}"
                                    Text="{Binding PluginCountNavDisplay}"
                                    ToolTip="{Binding PluginCountText}"
                                    TextAlignment="Center"
@@ -368,19 +366,16 @@
 
             <Grid Grid.Column="1">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="52" />
+                    <RowDefinition Height="{x:Static abstractions:ThemeDimensions.CaptionBarHeight}" />
                     <RowDefinition Height="*" />
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
-                <!-- タイトルバー領域 -->
                 <Border Grid.Row="0"
                         Background="Transparent" />
-                <!-- 上マージン：閉じるボタン・タイトルバーと子ページの間を空ける -->
                 <Border Grid.Row="1"
                         Margin="0,7,6,3"
                         Background="{DynamicResource ContentBackgroundBrush}"
-                        CornerRadius="8">
-                    <!-- 背景を明示：未設定時のシステム既定の明色が透けるのを防ぐ（ダーク時の子ページの白浮き対策） -->
+                        CornerRadius="{x:Static abstractions:ThemeDimensions.RadiusMedium}">
                     <ContentControl Margin="4"
                                     Background="{DynamicResource ContentBackgroundBrush}"
                                     Content="{Binding CurrentView}" />
@@ -389,9 +384,9 @@
                 <!-- Global Status Bar -->
                 <Border Grid.Row="2"
                         Margin="0,0,12,12"
-                        Height="48"
+                        Height="{x:Static abstractions:ThemeDimensions.StatusBarHeight}"
                         Background="{DynamicResource NavBackgroundBrush}"
-                        CornerRadius="10"
+                        CornerRadius="{x:Static abstractions:ThemeDimensions.RadiusLarge}"
                         BorderBrush="{DynamicResource BorderSubtleBrush}"
                         BorderThickness="1">
                     <Grid>
@@ -428,7 +423,7 @@
                                                 <BeginStoryboard>
                                                     <Storyboard RepeatBehavior="Forever" AutoReverse="True">
                                                         <DoubleAnimation Storyboard.TargetProperty="Opacity"
-                                                                         From="0.85"
+                                                                         From="{x:Static abstractions:ThemeDimensions.OpacityHover}"
                                                                          To="1"
                                                                          Duration="0:0:0.8" />
                                                     </Storyboard>
@@ -442,7 +437,7 @@
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="150" />
+                                    <ColumnDefinition Width="{x:Static abstractions:ThemeDimensions.ProgressBarAreaWidth}" />
                                 </Grid.ColumnDefinitions>
 
                                 <Border Grid.ColumnSpan="2"
@@ -506,7 +501,7 @@
 
                                 <ProgressBar Grid.Column="1"
                                              VerticalAlignment="Center"
-                                             Height="4"
+                                             Height="{x:Static abstractions:ThemeDimensions.ProgressBarHeight}"
                                              Value="{Binding GlobalStatus.ProgressValue}"
                                              IsIndeterminate="{Binding GlobalStatus.IsIndeterminate}"
                                              Minimum="0"

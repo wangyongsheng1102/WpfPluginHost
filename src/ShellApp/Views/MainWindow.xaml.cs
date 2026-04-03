@@ -1,14 +1,15 @@
 using System.Windows;
 using System.Windows.Media.Animation;
 using System.ComponentModel;
+using Plugin.Abstractions;
 using ShellApp.ViewModels;
 
 namespace ShellApp.Views;
 
 public partial class MainWindow : Window
 {
-    private const double ExpandedMenuWidth = 260;
-    private const double CollapsedMenuWidth = 84;
+    private const double ExpandedMenuWidth = ThemeDimensions.NavExpandedWidth;
+    private const double CollapsedMenuWidth = ThemeDimensions.NavCollapsedWidth;
 
     public MainWindow()
     {
@@ -67,7 +68,7 @@ public partial class MainWindow : Window
         var widthAnimation = new DoubleAnimation
         {
             To = targetWidth,
-            Duration = TimeSpan.FromMilliseconds(250),
+            Duration = TimeSpan.FromMilliseconds(ThemeDimensions.AnimMenuExpandMs),
             EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
         };
         Timeline.SetDesiredFrameRate(widthAnimation, 120);

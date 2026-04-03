@@ -23,8 +23,8 @@
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <Button Width="300"
-                                MinHeight="168"
+                        <Button Width="{x:Static abstractions:ThemeDimensions.PluginCardWidth}"
+                                MinHeight="{x:Static abstractions:ThemeDimensions.PluginCardMinHeight}"
                                 Margin="0,0,16,16"
                                 Padding="0"
                                 HorizontalContentAlignment="Stretch"
@@ -42,8 +42,8 @@
                                         <RowDefinition Height="*" />
                                     </Grid.RowDefinitions>
                                     <Grid Grid.Row="0" Margin="0,0,0,12">
-                                        <Image Width="100"
-                                               Height="100"
+                                        <Image Width="{x:Static abstractions:ThemeDimensions.PluginCardIconSize}"
+                                               Height="{x:Static abstractions:ThemeDimensions.PluginCardIconSize}"
                                                HorizontalAlignment="Left"
                                                Stretch="Uniform"
                                                Source="{Binding IconImagePath}">
@@ -84,8 +84,8 @@
                                                Text="{Binding Description}"
                                                Style="{StaticResource CaptionTextStyle}"
                                                TextWrapping="Wrap"
-                                               LineHeight="20"
-                                               MaxHeight="80"
+                                               LineHeight="{x:Static abstractions:ThemeDimensions.LineHeightDefault}"
+                                               MaxHeight="{x:Static abstractions:ThemeDimensions.PluginCardDescMaxHeight}"
                                                TextTrimming="CharacterEllipsis" />
                                 </Grid>
                             </Border>

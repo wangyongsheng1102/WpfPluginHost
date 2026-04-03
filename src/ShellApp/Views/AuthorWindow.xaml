@@ -4,19 +4,19 @@
         xmlns:abstractions="clr-namespace:Plugin.Abstractions;assembly=Plugin.Abstractions"
         xmlns:svgc="http://sharpvectors.codeplex.com/svgc/"
         Title="{Binding WindowTitle}"
-        Height="620" Width="520"
-        MinHeight="620" MinWidth="520"
+        Height="{x:Static abstractions:ThemeDimensions.AuthorWindowHeight}" Width="{x:Static abstractions:ThemeDimensions.AuthorWindowWidth}"
+        MinHeight="{x:Static abstractions:ThemeDimensions.AuthorWindowHeight}" MinWidth="{x:Static abstractions:ThemeDimensions.AuthorWindowWidth}"
         WindowStartupLocation="CenterOwner"
         AllowsTransparency="False"
         WindowStyle="SingleBorderWindow"
         Background="{DynamicResource ShellBackgroundBrush}">
     <WindowChrome.WindowChrome>
-        <WindowChrome GlassFrameThickness="0,0,0,1" CornerRadius="0" CaptionHeight="52" ResizeBorderThickness="8" UseAeroCaptionButtons="False" />
+        <WindowChrome GlassFrameThickness="0,0,0,1" CornerRadius="0" CaptionHeight="{x:Static abstractions:ThemeDimensions.CaptionBarHeight}" ResizeBorderThickness="8" UseAeroCaptionButtons="False" />
     </WindowChrome.WindowChrome>
 
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="52" />
+            <RowDefinition Height="{x:Static abstractions:ThemeDimensions.CaptionBarHeight}" />
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
@@ -42,7 +42,7 @@
 
                         <StackPanel Orientation="Horizontal">
                             <svgc:SvgViewbox Source="/Assets/SVG/avatar-bad-breaking-svgrepo-com.svg"
-                                             Width="44" Height="44"
+                                             Width="{x:Static abstractions:ThemeDimensions.AuthorAvatarSize}" Height="{x:Static abstractions:ThemeDimensions.AuthorAvatarSize}"
                                              Stretch="Uniform"
                                              VerticalAlignment="Center"
                                              Margin="0,0,16,0" />
@@ -84,7 +84,7 @@
                                         <TextBlock Text="{Binding DateLabel}" Style="{StaticResource CaptionTextStyle}" HorizontalAlignment="Right" />
                                     </Grid>
                                     <TextBlock Text="{Binding Notes}"
-                                               Style="{StaticResource CaptionTextStyle}" Foreground="{DynamicResource PrimaryTextBrush}" LineHeight="22" TextWrapping="Wrap" />
+                                               Style="{StaticResource CaptionTextStyle}" Foreground="{DynamicResource PrimaryTextBrush}" LineHeight="{x:Static abstractions:ThemeDimensions.LineHeightRelaxed}" TextWrapping="Wrap" />
                                 </StackPanel>
                             </Border>
                         </DataTemplate>
@@ -96,8 +96,8 @@
 
         <Button Grid.Row="2"
                 Content="{Binding CloseButtonText}"
-                Width="140"
-                Height="40"
+                Width="{x:Static abstractions:ThemeDimensions.AuthorCloseButtonWidth}"
+                Height="{x:Static abstractions:ThemeDimensions.IconButtonSize}"
                 Margin="0,0,0,18"
                 Style="{DynamicResource PrimaryButtonStyle}"
                 Command="{Binding CloseCommand}"
