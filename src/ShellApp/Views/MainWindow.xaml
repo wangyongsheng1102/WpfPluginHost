@@ -366,7 +366,7 @@
 
             <Grid Grid.Column="1">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="{x:Static abstractions:ThemeDimensions.CaptionBarHeight}" />
+                    <RowDefinition Height="52" />
                     <RowDefinition Height="*" />
                     <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
@@ -437,7 +437,7 @@
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="{x:Static abstractions:ThemeDimensions.ProgressBarAreaWidth}" />
+                                    <ColumnDefinition Width="150" />
                                 </Grid.ColumnDefinitions>
 
                                 <Border Grid.ColumnSpan="2"
