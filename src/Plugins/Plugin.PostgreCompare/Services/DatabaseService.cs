@@ -207,13 +207,12 @@ public class DatabaseService
             await using var fileStream = new FileStream(csvPath, FileMode.Create, FileAccess.Write, FileShare.None, 65536, FileOptions.SequentialScan);
             await using var streamWriter = new StreamWriter(fileStream, Encoding.UTF8, 65536);
 
-            await using var pgReader = await conn.BeginRawBinaryCopyAsync($"COPY {schemaName}.{tableName} TO STDOUT WITH (FORMAT CSV, HEADER true, QUOTE '\"', FORCE_QUOTE *, ESCAPE '\"', ENCODING 'UTF8')");
-
-            var buffer = new byte[65536];
-            int bytesRead;
-            while ((bytesRead = await pgReader.ReadAsync(buffer, 0, buffer.Length)) > 0)
+            using var textReader = conn.BeginTextExport(copyCommand);
+            var buffer = new char[65536];
+            int charsRead;
+            while ((charsRead = await textReader.ReadAsync(buffer, 0, buffer.Length)) > 0)
             {
-                await fileStream.WriteAsync(buffer, 0, bytesRead);
+                await streamWriter.WriteAsync(buffer, 0, charsRead);
             }
 
             progress?.Report($"テーブル '{schemaName}.{tableName}' のエクスポートが完了しました。");
@@ -261,31 +260,39 @@ public class DatabaseService
 
             progress?.Report($"テーブル '{schemaName}.{tableName}' にデータをインポートしています...");
 
-            var stopwatch = Stopwatch.StartNew();
+            var copySql = $"COPY {schemaName}.{tableName} FROM STDIN WITH (" +
+                         $"FORMAT CSV, " +
+                         $"HEADER true, " +
+                         $"DELIMITER ',', " +
+                         $"QUOTE '\"', " +
+                         $"ESCAPE '\"', " +
+                         $"ENCODING 'UTF8'" +
+                         $")";
 
-            await using var fileStream = new FileStream(csvPath, FileMode.Open, FileAccess.Read, FileShare.Read, 65536, FileOptions.SequentialScan);
+            long importedRows = 0;
+            var stopwatch = Stopwatch.StartNew();
 
             try
             {
-                await using var writer = await conn.BeginRawBinaryCopyAsync(
-                    $"COPY {schemaName}.{tableName} FROM STDIN WITH (FORMAT CSV, HEADER true, DELIMITER ',', QUOTE '\"', ESCAPE '\"', ENCODING 'UTF8')");
-
-                var buffer = new byte[65536];
-                int bytesRead;
-                long totalBytes = 0;
-
-                while ((bytesRead = await fileStream.ReadAsync(buffer, 0, buffer.Length)) > 0)
+                await using (var writer = conn.BeginTextImport(copySql))
                 {
-                    await writer.WriteAsync(buffer, 0, bytesRead);
-                    totalBytes += bytesRead;
+                    using var fileStream = new FileStream(csvPath, FileMode.Open, FileAccess.Read, FileShare.Read, 65536, FileOptions.SequentialScan);
+                    using var reader = new StreamReader(fileStream, Encoding.UTF8, bufferSize: 65536);
 
-                    if (totalBytes % (1024 * 1024) < 65536)
+                    var buffer = new char[65536];
+                    int charsRead;
+
+                    while ((charsRead = await reader.ReadAsync(buffer, 0, buffer.Length)) > 0)
                     {
-                        progress?.Report($"約 {totalBytes / 1024:N0} KB を送信しました...");
+                        await writer.WriteAsync(buffer, 0, charsRead);
+                        importedRows += CountNewlines(buffer, charsRead);
+
+                        if (importedRows % 10000 < 100)
+                        {
+                            progress?.Report($"約 {importedRows:N0} 行を処理しました...");
+                        }
                     }
                 }
-
-                await writer.DisposeAsync();
 
                 stopwatch.Stop();
                 progress?.Report($"テーブル '{schemaName}.{tableName}' のインポートが完了しました。処理時間: {stopwatch.Elapsed.TotalSeconds:F2} 秒");
@@ -301,6 +308,16 @@ public class DatabaseService
             progress?.Report($"テーブル '{schemaName}.{tableName}' のインポート中にエラーが発生しました: {ex.Message}");
             throw;
         }
+    }
+
+    private static long CountNewlines(char[] buffer, int length)
+    {
+        long count = 0;
+        for (var i = 0; i < length; i++)
+        {
+            if (buffer[i] == '\n') count++;
+        }
+        return count;
     }
 
     private async Task<bool> CheckTableExistsAsync(NpgsqlConnection conn, string schemaName, string tableName)
