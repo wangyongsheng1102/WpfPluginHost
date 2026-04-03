@@ -51,9 +51,8 @@ public class DatabaseService
 
         const string sql = @"
         SELECT 
-            n.nspname  AS table_schema,
-            c.relname  AS table_name,
-            c.reltuples::bigint AS approx_rows
+            n.nspname as table_schema,
+            c.relname as table_name
         FROM pg_class c
         JOIN pg_namespace n ON n.oid = c.relnamespace
         WHERE n.nspname = @schema
@@ -63,14 +62,34 @@ public class DatabaseService
         await using var cmd = new NpgsqlCommand(sql, conn);
         cmd.Parameters.AddWithValue("schema", schemaName);
 
-        await using var reader = await cmd.ExecuteReaderAsync();
-        while (await reader.ReadAsync())
+        var tableList = new List<(string Schema, string Table)>();
+        await using (var reader = await cmd.ExecuteReaderAsync())
         {
+            while (await reader.ReadAsync())
+            {
+                tableList.Add((reader.GetString(0), reader.GetString(1)));
+            }
+        }
+
+        foreach (var (s, t) in tableList)
+        {
+            long rowCount = 0;
+            try
+            {
+                var countSql = $"SELECT COUNT(*) FROM \"{s}\".\"{t}\"";
+                await using var countCmd = new NpgsqlCommand(countSql, conn);
+                rowCount = Convert.ToInt64(await countCmd.ExecuteScalarAsync());
+            }
+            catch
+            {
+                rowCount = -1;
+            }
+
             tables.Add(new TableInfo
             {
-                SchemaName = reader.GetString(0),
-                TableName = reader.GetString(1),
-                RowCount = reader.GetInt64(2)
+                SchemaName = s,
+                TableName = t,
+                RowCount = rowCount
             });
         }
 
