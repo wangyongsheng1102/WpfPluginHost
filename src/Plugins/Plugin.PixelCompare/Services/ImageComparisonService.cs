@@ -2,7 +2,6 @@ using Plugin.PixelCompare.Models;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp.PixelFormats;
-using SixLabors.ImageSharp.Processing;
 using System.IO;
 
 namespace Plugin.PixelCompare.Services;
@@ -11,6 +10,7 @@ public sealed class ImageComparisonService
 {
     private readonly DifferenceRegionService _differenceRegionService;
     private readonly ImageAnnotationService _imageAnnotationService;
+    private static readonly PngEncoder FastPngEncoder = new() { CompressionLevel = PngCompressionLevel.BestSpeed };
 
     public ImageComparisonService(
         DifferenceRegionService differenceRegionService,
@@ -52,29 +52,44 @@ public sealed class ImageComparisonService
                 var width = img1.Width;
                 var height = img1.Height;
                 var totalPixels = (long)width * height;
-                var differentPixels = 0;
-                var diffMap = new bool[width, height];
                 var threshold = options.DiffThreshold;
+                var diffMap = new byte[width * height];
+                var differentPixels = 0;
 
-                img1.ProcessPixelRows(img2, (accessor1, accessor2) =>
+                using var diffImage = new Image<Rgba32>(width, height);
+
+                // Single merged pass: detect pixel differences AND generate diff image simultaneously.
+                // Eliminates the original second full-image traversal.
+                diffImage.ProcessPixelRows(img1, img2, (accessorDiff, accessor1, accessor2) =>
                 {
                     for (var y = 0; y < height; y++)
                     {
+                        var rowDiff = accessorDiff.GetRowSpan(y);
                         var row1 = accessor1.GetRowSpan(y);
                         var row2 = accessor2.GetRowSpan(y);
+                        var offset = y * width;
+
                         for (var x = 0; x < width; x++)
                         {
                             ref var p1 = ref row1[x];
                             ref var p2 = ref row2[x];
+                            var dR = Math.Abs(p1.R - p2.R);
+                            var dG = Math.Abs(p1.G - p2.G);
+                            var dB = Math.Abs(p1.B - p2.B);
 
-                            var diffR = Math.Abs(p1.R - p2.R);
-                            var diffG = Math.Abs(p1.G - p2.G);
-                            var diffB = Math.Abs(p1.B - p2.B);
-
-                            if (diffR > threshold || diffG > threshold || diffB > threshold)
+                            if (dR > threshold || dG > threshold || dB > threshold)
                             {
                                 differentPixels++;
-                                diffMap[x, y] = true;
+                                diffMap[offset + x] = 1;
+                                rowDiff[x] = new Rgba32(
+                                    (byte)Math.Min(255, dR * 3),
+                                    (byte)Math.Min(255, dG * 3),
+                                    (byte)Math.Min(255, dB * 3),
+                                    255);
+                            }
+                            else
+                            {
+                                rowDiff[x] = new Rgba32(0, 0, 0, 255);
                             }
                         }
                     }
@@ -84,36 +99,9 @@ public sealed class ImageComparisonService
                 var regions = _differenceRegionService.FindDifferenceRegions(expanded, width, height, options.MinRegionArea);
                 regions = _differenceRegionService.MergeNearbyRegions(regions, options.MergeDistance);
 
-                using var diffImage = new Image<Rgba32>(width, height);
-                diffImage.ProcessPixelRows(img1, img2, (accessorDiff, accessor1, accessor2) =>
-                {
-                    for (var y = 0; y < height; y++)
-                    {
-                        var rowDiff = accessorDiff.GetRowSpan(y);
-                        var row1 = accessor1.GetRowSpan(y);
-                        var row2 = accessor2.GetRowSpan(y);
-                        for (var x = 0; x < width; x++)
-                        {
-                            if (!diffMap[x, y])
-                            {
-                                rowDiff[x] = new Rgba32(0, 0, 0, 255); // 背景は黒
-                                continue;
-                            }
-
-                            var p1 = row1[x];
-                            var p2 = row2[x];
-                            var r = (byte)Math.Min(255, Math.Abs(p1.R - p2.R) * 3);
-                            var g = (byte)Math.Min(255, Math.Abs(p1.G - p2.G) * 3);
-                            var b = (byte)Math.Min(255, Math.Abs(p1.B - p2.B) * 3);
-                            rowDiff[x] = new Rgba32(r, g, b, 255);
-                        }
-                    }
-                });
-
-                using var markedImage1 = img1.Clone();
-                using var markedImage2 = img2.Clone();
-                _imageAnnotationService.DrawRectanglesWithIndexOutside(markedImage1, regions);
-                _imageAnnotationService.DrawRectanglesWithIndexOutside(markedImage2, regions);
+                // Draw directly on loaded images — avoids two expensive Clone() allocations
+                _imageAnnotationService.DrawRectanglesWithIndexOutside(img1, regions);
+                _imageAnnotationService.DrawRectanglesWithIndexOutside(img2, regions);
 
                 var tempDir = Path.Combine(Path.GetTempPath(), "PixelCompareSuite");
                 Directory.CreateDirectory(tempDir);
@@ -123,9 +111,11 @@ public sealed class ImageComparisonService
                 var markedImage1Path = Path.Combine(tempDir, $"marked1_{rowIndex}_{guid}.png");
                 var markedImage2Path = Path.Combine(tempDir, $"marked2_{rowIndex}_{guid}.png");
 
-                diffImage.Save(diffImagePath, new PngEncoder());
-                markedImage1.Save(markedImage1Path, new PngEncoder());
-                markedImage2.Save(markedImage2Path, new PngEncoder());
+                Parallel.Invoke(
+                    () => diffImage.Save(diffImagePath, FastPngEncoder),
+                    () => img1.Save(markedImage1Path, FastPngEncoder),
+                    () => img2.Save(markedImage2Path, FastPngEncoder)
+                );
 
                 return new ComparisonResult
                 {

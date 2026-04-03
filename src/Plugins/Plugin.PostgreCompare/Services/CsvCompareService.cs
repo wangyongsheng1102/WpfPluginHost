@@ -1,11 +1,8 @@
 using System;
-using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
 using System.Threading.Tasks;
 using CsvHelper;
 using CsvHelper.Configuration;
@@ -19,7 +16,8 @@ namespace Plugin.PostgreCompare.Services;
 /// </summary>
 public class CsvCompareService
 {
-    private const int BatchSize = 10000;
+    private const char KeySeparator = '\0';
+    private const string NullMarker = "\x01NULL\x01";
 
     private static CsvConfiguration CreateCsvConfiguration()
     {
@@ -32,38 +30,8 @@ public class CsvCompareService
             TrimOptions = TrimOptions.None,
             BadDataFound = null,
             MissingFieldFound = null,
+            BufferSize = 65536,
         };
-    }
-
-    private static async Task<long> CountCsvDataRecordsAsync(string csvPath)
-    {
-        var config = CreateCsvConfiguration();
-
-        await using var stream = File.OpenRead(csvPath);
-        using var reader = new StreamReader(stream, Encoding.UTF8, detectEncodingFromByteOrderMarks: true);
-        using var csv = new CsvReader(reader, config);
-
-        if (!await csv.ReadAsync())
-        {
-            return 0;
-        }
-
-        csv.ReadHeader();
-        var headers = csv.HeaderRecord ?? Array.Empty<string>();
-
-        long count = 0;
-        while (await csv.ReadAsync())
-        {
-            var record = csv.Parser.Record;
-            if (record == null || record.Length != headers.Length)
-            {
-                continue;
-            }
-
-            count++;
-        }
-
-        return count;
     }
 
     public async Task<List<RowComparisonResult>> CompareCsvFilesAsync(
@@ -75,8 +43,6 @@ public class CsvCompareService
         string tableName,
         IProgress<(int current, int total, string message)>? progress = null)
     {
-        var results = new List<RowComparisonResult>();
-
         progress?.Report((0, 0, $"CSV ファイルの比較を開始しています..."));
 
         bool useFullRowComparison = primaryKeyColumns == null || primaryKeyColumns.Count == 0;
@@ -97,14 +63,14 @@ public class CsvCompareService
             }
         }
 
-        var baseData = await LoadCsvDataWithHashAsync(
+        var baseData = await LoadCsvDataAsync(
             baseCsvPath,
             primaryKeyColumns ?? new List<string>(),
             progress,
             "Base",
             useFullRowComparison);
 
-        var compareData = await LoadCsvDataWithHashAsync(
+        var compareData = await LoadCsvDataAsync(
             compareCsvPath,
             primaryKeyColumns ?? new List<string>(),
             progress,
@@ -113,33 +79,32 @@ public class CsvCompareService
 
         progress?.Report((0, 0, "データ比較を実行しています..."));
 
-        var comparer = new PrimaryKeyComparer();
-        var baseFrozen = baseData.ToFrozenDictionary(comparer);
-        var compareFrozen = compareData.ToFrozenDictionary(comparer);
+        var fullTableName = $"{schemaName}.{tableName}";
+        var results = new List<RowComparisonResult>();
 
-        foreach (var kvp in baseFrozen)
+        foreach (var kvp in baseData)
         {
-            if (!compareFrozen.ContainsKey(kvp.Key))
+            if (!compareData.ContainsKey(kvp.Key))
             {
                 results.Add(new RowComparisonResult
                 {
-                    TableName = $"{schemaName}.{tableName}",
+                    TableName = fullTableName,
                     Status = ComparisonStatus.Deleted,
-                    PrimaryKeyValues = kvp.Key,
+                    PrimaryKeyValues = kvp.Value.PrimaryKeyValues,
                     OldValues = kvp.Value.Values
                 });
             }
         }
 
-        foreach (var kvp in compareFrozen)
+        foreach (var kvp in compareData)
         {
-            if (!baseFrozen.TryGetValue(kvp.Key, out var baseRow))
+            if (!baseData.TryGetValue(kvp.Key, out var baseRow))
             {
                 results.Add(new RowComparisonResult
                 {
-                    TableName = $"{schemaName}.{tableName}",
+                    TableName = fullTableName,
                     Status = ComparisonStatus.Added,
-                    PrimaryKeyValues = kvp.Key,
+                    PrimaryKeyValues = kvp.Value.PrimaryKeyValues,
                     NewValues = kvp.Value.Values
                 });
             }
@@ -147,9 +112,9 @@ public class CsvCompareService
             {
                 results.Add(new RowComparisonResult
                 {
-                    TableName = $"{schemaName}.{tableName}",
+                    TableName = fullTableName,
                     Status = ComparisonStatus.Updated,
-                    PrimaryKeyValues = kvp.Key,
+                    PrimaryKeyValues = kvp.Value.PrimaryKeyValues,
                     OldValues = baseRow.Values,
                     NewValues = kvp.Value.Values
                 });
@@ -164,14 +129,14 @@ public class CsvCompareService
         return results;
     }
 
-    private async Task<Dictionary<Dictionary<string, object?>, RowData>> LoadCsvDataWithHashAsync(
+    private async Task<Dictionary<string, CsvRowData>> LoadCsvDataAsync(
         string csvPath,
         List<string> primaryKeyColumns,
         IProgress<(int current, int total, string message)>? progress,
         string label,
         bool useFullRowComparison = false)
     {
-        var data = new Dictionary<Dictionary<string, object?>, RowData>(new PrimaryKeyComparer());
+        var data = new Dictionary<string, CsvRowData>(StringComparer.Ordinal);
 
         if (!File.Exists(csvPath))
         {
@@ -180,14 +145,9 @@ public class CsvCompareService
         }
 
         var config = CreateCsvConfiguration();
-        var totalRows = await CountCsvDataRecordsAsync(csvPath);
-        var processedRows = 0L;
 
-        List<int>? primaryKeyIndices = null;
-        List<int> nonPrimaryKeyIndices;
-
-        await using var stream = File.OpenRead(csvPath);
-        using var reader = new StreamReader(stream, Encoding.UTF8, detectEncodingFromByteOrderMarks: true);
+        await using var stream = new FileStream(csvPath, FileMode.Open, FileAccess.Read, FileShare.Read, 65536, FileOptions.SequentialScan);
+        using var reader = new StreamReader(stream, System.Text.Encoding.UTF8, detectEncodingFromByteOrderMarks: true, bufferSize: 65536);
         using var csv = new CsvReader(reader, config);
 
         if (!await csv.ReadAsync())
@@ -197,132 +157,154 @@ public class CsvCompareService
 
         csv.ReadHeader();
         var headers = (csv.HeaderRecord ?? Array.Empty<string>()).ToList();
-
         if (headers.Count == 0)
         {
             return data;
         }
 
+        int[] pkIndices;
+        int[] nonPkIndices;
+        string[] pkColumnNames;
+
         if (useFullRowComparison)
         {
-            primaryKeyIndices = Enumerable.Range(0, headers.Count).ToList();
-            nonPrimaryKeyIndices = new List<int>();
+            pkIndices = Enumerable.Range(0, headers.Count).ToArray();
+            nonPkIndices = Array.Empty<int>();
+            pkColumnNames = headers.ToArray();
         }
         else
         {
-            var resolvedPkIndices = new HashSet<int>();
+            var resolvedPk = new List<(int idx, string name)>();
             foreach (var pk in primaryKeyColumns)
             {
                 var idx = FindHeaderIndex(headers, pk);
                 if (idx >= 0)
-                    resolvedPkIndices.Add(idx);
+                    resolvedPk.Add((idx, pk));
             }
 
-            if (resolvedPkIndices.Count == 0)
+            if (resolvedPk.Count == 0)
             {
                 progress?.Report((0, 0, $"主キー列が見つかりません: {string.Join(", ", primaryKeyColumns)}"));
                 return data;
             }
 
-            nonPrimaryKeyIndices = Enumerable.Range(0, headers.Count)
-                .Where(i => !resolvedPkIndices.Contains(i))
-                .ToList();
+            var pkIndexSet = new HashSet<int>(resolvedPk.Select(p => p.idx));
+            pkIndices = resolvedPk.Select(p => p.idx).ToArray();
+            pkColumnNames = resolvedPk.Select(p => p.name).ToArray();
+            nonPkIndices = Enumerable.Range(0, headers.Count)
+                .Where(i => !pkIndexSet.Contains(i))
+                .ToArray();
         }
 
-        var batch = new List<(Dictionary<string, object?> pk, Dictionary<string, object?> values, long hash)>();
+        long processedRows = 0;
+        var headersArray = headers.ToArray();
 
         while (await csv.ReadAsync())
         {
             var record = csv.Parser.Record;
-            if (record == null || record.Length != headers.Count)
+            if (record == null || record.Length != headersArray.Length)
             {
                 continue;
             }
 
-            var primaryKeyValues = new Dictionary<string, object?>();
-            if (useFullRowComparison)
+            var compositeKey = BuildCompositeKey(record, pkIndices);
+
+            var pkValues = new Dictionary<string, object?>(pkIndices.Length);
+            for (var i = 0; i < pkIndices.Length; i++)
             {
-                foreach (var idx in primaryKeyIndices!)
-                {
-                    var colName = headers[idx];
-                    var rawValue = csv.GetField<string>(idx);
-                    primaryKeyValues[colName] = string.IsNullOrEmpty(rawValue) ? null : rawValue;
-                }
-            }
-            else
-            {
-                foreach (var pkCol in primaryKeyColumns)
-                {
-                    var idx = FindHeaderIndex(headers, pkCol);
-                    if (idx < 0)
-                        continue;
-                    var rawValue = csv.GetField<string>(idx);
-                    primaryKeyValues[pkCol] = string.IsNullOrEmpty(rawValue) ? null : rawValue;
-                }
+                var raw = record[pkIndices[i]];
+                pkValues[pkColumnNames[i]] = string.IsNullOrEmpty(raw) ? null : raw;
             }
 
-            var nonPkValues = new Dictionary<string, object?>();
-            var hashBuilder = new StringBuilder();
+            Dictionary<string, object?> nonPkValues;
+            int hash;
 
             if (useFullRowComparison)
             {
-                foreach (var idx in primaryKeyIndices!)
-                {
-                    var colName = headers[idx];
-                    var rawValue = csv.GetField<string>(idx);
-                    var value = string.IsNullOrEmpty(rawValue) ? null : rawValue;
-                    nonPkValues[colName] = value;
-
-                    hashBuilder.Append(colName).Append('=');
-                    hashBuilder.Append(value ?? "NULL").Append('|');
-                }
+                nonPkValues = pkValues;
+                hash = ComputeRowHash(record, pkIndices, headersArray);
             }
             else
             {
-                foreach (var idx in nonPrimaryKeyIndices)
+                nonPkValues = new Dictionary<string, object?>(nonPkIndices.Length);
+                foreach (var idx in nonPkIndices)
                 {
-                    var colName = headers[idx];
-                    var rawValue = csv.GetField<string>(idx);
-                    var value = string.IsNullOrEmpty(rawValue) ? null : rawValue;
-                    nonPkValues[colName] = value;
-
-                    hashBuilder.Append(colName).Append('=');
-                    hashBuilder.Append(value ?? "NULL").Append('|');
+                    var raw = record[idx];
+                    nonPkValues[headersArray[idx]] = string.IsNullOrEmpty(raw) ? null : raw;
                 }
+
+                hash = ComputeRowHash(record, nonPkIndices, headersArray);
             }
 
-            var hashBytes = SHA256.HashData(Encoding.UTF8.GetBytes(hashBuilder.ToString()));
-            var hash = BitConverter.ToInt64(hashBytes, 0);
+            data[compositeKey] = new CsvRowData
+            {
+                PrimaryKeyValues = pkValues,
+                Values = nonPkValues,
+                Hash = hash
+            };
 
-            batch.Add((primaryKeyValues, nonPkValues, hash));
             processedRows++;
-
-            if (batch.Count >= BatchSize)
+            if (processedRows % 50000 == 0)
             {
-                ProcessBatch(batch, data);
-                batch.Clear();
-
-                var percentage = totalRows > 0 ? (int)(processedRows * 100 / totalRows) : 0;
-                progress?.Report((percentage, 100, $"[{label}] {processedRows}/{totalRows} 行を処理しました ({percentage}%)"));
+                progress?.Report((0, 0, $"[{label}] {processedRows:N0} 行を処理しました"));
             }
         }
 
-        if (batch.Count > 0)
-        {
-            ProcessBatch(batch, data);
-        }
-
+        progress?.Report((0, 0, $"[{label}] 合計 {processedRows:N0} 行をロードしました"));
         return data;
     }
 
-    private static void ProcessBatch(
-        List<(Dictionary<string, object?> pk, Dictionary<string, object?> values, long hash)> batch,
-        Dictionary<Dictionary<string, object?>, RowData> data)
+    private static string BuildCompositeKey(string?[] record, int[] keyIndices)
     {
-        foreach (var (pk, values, hash) in batch)
+        if (keyIndices.Length == 1)
         {
-            data[pk] = new RowData { Values = values, Hash = hash };
+            return record[keyIndices[0]] ?? NullMarker;
         }
+
+        var totalLen = 0;
+        for (var i = 0; i < keyIndices.Length; i++)
+        {
+            var val = record[keyIndices[i]];
+            totalLen += (val?.Length ?? NullMarker.Length) + 1;
+        }
+
+        return string.Create(totalLen, (record, keyIndices), static (span, state) =>
+        {
+            var (rec, indices) = state;
+            var pos = 0;
+            for (var i = 0; i < indices.Length; i++)
+            {
+                if (i > 0)
+                {
+                    span[pos++] = KeySeparator;
+                }
+
+                var val = rec[indices[i]];
+                if (val == null)
+                {
+                    NullMarker.AsSpan().CopyTo(span.Slice(pos));
+                    pos += NullMarker.Length;
+                }
+                else
+                {
+                    val.AsSpan().CopyTo(span.Slice(pos));
+                    pos += val.Length;
+                }
+            }
+        });
+    }
+
+    private static int ComputeRowHash(string?[] record, int[] indices, string[] headers)
+    {
+        var hc = new HashCode();
+        for (var i = 0; i < indices.Length; i++)
+        {
+            var idx = indices[i];
+            hc.Add(headers[idx]);
+            hc.Add(record[idx] ?? NullMarker);
+        }
+
+        return hc.ToHashCode();
     }
 
     private static async Task<bool> PrimaryKeysResolvableInCsvAsync(string csvPath, List<string> primaryKeyColumns)
@@ -331,7 +313,7 @@ public class CsvCompareService
             return false;
 
         await using var stream = File.OpenRead(csvPath);
-        using var reader = new StreamReader(stream, Encoding.UTF8, detectEncodingFromByteOrderMarks: true);
+        using var reader = new StreamReader(stream, System.Text.Encoding.UTF8, detectEncodingFromByteOrderMarks: true);
         using var csv = new CsvReader(reader, CreateCsvConfiguration());
 
         if (!await csv.ReadAsync())
@@ -354,9 +336,10 @@ public class CsvCompareService
         return -1;
     }
 
-    private sealed class RowData
+    private sealed class CsvRowData
     {
+        public Dictionary<string, object?> PrimaryKeyValues { get; set; } = new();
         public Dictionary<string, object?> Values { get; set; } = new();
-        public long Hash { get; set; }
+        public int Hash { get; set; }
     }
 }

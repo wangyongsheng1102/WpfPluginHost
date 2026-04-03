@@ -4,45 +4,97 @@ namespace Plugin.PixelCompare.Services;
 
 public sealed class DifferenceRegionService
 {
-    public bool[,] ExpandDiffMap(bool[,] diffMap, int width, int height, int expandPixels)
+    /// <summary>
+    /// Separable box expansion using two sliding-window passes (horizontal + vertical).
+    /// Reduces complexity from O(N * expand²) to O(N) amortized, with each pass parallelized across rows/columns.
+    /// </summary>
+    public byte[] ExpandDiffMap(byte[] diffMap, int width, int height, int expandPixels)
     {
-        var expanded = new bool[width, height];
-        for (var y = 0; y < height; y++)
+        if (expandPixels <= 0)
         {
+            var copy = new byte[diffMap.Length];
+            Buffer.BlockCopy(diffMap, 0, copy, 0, diffMap.Length);
+            return copy;
+        }
+
+        var temp = new byte[width * height];
+        Parallel.For(0, height, y =>
+        {
+            var rowOffset = y * width;
+            var count = 0;
+
+            for (var i = 0; i < Math.Min(expandPixels, width); i++)
+            {
+                count += diffMap[rowOffset + i];
+            }
+
             for (var x = 0; x < width; x++)
             {
-                if (!diffMap[x, y])
+                var right = x + expandPixels;
+                if (right < width)
                 {
-                    continue;
+                    count += diffMap[rowOffset + right];
                 }
 
-                for (var dy = -expandPixels; dy <= expandPixels; dy++)
+                if (count > 0)
                 {
-                    for (var dx = -expandPixels; dx <= expandPixels; dx++)
-                    {
-                        var nx = x + dx;
-                        var ny = y + dy;
-                        if (nx >= 0 && nx < width && ny >= 0 && ny < height)
-                        {
-                            expanded[nx, ny] = true;
-                        }
-                    }
+                    temp[rowOffset + x] = 1;
+                }
+
+                var left = x - expandPixels;
+                if (left >= 0)
+                {
+                    count -= diffMap[rowOffset + left];
                 }
             }
-        }
+        });
+
+        var expanded = new byte[width * height];
+        Parallel.For(0, width, x =>
+        {
+            var count = 0;
+
+            for (var i = 0; i < Math.Min(expandPixels, height); i++)
+            {
+                count += temp[i * width + x];
+            }
+
+            for (var y = 0; y < height; y++)
+            {
+                var bottom = y + expandPixels;
+                if (bottom < height)
+                {
+                    count += temp[bottom * width + x];
+                }
+
+                if (count > 0)
+                {
+                    expanded[y * width + x] = 1;
+                }
+
+                var top = y - expandPixels;
+                if (top >= 0)
+                {
+                    count -= temp[top * width + x];
+                }
+            }
+        });
 
         return expanded;
     }
 
-    public List<Rectangle> FindDifferenceRegions(bool[,] diffMap, int width, int height, int minArea)
+    public List<Rectangle> FindDifferenceRegions(byte[] diffMap, int width, int height, int minArea)
     {
         var regions = new List<Rectangle>();
-        var visited = new bool[width, height];
+        var visited = new byte[width * height];
+
         for (var y = 0; y < height; y++)
         {
+            var rowOffset = y * width;
             for (var x = 0; x < width; x++)
             {
-                if (!diffMap[x, y] || visited[x, y])
+                var idx = rowOffset + x;
+                if (diffMap[idx] == 0 || visited[idx] != 0)
                 {
                     continue;
                 }
@@ -67,6 +119,7 @@ public sealed class DifferenceRegionService
 
         var merged = new List<Rectangle>();
         var used = new bool[regions.Count];
+        var mergeDistanceSq = mergeDistance * mergeDistance;
 
         for (var i = 0; i < regions.Count; i++)
         {
@@ -89,8 +142,7 @@ public sealed class DifferenceRegionService
                     }
 
                     var other = regions[j];
-                    var distance = CalculateRectDistance(current, other);
-                    if (distance > mergeDistance)
+                    if (CalculateRectDistanceSquared(current, other) > mergeDistanceSq)
                     {
                         continue;
                     }
@@ -111,44 +163,79 @@ public sealed class DifferenceRegionService
         return merged;
     }
 
-    private static Rectangle FindConnectedRegion(bool[,] diffMap, bool[,] visited, int width, int height, int startX, int startY)
+    /// <summary>
+    /// BFS with 1D linear indices — avoids tuple allocation overhead
+    /// and improves cache locality via row-major byte[] arrays.
+    /// </summary>
+    private static Rectangle FindConnectedRegion(byte[] diffMap, byte[] visited, int width, int height, int startX, int startY)
     {
         var minX = startX;
         var maxX = startX;
         var minY = startY;
         var maxY = startY;
+        var totalSize = width * height;
 
-        var queue = new Queue<(int x, int y)>();
-        queue.Enqueue((startX, startY));
-        visited[startX, startY] = true;
+        var queue = new Queue<int>();
+        var startIdx = startY * width + startX;
+        queue.Enqueue(startIdx);
+        visited[startIdx] = 1;
 
-        var directions = new[] { (0, 1), (0, -1), (1, 0), (-1, 0) };
         while (queue.Count > 0)
         {
-            var (x, y) = queue.Dequeue();
-            minX = Math.Min(minX, x);
-            maxX = Math.Max(maxX, x);
-            minY = Math.Min(minY, y);
-            maxY = Math.Max(maxY, y);
+            var idx = queue.Dequeue();
+            var y = idx / width;
+            var x = idx - y * width;
 
-            foreach (var (dx, dy) in directions)
+            if (x < minX) minX = x;
+            else if (x > maxX) maxX = x;
+            if (y < minY) minY = y;
+            else if (y > maxY) maxY = y;
+
+            if (x + 1 < width)
             {
-                var nx = x + dx;
-                var ny = y + dy;
-                if (nx < 0 || nx >= width || ny < 0 || ny >= height || !diffMap[nx, ny] || visited[nx, ny])
+                var ni = idx + 1;
+                if (diffMap[ni] != 0 && visited[ni] == 0)
                 {
-                    continue;
+                    visited[ni] = 1;
+                    queue.Enqueue(ni);
                 }
+            }
 
-                visited[nx, ny] = true;
-                queue.Enqueue((nx, ny));
+            if (x > 0)
+            {
+                var ni = idx - 1;
+                if (diffMap[ni] != 0 && visited[ni] == 0)
+                {
+                    visited[ni] = 1;
+                    queue.Enqueue(ni);
+                }
+            }
+
+            if (idx + width < totalSize)
+            {
+                var ni = idx + width;
+                if (diffMap[ni] != 0 && visited[ni] == 0)
+                {
+                    visited[ni] = 1;
+                    queue.Enqueue(ni);
+                }
+            }
+
+            if (idx >= width)
+            {
+                var ni = idx - width;
+                if (diffMap[ni] != 0 && visited[ni] == 0)
+                {
+                    visited[ni] = 1;
+                    queue.Enqueue(ni);
+                }
             }
         }
 
         return new Rectangle(minX, minY, maxX - minX + 1, maxY - minY + 1);
     }
 
-    private static int CalculateRectDistance(Rectangle r1, Rectangle r2)
+    private static int CalculateRectDistanceSquared(Rectangle r1, Rectangle r2)
     {
         var r1Right = r1.X + r1.Width;
         var r1Bottom = r1.Y + r1.Height;
@@ -162,6 +249,6 @@ public sealed class DifferenceRegionService
 
         var dx = Math.Max(0, Math.Max(r1.X - r2Right, r2.X - r1Right));
         var dy = Math.Max(0, Math.Max(r1.Y - r2Bottom, r2.Y - r1Bottom));
-        return (int)Math.Sqrt(dx * dx + dy * dy);
+        return dx * dx + dy * dy;
     }
 }

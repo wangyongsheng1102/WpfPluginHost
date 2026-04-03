@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Data;
-using System.Data.Common;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -38,7 +36,6 @@ public class DatabaseService
         }
         catch
         {
-            // Fallback
             schemas.Add("public");
             schemas.Add("unisys");
         }
@@ -64,7 +61,7 @@ public class DatabaseService
 
         await using var cmd = new NpgsqlCommand(sql, conn);
         cmd.Parameters.AddWithValue("schema", schemaName);
-        
+
         var tableList = new List<(string Schema, string Table)>();
         await using (var reader = await cmd.ExecuteReaderAsync())
         {
@@ -207,16 +204,16 @@ public class DatabaseService
                               $"ENCODING 'UTF8'" +
                               $")";
 
-            await using var fileStream = File.Create(csvPath);
-            await using var streamWriter = new StreamWriter(fileStream, Encoding.UTF8);
+            await using var fileStream = new FileStream(csvPath, FileMode.Create, FileAccess.Write, FileShare.None, 65536, FileOptions.SequentialScan);
+            await using var streamWriter = new StreamWriter(fileStream, Encoding.UTF8, 65536);
 
-            using (var textWriter = conn.BeginTextExport(copyCommand))
+            await using var pgReader = await conn.BeginRawBinaryCopyAsync($"COPY {schemaName}.{tableName} TO STDOUT WITH (FORMAT CSV, HEADER true, QUOTE '\"', FORCE_QUOTE *, ESCAPE '\"', ENCODING 'UTF8')");
+
+            var buffer = new byte[65536];
+            int bytesRead;
+            while ((bytesRead = await pgReader.ReadAsync(buffer, 0, buffer.Length)) > 0)
             {
-                string? line;
-                while ((line = await textWriter.ReadLineAsync()) != null)
-                {
-                    await streamWriter.WriteLineAsync(line);
-                }
+                await fileStream.WriteAsync(buffer, 0, bytesRead);
             }
 
             progress?.Report($"テーブル '{schemaName}.{tableName}' のエクスポートが完了しました。");
@@ -264,39 +261,31 @@ public class DatabaseService
 
             progress?.Report($"テーブル '{schemaName}.{tableName}' にデータをインポートしています...");
 
-            var copySql = $"COPY {schemaName}.{tableName} FROM STDIN WITH (" +
-                         $"FORMAT CSV, " +
-                         $"HEADER true, " +
-                         $"DELIMITER ',', " +
-                         $"QUOTE '\"', " +
-                         $"ESCAPE '\"', " +
-                         $"ENCODING 'UTF8'" +
-                         $")";
-
-            long importedRows = 0;
             var stopwatch = Stopwatch.StartNew();
+
+            await using var fileStream = new FileStream(csvPath, FileMode.Open, FileAccess.Read, FileShare.Read, 65536, FileOptions.SequentialScan);
 
             try
             {
-                await using (var writer = conn.BeginTextImport(copySql))
+                await using var writer = await conn.BeginRawBinaryCopyAsync(
+                    $"COPY {schemaName}.{tableName} FROM STDIN WITH (FORMAT CSV, HEADER true, DELIMITER ',', QUOTE '\"', ESCAPE '\"', ENCODING 'UTF8')");
+
+                var buffer = new byte[65536];
+                int bytesRead;
+                long totalBytes = 0;
+
+                while ((bytesRead = await fileStream.ReadAsync(buffer, 0, buffer.Length)) > 0)
                 {
-                    using var fileStream = File.OpenRead(csvPath);
-                    using var reader = new StreamReader(fileStream, Encoding.UTF8);
+                    await writer.WriteAsync(buffer, 0, bytesRead);
+                    totalBytes += bytesRead;
 
-                    char[] buffer = new char[8192];
-                    int charsRead;
-
-                    while ((charsRead = await reader.ReadAsync(buffer, 0, buffer.Length)) > 0)
+                    if (totalBytes % (1024 * 1024) < 65536)
                     {
-                        await writer.WriteAsync(buffer, 0, charsRead);
-
-                        importedRows += buffer.Count(c => c == '\n');
-                        if (importedRows % 10000 == 0)
-                        {
-                            progress?.Report($"約 {importedRows:N0} 行を処理しました...");
-                        }
+                        progress?.Report($"約 {totalBytes / 1024:N0} KB を送信しました...");
                     }
                 }
+
+                await writer.DisposeAsync();
 
                 stopwatch.Stop();
                 progress?.Report($"テーブル '{schemaName}.{tableName}' のインポートが完了しました。処理時間: {stopwatch.Elapsed.TotalSeconds:F2} 秒");
@@ -332,4 +321,3 @@ public class DatabaseService
         return result != null && result != DBNull.Value && Convert.ToBoolean(result);
     }
 }
-
