@@ -1,6 +1,7 @@
 <UserControl x:Class="Plugin.SampleA.SampleAView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:abstractions="clr-namespace:Plugin.Abstractions;assembly=Plugin.Abstractions"
              Background="{DynamicResource ContentBackgroundBrush}">
     <Grid Margin="30"
           Background="{DynamicResource ContentBackgroundBrush}">
@@ -23,7 +24,7 @@
                     <CheckBox Content="すべてのシートのズーム倍率をリセットする：" 
                               IsChecked="{Binding EnableZoomFormat}"
                               Foreground="{DynamicResource PrimaryTextBrush}"
-                              VerticalAlignment="Center" FontSize="{StaticResource BodyFontSize}" />
+                              VerticalAlignment="Center" FontSize="{x:Static abstractions:ThemeDimensions.BodyFontSize}" />
                     <Border Background="{DynamicResource NavBackgroundBrush}"
                             BorderBrush="{DynamicResource BorderSubtleBrush}"
                             BorderThickness="1" CornerRadius="4"
@@ -35,21 +36,21 @@
                                  Background="Transparent" BorderThickness="0"
                                  Padding="6,2" VerticalContentAlignment="Center"
                                  HorizontalContentAlignment="Center"
-                                 FontSize="{StaticResource BodyFontSize}"/>
+                                 FontSize="{x:Static abstractions:ThemeDimensions.BodyFontSize}"/>
                     </Border>
                     <TextBlock Text="%" Foreground="{DynamicResource PrimaryTextBrush}" 
-                               VerticalAlignment="Center" Margin="3,0,0,0" FontSize="{StaticResource BodyFontSize}"/>
+                               VerticalAlignment="Center" Margin="3,0,0,0" FontSize="{x:Static abstractions:ThemeDimensions.BodyFontSize}"/>
                 </StackPanel>
                           
                 <CheckBox Content="すべてのシートのカーソルを A1 セルに移動する" 
                           IsChecked="{Binding FormatFocusA1}"
                           Foreground="{DynamicResource PrimaryTextBrush}"
-                          Margin="0,0,0,6" FontSize="{StaticResource BodyFontSize}" />
+                          Margin="0,0,0,6" FontSize="{x:Static abstractions:ThemeDimensions.BodyFontSize}" />
                           
                 <CheckBox Content="処理完了後、デフォルトで最初のシートをアクティブにする" 
                           IsChecked="{Binding FormatActiveFirstSheet}"
                           Foreground="{DynamicResource PrimaryTextBrush}"
-                          Margin="0,0,0,6" FontSize="{StaticResource BodyFontSize}" />
+                          Margin="0,0,0,6" FontSize="{x:Static abstractions:ThemeDimensions.BodyFontSize}" />
 
                 <TextBlock Text="処理時に自動実行：フィルター解除・数式を値に固定・行列の自動調整・外部リンク切断"
                            Foreground="{DynamicResource SecondaryTextBrush}"
@@ -183,7 +184,7 @@
                                Foreground="{DynamicResource SecondaryTextBrush}"
                                HorizontalAlignment="Center" />
                     <TextBlock Text="フォルダをドロップした場合、フォルダ内のすべての Excel ファイルを自動的にスキャンします" 
-                               FontSize="{StaticResource CaptionFontSize}" Foreground="{DynamicResource SecondaryTextBrush}"
+                               FontSize="{x:Static abstractions:ThemeDimensions.CaptionFontSize}" Foreground="{DynamicResource SecondaryTextBrush}"
                                Margin="0,4,0,0" Opacity="0.7"
                                HorizontalAlignment="Center" />
                 </StackPanel>
@@ -216,7 +217,7 @@
                              テンプレート列では TextBlock に直接 TextDecorations を付与する -->
                         <Style x:Key="SampleADataGridCellTextStyle" TargetType="TextBlock" BasedOn="{x:Null}">
                             <Setter Property="FontFamily" Value="{DynamicResource AppFontFamily}" />
-                            <Setter Property="FontSize" Value="{StaticResource BodyFontSize}" />
+                            <Setter Property="FontSize" Value="{x:Static abstractions:ThemeDimensions.BodyFontSize}" />
                             <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
                             <Setter Property="VerticalAlignment" Value="Center" />
                             <Setter Property="TextTrimming" Value="CharacterEllipsis" />

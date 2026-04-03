@@ -1,7 +1,8 @@
-namespace ShellApp;
+namespace Plugin.Abstractions;
 
 /// <summary>
-/// テーマ用数値（XAML の clr-namespace:System;assembly=* を避け、起動時の Assembly 解決失敗を防ぐ）
+/// ホスト・プラグイン共通のテーマ数値。XAML の <c>clr-namespace:System;assembly=*</c> や
+/// ホスト専用の <c>StaticResource BodyFontSize</c> に依存せず、<c>x:Static</c> で参照する。
 /// </summary>
 public static class ThemeDimensions
 {

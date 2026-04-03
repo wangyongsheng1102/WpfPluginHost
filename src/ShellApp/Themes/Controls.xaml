@@ -1,6 +1,6 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:shell="clr-namespace:ShellApp">
+                    xmlns:abstractions="clr-namespace:Plugin.Abstractions;assembly=Plugin.Abstractions">
     <CornerRadius x:Key="SmallRadius">4</CornerRadius>
     <CornerRadius x:Key="PanelRadius">8</CornerRadius>
     <CornerRadius x:Key="CardRadius">10</CornerRadius>
@@ -16,28 +16,28 @@
 
     <Style x:Key="TitleTextStyle" TargetType="TextBlock">
         <Setter Property="FontFamily" Value="{StaticResource AppFontFamilyBold}" />
-        <Setter Property="FontSize" Value="{x:Static shell:ThemeDimensions.TitleFontSize}" />
+        <Setter Property="FontSize" Value="{x:Static abstractions:ThemeDimensions.TitleFontSize}" />
         <Setter Property="FontWeight" Value="Normal" />
         <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
     </Style>
 
     <Style x:Key="SubtitleTextStyle" TargetType="TextBlock">
         <Setter Property="FontFamily" Value="{StaticResource AppFontFamilyBold}" />
-        <Setter Property="FontSize" Value="{x:Static shell:ThemeDimensions.SubtitleFontSize}" />
+        <Setter Property="FontSize" Value="{x:Static abstractions:ThemeDimensions.SubtitleFontSize}" />
         <Setter Property="FontWeight" Value="Normal" />
         <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
     </Style>
 
     <Style x:Key="BodyTextStyle" TargetType="TextBlock">
         <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}" />
-        <Setter Property="FontSize" Value="{x:Static shell:ThemeDimensions.BodyFontSize}" />
+        <Setter Property="FontSize" Value="{x:Static abstractions:ThemeDimensions.BodyFontSize}" />
         <Setter Property="FontWeight" Value="Normal" />
         <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
     </Style>
 
     <Style x:Key="CaptionTextStyle" TargetType="TextBlock">
         <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}" />
-        <Setter Property="FontSize" Value="{x:Static shell:ThemeDimensions.CaptionFontSize}" />
+        <Setter Property="FontSize" Value="{x:Static abstractions:ThemeDimensions.CaptionFontSize}" />
         <Setter Property="FontWeight" Value="Normal" />
         <Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}" />
     </Style>
@@ -45,7 +45,7 @@
     <!-- ステータス行・キュー状態など、本文サイズで強調したい一行 -->
     <Style x:Key="KeyInfoTextStyle" TargetType="TextBlock">
         <Setter Property="FontFamily" Value="{StaticResource AppFontFamilyBold}" />
-        <Setter Property="FontSize" Value="{x:Static shell:ThemeDimensions.BodyFontSize}" />
+        <Setter Property="FontSize" Value="{x:Static abstractions:ThemeDimensions.BodyFontSize}" />
         <Setter Property="FontWeight" Value="Normal" />
         <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
     </Style>
@@ -267,7 +267,7 @@
                                         <DoubleAnimation Storyboard.TargetName="Root"
                                                          Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)"
                                                          From="1"
-                                                         To="{x:Static shell:ThemeDimensions.IconHoverScale}"
+                                                         To="{x:Static abstractions:ThemeDimensions.IconHoverScale}"
                                                          Duration="{StaticResource IconHoverBreathDuration}">
                                             <DoubleAnimation.EasingFunction>
                                                 <SineEase EasingMode="EaseInOut" />
@@ -276,7 +276,7 @@
                                         <DoubleAnimation Storyboard.TargetName="Root"
                                                          Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)"
                                                          From="1"
-                                                         To="{x:Static shell:ThemeDimensions.IconHoverScale}"
+                                                         To="{x:Static abstractions:ThemeDimensions.IconHoverScale}"
                                                          Duration="{StaticResource IconHoverBreathDuration}">
                                             <DoubleAnimation.EasingFunction>
                                                 <SineEase EasingMode="EaseInOut" />
@@ -378,7 +378,7 @@
                                           Fill="Transparent"
                                           Opacity="0.55"
                                           StrokeDashCap="Round"
-                                          StrokeDashOffset="{x:Static shell:ThemeDimensions.ShutdownWireDashLength}"
+                                          StrokeDashOffset="{x:Static abstractions:ThemeDimensions.ShutdownWireDashLength}"
                                           StrokeDashArray="48 48"
                                           Data="M12,15 L12,20.1498 C11.5214,23.0394 10.6697,21.3355 9.86335,22.7023 C4.94577,21.7025 1.25,17.3253 1.25,12.0832 C1.25,6.10606 6.05709,1.25 12,1.25 C17.9429,1.25 22.75,6.10606 22.75,12.0832 C22.75,16.369 20.2798,20.0752 16.6941,21.8316" />
                                     <Path Stroke="{DynamicResource PrimaryTextBrush}"
@@ -414,7 +414,7 @@
                                     <Storyboard>
                                         <DoubleAnimation Storyboard.TargetName="ShutdownWireStroke"
                                                          Storyboard.TargetProperty="StrokeDashOffset"
-                                                         From="{x:Static shell:ThemeDimensions.ShutdownWireDashLength}"
+                                                         From="{x:Static abstractions:ThemeDimensions.ShutdownWireDashLength}"
                                                          To="0"
                                                          Duration="0:0:2.4">
                                             <DoubleAnimation.EasingFunction>
@@ -429,7 +429,7 @@
                                     <Storyboard>
                                         <DoubleAnimation Storyboard.TargetName="ShutdownWireStroke"
                                                          Storyboard.TargetProperty="StrokeDashOffset"
-                                                         To="{x:Static shell:ThemeDimensions.ShutdownWireDashLength}"
+                                                         To="{x:Static abstractions:ThemeDimensions.ShutdownWireDashLength}"
                                                          Duration="0:0:0.45" />
                                     </Storyboard>
                                 </BeginStoryboard>
@@ -594,14 +594,14 @@
         <Setter Property="VerticalAlignment" Value="Center" />
         <Setter Property="HorizontalAlignment" Value="Left" />
         <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
-        <Setter Property="FontSize" Value="{x:Static shell:ThemeDimensions.SubtitleFontSize}" />
+        <Setter Property="FontSize" Value="{x:Static abstractions:ThemeDimensions.SubtitleFontSize}" />
         <Setter Property="Margin" Value="70,0,0,0" />
     </Style>
 
     <Style x:Key="SecondaryTextStyle" TargetType="TextBlock">
         <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}" />
         <Setter Property="Foreground" Value="{DynamicResource SecondaryTextBrush}" />
-        <Setter Property="FontSize" Value="{x:Static shell:ThemeDimensions.CaptionFontSize}" />
+        <Setter Property="FontSize" Value="{x:Static abstractions:ThemeDimensions.CaptionFontSize}" />
         <Setter Property="FontWeight" Value="Normal" />
     </Style>
 
@@ -960,7 +960,7 @@
         <Setter Property="Background" Value="Transparent" />
         <Setter Property="BorderThickness" Value="0" />
         <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}" />
-        <Setter Property="FontSize" Value="{x:Static shell:ThemeDimensions.BodyFontSize}" />
+        <Setter Property="FontSize" Value="{x:Static abstractions:ThemeDimensions.BodyFontSize}" />
         <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
         <Setter Property="CaretBrush" Value="{DynamicResource PrimaryTextBrush}" />
         <Setter Property="Padding" Value="10,0" />
@@ -974,7 +974,7 @@
         <Setter Property="Background" Value="{DynamicResource CardElevatedBrush}" />
         <Setter Property="Padding" Value="10,8" />
         <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}" />
-        <Setter Property="FontSize" Value="{x:Static shell:ThemeDimensions.BodyFontSize}" />
+        <Setter Property="FontSize" Value="{x:Static abstractions:ThemeDimensions.BodyFontSize}" />
         <Style.Triggers>
             <Trigger Property="IsHighlighted" Value="True">
                 <Setter Property="Background" Value="{DynamicResource ListItemHoverBrush}" />
@@ -998,7 +998,7 @@
     <Style x:Key="AppComboBoxFlatStyle" TargetType="ComboBox">
         <Setter Property="FocusVisualStyle" Value="{x:Null}" />
         <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}" />
-        <Setter Property="FontSize" Value="{x:Static shell:ThemeDimensions.BodyFontSize}" />
+        <Setter Property="FontSize" Value="{x:Static abstractions:ThemeDimensions.BodyFontSize}" />
         <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
         <Setter Property="Background" Value="Transparent" />
         <Setter Property="BorderThickness" Value="0" />
@@ -1111,7 +1111,7 @@
     <!-- アプリ全体の CheckBox：Indicator / 境界線はテーマ連動、本文は Body サイズ -->
     <Style x:Key="AppCheckBoxStyle" TargetType="CheckBox">
         <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}" />
-        <Setter Property="FontSize" Value="{x:Static shell:ThemeDimensions.BodyFontSize}" />
+        <Setter Property="FontSize" Value="{x:Static abstractions:ThemeDimensions.BodyFontSize}" />
         <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
         <Setter Property="Background" Value="Transparent" />
         <Setter Property="VerticalContentAlignment" Value="Center" />
