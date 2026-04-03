@@ -311,8 +311,11 @@ public class DatabaseService
         }
     }
 
+    private const string ClearTableSavepointName = "sp_pg_import_clear";
+
     /// <summary>
     /// 全量インポート前に対象テーブルを空にする。TRUNCATE を優先し、FK 等で失敗した場合のみ DELETE にフォールバックする。
+    /// TRUNCATE 失敗時はトランザクションが中止状態になるため、SAVEPOINT で囲み ROLLBACK TO SAVEPOINT 後に DELETE する（25P02 回避）。
     /// </summary>
     private static async Task ClearTableForFullImportAsync(
         NpgsqlConnection conn,
@@ -322,6 +325,11 @@ public class DatabaseService
         string quotedTableRef,
         IProgress<string>? progress)
     {
+        await using (var saveCmd = new NpgsqlCommand($"SAVEPOINT {ClearTableSavepointName}", conn, tx))
+        {
+            await saveCmd.ExecuteNonQueryAsync();
+        }
+
         try
         {
             await using var truncateCmd = new NpgsqlCommand(
@@ -329,16 +337,33 @@ public class DatabaseService
                 conn,
                 tx);
             await truncateCmd.ExecuteNonQueryAsync();
+            await using (var releaseCmd = new NpgsqlCommand($"RELEASE SAVEPOINT {ClearTableSavepointName}", conn, tx))
+            {
+                await releaseCmd.ExecuteNonQueryAsync();
+            }
+
             progress?.Report($"テーブル '{schemaName}.{tableName}' を TRUNCATE しました。");
         }
         catch (PostgresException ex) when (IsTruncateBlockedByForeignKey(ex))
         {
+            await RollbackToClearSavepointAsync(conn, tx);
             progress?.Report(
                 $"TRUNCATE が使用できないため DELETE で全件削除します（{ex.SqlState}: {ex.Message}）");
             await using var deleteCmd = new NpgsqlCommand($"DELETE FROM {quotedTableRef}", conn, tx);
             var deleted = await deleteCmd.ExecuteNonQueryAsync();
             progress?.Report($"DELETE により {deleted} 行を削除しました。");
         }
+        catch (PostgresException)
+        {
+            await RollbackToClearSavepointAsync(conn, tx);
+            throw;
+        }
+    }
+
+    private static async Task RollbackToClearSavepointAsync(NpgsqlConnection conn, NpgsqlTransaction tx)
+    {
+        await using var rb = new NpgsqlCommand($"ROLLBACK TO SAVEPOINT {ClearTableSavepointName}", conn, tx);
+        await rb.ExecuteNonQueryAsync();
     }
 
     private static bool IsTruncateBlockedByForeignKey(PostgresException ex)
