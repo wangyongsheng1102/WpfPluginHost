@@ -3,6 +3,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:ShellApp.Converters"
+        xmlns:abstractions="clr-namespace:Plugin.Abstractions;assembly=Plugin.Abstractions"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
@@ -184,7 +185,7 @@
                                        Text="ホーム"
                                        FontFamily="{DynamicResource AppFontFamilyBold}"
                                        FontWeight="Normal"
-                                       FontSize="16"
+                                       FontSize="{x:Static abstractions:ThemeDimensions.BodyFontSize}"
                                        Foreground="{DynamicResource PrimaryTextBrush}"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center"
@@ -399,7 +400,7 @@
                                    VerticalAlignment="Center"
                                    Margin="16,0,12,0"
                                    Foreground="{Binding GlobalStatus.TextColor}"
-                                   FontSize="13"
+                                   FontSize="{x:Static abstractions:ThemeDimensions.SmallFontSize}"
                                    TextTrimming="CharacterEllipsis"
                                    FontFamily="{DynamicResource AppFontFamilyBold}"
                                    FontWeight="Normal" />
@@ -484,7 +485,7 @@
                                            Margin="0,0,10,0"
                                            VerticalAlignment="Center"
                                            FontFamily="{DynamicResource AppFontFamilyBold}"
-                                           FontSize="12"
+                                           FontSize="{x:Static abstractions:ThemeDimensions.MicroFontSize}"
                                            Foreground="{DynamicResource PrimaryTextBrush}"
                                            Text="{Binding GlobalStatus.ProgressValue, StringFormat={}{0:0}%}">
                                     <TextBlock.Style>

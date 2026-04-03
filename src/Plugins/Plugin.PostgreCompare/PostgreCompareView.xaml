@@ -3,23 +3,24 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:abstractions="clr-namespace:Plugin.Abstractions;assembly=Plugin.Abstractions"
              mc:Ignorable="d"
-             FontSize="{DynamicResource BodyFontSize}"
+             FontSize="{x:Static abstractions:ThemeDimensions.BodyFontSize}"
              Background="{DynamicResource ContentBackgroundBrush}">
     <UserControl.Resources>
         <ResourceDictionary>
             <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
-            <!-- TabItem が FontSize=20 のため内容が継承するのを防ぎ、PixelCompare と同じ BodyFontSize をボタンに適用 -->
+            <!-- TabItem が Subtitle サイズのため内容が継承するのを防ぎ、本文サイズをボタンに明示 -->
             <Style x:Key="PostgrePrimaryButtonStyle" TargetType="Button" BasedOn="{StaticResource PrimaryButtonStyle}">
-                <Setter Property="FontSize" Value="{DynamicResource BodyFontSize}" />
+                <Setter Property="FontSize" Value="{x:Static abstractions:ThemeDimensions.BodyFontSize}" />
             </Style>
             <Style x:Key="PostgreActionButtonStyle" TargetType="Button" BasedOn="{StaticResource ActionButtonStyle}">
-                <Setter Property="FontSize" Value="{DynamicResource BodyFontSize}" />
+                <Setter Property="FontSize" Value="{x:Static abstractions:ThemeDimensions.BodyFontSize}" />
             </Style>
             <!-- タぶ項目のスタイルを定義 -->
             <Style x:Key="PostgreTabItemStyle" TargetType="TabItem">
                 <Setter Property="FontFamily" Value="{StaticResource AppFontFamilyBold}" />
-                <Setter Property="FontSize" Value="20" />
+                <Setter Property="FontSize" Value="{x:Static abstractions:ThemeDimensions.SubtitleFontSize}" />
                 <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
                 <Setter Property="Padding" Value="20,10" />
                 <Setter Property="Margin" Value="0,0,10,0" />

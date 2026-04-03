@@ -59,7 +59,7 @@
                                             </Image.Style>
                                         </Image>
                                         <TextBlock Text="{Binding IconGlyph}"
-                                                   FontSize="32"
+                                                   FontSize="{x:Static abstractions:ThemeDimensions.CardIconGlyphFontSize}"
                                                    HorizontalAlignment="Left"
                                                    VerticalAlignment="Center"
                                                    Foreground="{DynamicResource PrimaryTextBrush}">

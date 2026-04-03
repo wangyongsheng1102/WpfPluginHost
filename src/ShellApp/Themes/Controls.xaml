@@ -51,6 +51,7 @@
     </Style>
     <Style x:Key="ActionButtonStyle" TargetType="Button">
         <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}" />
+        <Setter Property="FontSize" Value="{x:Static abstractions:ThemeDimensions.ButtonFontSize}" />
         <Setter Property="Background" Value="{DynamicResource ContentBackgroundBrush}" />
         <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
         <Setter Property="BorderThickness" Value="1" />
@@ -91,6 +92,7 @@
     <!-- ホーム画面のプラグインカード -->
     <Style x:Key="PluginCardButtonStyle" TargetType="Button">
         <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}" />
+        <Setter Property="FontSize" Value="{x:Static abstractions:ThemeDimensions.ButtonFontSize}" />
         <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
         <Setter Property="Background" Value="{DynamicResource NavBackgroundBrush}" />
         <Setter Property="BorderBrush" Value="{DynamicResource BorderSubtleBrush}" />
@@ -175,6 +177,7 @@
 
     <Style x:Key="PrimaryButtonStyle" TargetType="Button">
         <Setter Property="FontFamily" Value="{StaticResource AppFontFamilyBold}" />
+        <Setter Property="FontSize" Value="{x:Static abstractions:ThemeDimensions.ButtonFontSize}" />
         <Setter Property="Background" Value="{DynamicResource IndicatorBrush}" />
         <Setter Property="Foreground" Value="{DynamicResource PrimaryButtonTextBrush}" />
         <Setter Property="BorderThickness" Value="0" />
@@ -450,6 +453,7 @@
     <!-- DataGridTextColumn のセル内 TextBlock はアプリの暗黙スタイルが効かないため、ElementStyle 用 -->
     <Style x:Key="DataGridTextColumnElementStyle" TargetType="TextBlock">
         <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}" />
+        <Setter Property="FontSize" Value="{x:Static abstractions:ThemeDimensions.BodyFontSize}" />
         <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
         <Setter Property="VerticalAlignment" Value="Center" />
         <Setter Property="TextTrimming" Value="CharacterEllipsis" />
@@ -463,6 +467,7 @@
 
     <Style x:Key="AppDataGridColumnHeaderStyle" TargetType="DataGridColumnHeader">
         <Setter Property="FontFamily" Value="{StaticResource AppFontFamilyBold}" />
+        <Setter Property="FontSize" Value="{x:Static abstractions:ThemeDimensions.DataGridHeaderFontSize}" />
         <Setter Property="FontWeight" Value="Normal" />
         <Setter Property="Background" Value="{DynamicResource CardElevatedBrush}" />
         <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
@@ -543,6 +548,8 @@
 
     <!-- テーブル風 ListBox 行：Theme の ListItemHoverBrush / ListItemSelectedBrush（ComboBox 候補と同じトーン） -->
     <Style x:Key="AppFlatSelectableRowListBoxItemStyle" TargetType="ListBoxItem">
+        <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}" />
+        <Setter Property="FontSize" Value="{x:Static abstractions:ThemeDimensions.BodyFontSize}" />
         <Setter Property="Padding" Value="0" />
         <Setter Property="Margin" Value="0" />
         <Setter Property="HorizontalContentAlignment" Value="Stretch" />
@@ -574,7 +581,7 @@
         <Setter Property="HorizontalAlignment" Value="Left" />
         <Setter Property="VerticalAlignment" Value="Center" />
         <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
-        <Setter Property="FontSize" Value="24" />
+        <Setter Property="FontSize" Value="{x:Static abstractions:ThemeDimensions.NavIconGlyphFontSize}" />
         <Setter Property="Margin" Value="22,0,0,0" />
         <Setter Property="Width" Value="32" />
         <Setter Property="TextAlignment" Value="Center" />
