@@ -246,34 +246,27 @@ public class DatabaseService
                 throw new FileNotFoundException($"CSVファイル '{csvPath}' が見つかりません。");
             }
 
-            progress?.Report($"テーブル '{schemaName}.{tableName}' をクリアしています...");
-
-            try
-            {
-                await using var truncateCmd = new NpgsqlCommand($"TRUNCATE TABLE {schemaName}.{tableName}", conn);
-                await truncateCmd.ExecuteNonQueryAsync();
-            }
-            catch (Exception ex)
-            {
-                progress?.Report($"テーブルクリアに失敗しましたが続行します: {ex.Message}");
-            }
-
-            progress?.Report($"テーブル '{schemaName}.{tableName}' にデータをインポートしています...");
-
-            var copySql = $"COPY {schemaName}.{tableName} FROM STDIN WITH (" +
-                         $"FORMAT CSV, " +
-                         $"HEADER true, " +
-                         $"DELIMITER ',', " +
-                         $"QUOTE '\"', " +
-                         $"ESCAPE '\"', " +
-                         $"ENCODING 'UTF8'" +
-                         $")";
+            var quotedRef = GetQuotedTableRef(schemaName, tableName);
+            var copySql = $"COPY {quotedRef} FROM STDIN WITH (" +
+                          $"FORMAT CSV, " +
+                          $"HEADER true, " +
+                          $"DELIMITER ',', " +
+                          $"QUOTE '\"', " +
+                          $"ESCAPE '\"', " +
+                          $"ENCODING 'UTF8'" +
+                          $")";
 
             long importedRows = 0;
             var stopwatch = Stopwatch.StartNew();
 
+            await using var tx = await conn.BeginTransactionAsync();
             try
             {
+                progress?.Report($"テーブル '{schemaName}.{tableName}' をクリアしています（全件削除後に CSV を取り込みます）...");
+                await ClearTableForFullImportAsync(conn, tx, schemaName, tableName, quotedRef, progress);
+
+                progress?.Report($"テーブル '{schemaName}.{tableName}' にデータをインポートしています...");
+
                 await using (var writer = conn.BeginTextImport(copySql))
                 {
                     using var fileStream = new FileStream(csvPath, FileMode.Open, FileAccess.Read, FileShare.Read, 65536, FileOptions.SequentialScan);
@@ -294,12 +287,20 @@ public class DatabaseService
                     }
                 }
 
+                await tx.CommitAsync();
+
                 stopwatch.Stop();
                 progress?.Report($"テーブル '{schemaName}.{tableName}' のインポートが完了しました。処理時間: {stopwatch.Elapsed.TotalSeconds:F2} 秒");
             }
             catch (PostgresException ex) when (ex.SqlState == "42P01")
             {
+                await tx.RollbackAsync();
                 progress?.Report($"インポート中にテーブル '{schemaName}.{tableName}' が削除されました。");
+                throw;
+            }
+            catch
+            {
+                await tx.RollbackAsync();
                 throw;
             }
         }
@@ -308,6 +309,58 @@ public class DatabaseService
             progress?.Report($"テーブル '{schemaName}.{tableName}' のインポート中にエラーが発生しました: {ex.Message}");
             throw;
         }
+    }
+
+    /// <summary>
+    /// 全量インポート前に対象テーブルを空にする。TRUNCATE を優先し、FK 等で失敗した場合のみ DELETE にフォールバックする。
+    /// </summary>
+    private static async Task ClearTableForFullImportAsync(
+        NpgsqlConnection conn,
+        NpgsqlTransaction tx,
+        string schemaName,
+        string tableName,
+        string quotedTableRef,
+        IProgress<string>? progress)
+    {
+        try
+        {
+            await using var truncateCmd = new NpgsqlCommand(
+                $"TRUNCATE TABLE {quotedTableRef} RESTART IDENTITY",
+                conn,
+                tx);
+            await truncateCmd.ExecuteNonQueryAsync();
+            progress?.Report($"テーブル '{schemaName}.{tableName}' を TRUNCATE しました。");
+        }
+        catch (PostgresException ex) when (IsTruncateBlockedByForeignKey(ex))
+        {
+            progress?.Report(
+                $"TRUNCATE が使用できないため DELETE で全件削除します（{ex.SqlState}: {ex.Message}）");
+            await using var deleteCmd = new NpgsqlCommand($"DELETE FROM {quotedTableRef}", conn, tx);
+            var deleted = await deleteCmd.ExecuteNonQueryAsync();
+            progress?.Report($"DELETE により {deleted} 行を削除しました。");
+        }
+    }
+
+    private static bool IsTruncateBlockedByForeignKey(PostgresException ex)
+    {
+        if (ex.SqlState == "0A000")
+        {
+            return true;
+        }
+
+        var msg = ex.Message ?? string.Empty;
+        return msg.Contains("foreign key", StringComparison.OrdinalIgnoreCase)
+               || msg.Contains("参照", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static string QuotePgIdent(string name)
+    {
+        return "\"" + (name ?? string.Empty).Replace("\"", "\"\"", StringComparison.Ordinal) + "\"";
+    }
+
+    private static string GetQuotedTableRef(string schemaName, string tableName)
+    {
+        return $"{QuotePgIdent(schemaName)}.{QuotePgIdent(tableName)}";
     }
 
     private static long CountNewlines(char[] buffer, int length)
