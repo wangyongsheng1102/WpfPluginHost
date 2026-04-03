@@ -375,7 +375,7 @@
                 <Border Grid.Row="1"
                         Margin="0,7,6,3"
                         Background="{DynamicResource ContentBackgroundBrush}"
-                        CornerRadius="{x:Static abstractions:ThemeDimensions.RadiusMedium}">
+                        CornerRadius="8">
                     <ContentControl Margin="4"
                                     Background="{DynamicResource ContentBackgroundBrush}"
                                     Content="{Binding CurrentView}" />
@@ -386,7 +386,7 @@
                         Margin="0,0,12,12"
                         Height="{x:Static abstractions:ThemeDimensions.StatusBarHeight}"
                         Background="{DynamicResource NavBackgroundBrush}"
-                        CornerRadius="{x:Static abstractions:ThemeDimensions.RadiusLarge}"
+                        CornerRadius="10"
                         BorderBrush="{DynamicResource BorderSubtleBrush}"
                         BorderThickness="1">
                     <Grid>
