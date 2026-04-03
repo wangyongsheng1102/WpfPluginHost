@@ -277,9 +277,8 @@
                     <StackPanel Grid.Row="3"
                                 Margin="0,4,0,14"
                                 Orientation="Vertical"
-                                HorizontalAlignment="Left"
-                                VerticalAlignment="Bottom"
-                                Width="84">
+                                HorizontalAlignment="Stretch"
+                                VerticalAlignment="Bottom">
                         <Button Width="40"
                                 Height="40"
                                 HorizontalAlignment="Center"
