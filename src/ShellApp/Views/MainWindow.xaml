@@ -359,7 +359,8 @@
                                    Text="{Binding PluginCountNavDisplay}"
                                    ToolTip="{Binding PluginCountText}"
                                    TextAlignment="Center"
-                                   TextWrapping="Wrap"
+                                   TextWrapping="NoWrap"
+                                   TextTrimming="CharacterEllipsis"
                                    Style="{StaticResource SecondaryTextStyle}" />
                     </StackPanel>
                 </Grid>
