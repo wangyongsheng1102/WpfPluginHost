@@ -1,5 +1,6 @@
-using Plugin.Abstractions;
 using System.IO;
+using System.Windows;
+using Plugin.Abstractions;
 
 namespace ShellApp.ViewModels;
 
@@ -33,15 +34,26 @@ public sealed class PluginMenuItemViewModel
             return explicitPath;
         }
 
-        // 統一規約によるフォールバック: Assets/Images/img_{id}.png
         if (string.IsNullOrWhiteSpace(moduleId))
         {
             return null;
         }
 
         var normalizedId = moduleId.Trim().ToLowerInvariant();
-        var conventionRelativePath = Path.Combine("Assets", "Images", $"img_{normalizedId}.png");
-        return ResolveFromPath(conventionRelativePath);
+        foreach (var relative in new[]
+                 {
+                     Path.Combine("Assets", "Images", $"img_{normalizedId}.png"),
+                     Path.Combine("Assets", "Images", $"img_plugin.{normalizedId}.png"),
+                 })
+        {
+            var resolved = ResolveFromPath(relative);
+            if (resolved is not null)
+            {
+                return resolved;
+            }
+        }
+
+        return null;
     }
 
     private static string? ResolveFromPath(string? pathValue)
@@ -55,19 +67,54 @@ public sealed class PluginMenuItemViewModel
             ? pathValue!
             : Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, pathValue!));
 
-        // 1) 如果仍然存在于文件系统（例如开发环境或你显式保留拷贝），优先返回绝对路径
         if (File.Exists(fullPath))
         {
             return fullPath;
         }
 
-        // 2) 否则尝试从 WPF 资源加载：
-        //    当 Assets/Images 作为 Resource 嵌入到程序集后，Image 可以直接用 pack URI 加载。
-        var normalized = pathValue!.Replace("\\", "/").TrimStart('/');
+        var normalized = pathValue!.Replace('\\', '/').TrimStart('/');
         const string assetPrefix = "Assets/Images/";
-        if (normalized.StartsWith(assetPrefix, StringComparison.OrdinalIgnoreCase))
+        if (!normalized.StartsWith(assetPrefix, StringComparison.OrdinalIgnoreCase))
         {
-            return "/" + normalized;
+            return null;
+        }
+
+        // バインド時は「/Assets/...」では埋め込みリソースを解決できない。pack URI のみ返す。
+        // 実在確認：無い URI を返すと Image が空のままになり IconGlyph も隠れるため、GetResourceStream で確認する。
+        return TryPackUriIfEmbeddedResourceExists(normalized);
+    }
+
+    private static string? TryPackUriIfEmbeddedResourceExists(string normalizedAssetsPath)
+    {
+        if (Application.Current is null)
+        {
+            return null;
+        }
+
+        var asmName = typeof(PluginMenuItemViewModel).Assembly.GetName().Name;
+        if (string.IsNullOrEmpty(asmName))
+        {
+            return null;
+        }
+
+        var attempts = new[]
+        {
+            new Uri($"pack://application:,,,/{normalizedAssetsPath}", UriKind.Absolute),
+            new Uri($"pack://application:,,,/{asmName};component/{normalizedAssetsPath}", UriKind.Absolute),
+        };
+
+        foreach (var uri in attempts)
+        {
+            try
+            {
+                if (Application.GetResourceStream(uri) is not null)
+                {
+                    return uri.OriginalString;
+                }
+            }
+            catch (UriFormatException)
+            {
+            }
         }
 
         return null;
