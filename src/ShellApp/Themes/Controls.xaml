@@ -246,42 +246,110 @@
                             BorderBrush="Transparent"
                             BorderThickness="1"
                             CornerRadius="{StaticResource SmallRadius}"
-                            Padding="5"
+                            Padding="2"
                             Margin="0"
                             Opacity="1"
                             ClipToBounds="False"
                             RenderTransformOrigin="0.5,0.5">
                         <Border.RenderTransform>
-                            <ScaleTransform ScaleX="1" ScaleY="1" />
+                            <ScaleTransform x:Name="AboutRootScale" ScaleX="1" ScaleY="1" />
                         </Border.RenderTransform>
-                        <Viewbox Width="28"
-                                 Height="28"
-                                 Stretch="Uniform"
-                                 HorizontalAlignment="Center"
-                                 VerticalAlignment="Center">
-                            <Path Data="{StaticResource AboutIconGeometry}"
-                                  Fill="{DynamicResource PrimaryTextBrush}"
-                                  Stretch="Uniform" />
-                        </Viewbox>
-                        <!-- ホバー時の呼吸アニメーション（押下状態と競合しないよう MouseLeave で停止） -->
+                        <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <!-- 発光リング（ホバー時にパルス表示） -->
+                            <Ellipse x:Name="GlowRing"
+                                     Width="36" Height="36"
+                                     HorizontalAlignment="Center"
+                                     VerticalAlignment="Center"
+                                     StrokeThickness="2"
+                                     Opacity="0"
+                                     RenderTransformOrigin="0.5,0.5">
+                                <Ellipse.Stroke>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                        <GradientStop Color="#FF42A5F5" Offset="0" />
+                                        <GradientStop Color="#FFAB47BC" Offset="0.5" />
+                                        <GradientStop Color="#FF26C6DA" Offset="1" />
+                                    </LinearGradientBrush>
+                                </Ellipse.Stroke>
+                                <Ellipse.RenderTransform>
+                                    <RotateTransform x:Name="GlowRingRotate" Angle="0" />
+                                </Ellipse.RenderTransform>
+                            </Ellipse>
+
+                            <!-- アイコン本体 -->
+                            <Viewbox Width="24" Height="24"
+                                     Stretch="Uniform"
+                                     HorizontalAlignment="Center"
+                                     VerticalAlignment="Center"
+                                     RenderTransformOrigin="0.5,0.5">
+                                <Viewbox.RenderTransform>
+                                    <TransformGroup>
+                                        <RotateTransform x:Name="AboutIconSpin" Angle="0" />
+                                        <ScaleTransform x:Name="AboutIconPulse" ScaleX="1" ScaleY="1" />
+                                    </TransformGroup>
+                                </Viewbox.RenderTransform>
+                                <Path Data="{StaticResource AboutIconGeometry}"
+                                      Fill="{DynamicResource PrimaryTextBrush}"
+                                      Stretch="Uniform" />
+                            </Viewbox>
+                        </Grid>
                         <Border.Triggers>
+                            <!-- ホバー：アイコン回転＋パルス＋発光リング -->
                             <EventTrigger RoutedEvent="MouseEnter">
-                                <BeginStoryboard Name="AboutBreathingStoryboard">
-                                    <Storyboard RepeatBehavior="Forever" AutoReverse="True">
-                                        <DoubleAnimation Storyboard.TargetName="Root"
-                                                         Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)"
-                                                         From="1"
-                                                         To="{x:Static abstractions:ThemeDimensions.IconHoverScale}"
-                                                         Duration="{StaticResource IconHoverBreathDuration}">
+                                <BeginStoryboard x:Name="AboutHoverStoryboard">
+                                    <Storyboard>
+                                        <!-- アイコン 360° 回転 -->
+                                        <DoubleAnimation Storyboard.TargetName="AboutIconSpin"
+                                                         Storyboard.TargetProperty="Angle"
+                                                         From="0" To="360"
+                                                         Duration="0:0:1.8"
+                                                         RepeatBehavior="Forever">
                                             <DoubleAnimation.EasingFunction>
                                                 <SineEase EasingMode="EaseInOut" />
                                             </DoubleAnimation.EasingFunction>
                                         </DoubleAnimation>
-                                        <DoubleAnimation Storyboard.TargetName="Root"
-                                                         Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)"
-                                                         From="1"
-                                                         To="{x:Static abstractions:ThemeDimensions.IconHoverScale}"
-                                                         Duration="{StaticResource IconHoverBreathDuration}">
+                                        <!-- アイコン拡縮パルス -->
+                                        <DoubleAnimation Storyboard.TargetName="AboutIconPulse"
+                                                         Storyboard.TargetProperty="ScaleX"
+                                                         From="1" To="1.15"
+                                                         Duration="0:0:0.6"
+                                                         AutoReverse="True"
+                                                         RepeatBehavior="Forever">
+                                            <DoubleAnimation.EasingFunction>
+                                                <SineEase EasingMode="EaseInOut" />
+                                            </DoubleAnimation.EasingFunction>
+                                        </DoubleAnimation>
+                                        <DoubleAnimation Storyboard.TargetName="AboutIconPulse"
+                                                         Storyboard.TargetProperty="ScaleY"
+                                                         From="1" To="1.15"
+                                                         Duration="0:0:0.6"
+                                                         AutoReverse="True"
+                                                         RepeatBehavior="Forever">
+                                            <DoubleAnimation.EasingFunction>
+                                                <SineEase EasingMode="EaseInOut" />
+                                            </DoubleAnimation.EasingFunction>
+                                        </DoubleAnimation>
+                                        <!-- 発光リング：フェードイン -->
+                                        <DoubleAnimation Storyboard.TargetName="GlowRing"
+                                                         Storyboard.TargetProperty="Opacity"
+                                                         To="0.8"
+                                                         Duration="0:0:0.3">
+                                            <DoubleAnimation.EasingFunction>
+                                                <CubicEase EasingMode="EaseOut" />
+                                            </DoubleAnimation.EasingFunction>
+                                        </DoubleAnimation>
+                                        <!-- 発光リング：回転（アイコンと逆方向） -->
+                                        <DoubleAnimation Storyboard.TargetName="GlowRingRotate"
+                                                         Storyboard.TargetProperty="Angle"
+                                                         From="0" To="-360"
+                                                         Duration="0:0:3"
+                                                         RepeatBehavior="Forever" />
+                                        <!-- 発光リング：呼吸パルス -->
+                                        <DoubleAnimation Storyboard.TargetName="GlowRing"
+                                                         Storyboard.TargetProperty="StrokeThickness"
+                                                         From="1.5" To="3"
+                                                         Duration="0:0:0.8"
+                                                         AutoReverse="True"
+                                                         RepeatBehavior="Forever">
                                             <DoubleAnimation.EasingFunction>
                                                 <SineEase EasingMode="EaseInOut" />
                                             </DoubleAnimation.EasingFunction>
@@ -290,17 +358,28 @@
                                 </BeginStoryboard>
                             </EventTrigger>
                             <EventTrigger RoutedEvent="MouseLeave">
-                                <StopStoryboard BeginStoryboardName="AboutBreathingStoryboard" />
+                                <StopStoryboard BeginStoryboardName="AboutHoverStoryboard" />
                                 <BeginStoryboard>
                                     <Storyboard>
-                                        <DoubleAnimation Storyboard.TargetName="Root"
-                                                         Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)"
-                                                         To="1"
-                                                         Duration="{StaticResource IconHoverReturnDuration}" />
-                                        <DoubleAnimation Storyboard.TargetName="Root"
-                                                         Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)"
-                                                         To="1"
-                                                         Duration="{StaticResource IconHoverReturnDuration}" />
+                                        <DoubleAnimation Storyboard.TargetName="AboutIconSpin"
+                                                         Storyboard.TargetProperty="Angle"
+                                                         To="0" Duration="0:0:0.3">
+                                            <DoubleAnimation.EasingFunction>
+                                                <CubicEase EasingMode="EaseOut" />
+                                            </DoubleAnimation.EasingFunction>
+                                        </DoubleAnimation>
+                                        <DoubleAnimation Storyboard.TargetName="AboutIconPulse"
+                                                         Storyboard.TargetProperty="ScaleX"
+                                                         To="1" Duration="0:0:0.2" />
+                                        <DoubleAnimation Storyboard.TargetName="AboutIconPulse"
+                                                         Storyboard.TargetProperty="ScaleY"
+                                                         To="1" Duration="0:0:0.2" />
+                                        <DoubleAnimation Storyboard.TargetName="GlowRing"
+                                                         Storyboard.TargetProperty="Opacity"
+                                                         To="0" Duration="0:0:0.2" />
+                                        <DoubleAnimation Storyboard.TargetName="GlowRingRotate"
+                                                         Storyboard.TargetProperty="Angle"
+                                                         To="0" Duration="0:0:0.3" />
                                     </Storyboard>
                                 </BeginStoryboard>
                             </EventTrigger>
@@ -311,10 +390,62 @@
                             <Setter TargetName="Root" Property="Background" Value="{DynamicResource ButtonHoverGradientBrush}" />
                             <Setter TargetName="Root" Property="BorderBrush" Value="{DynamicResource HoverBrush}" />
                         </Trigger>
+                        <!-- 按下：弹性缩小 -->
                         <Trigger Property="IsPressed" Value="True">
                             <Setter TargetName="Root" Property="Background" Value="{DynamicResource ButtonPressedGradientBrush}" />
                             <Setter TargetName="Root" Property="BorderBrush" Value="{DynamicResource HoverBrush}" />
-                            <Setter TargetName="Root" Property="Opacity" Value="0.85" />
+                            <Trigger.EnterActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Storyboard.TargetName="AboutRootScale"
+                                                         Storyboard.TargetProperty="ScaleX"
+                                                         To="0.85" Duration="0:0:0.08">
+                                            <DoubleAnimation.EasingFunction>
+                                                <CubicEase EasingMode="EaseOut" />
+                                            </DoubleAnimation.EasingFunction>
+                                        </DoubleAnimation>
+                                        <DoubleAnimation Storyboard.TargetName="AboutRootScale"
+                                                         Storyboard.TargetProperty="ScaleY"
+                                                         To="0.85" Duration="0:0:0.08">
+                                            <DoubleAnimation.EasingFunction>
+                                                <CubicEase EasingMode="EaseOut" />
+                                            </DoubleAnimation.EasingFunction>
+                                        </DoubleAnimation>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </Trigger.EnterActions>
+                            <Trigger.ExitActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimationUsingKeyFrames Storyboard.TargetName="AboutRootScale"
+                                                                       Storyboard.TargetProperty="ScaleX">
+                                            <EasingDoubleKeyFrame KeyTime="0:0:0.1" Value="1.1">
+                                                <EasingDoubleKeyFrame.EasingFunction>
+                                                    <CubicEase EasingMode="EaseOut" />
+                                                </EasingDoubleKeyFrame.EasingFunction>
+                                            </EasingDoubleKeyFrame>
+                                            <EasingDoubleKeyFrame KeyTime="0:0:0.2" Value="1">
+                                                <EasingDoubleKeyFrame.EasingFunction>
+                                                    <CubicEase EasingMode="EaseInOut" />
+                                                </EasingDoubleKeyFrame.EasingFunction>
+                                            </EasingDoubleKeyFrame>
+                                        </DoubleAnimationUsingKeyFrames>
+                                        <DoubleAnimationUsingKeyFrames Storyboard.TargetName="AboutRootScale"
+                                                                       Storyboard.TargetProperty="ScaleY">
+                                            <EasingDoubleKeyFrame KeyTime="0:0:0.1" Value="1.1">
+                                                <EasingDoubleKeyFrame.EasingFunction>
+                                                    <CubicEase EasingMode="EaseOut" />
+                                                </EasingDoubleKeyFrame.EasingFunction>
+                                            </EasingDoubleKeyFrame>
+                                            <EasingDoubleKeyFrame KeyTime="0:0:0.2" Value="1">
+                                                <EasingDoubleKeyFrame.EasingFunction>
+                                                    <CubicEase EasingMode="EaseInOut" />
+                                                </EasingDoubleKeyFrame.EasingFunction>
+                                            </EasingDoubleKeyFrame>
+                                        </DoubleAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </Trigger.ExitActions>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
