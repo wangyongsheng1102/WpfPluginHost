@@ -521,9 +521,10 @@
                     WindowChrome.IsHitTestVisibleInChrome="True">
             <Button Style="{StaticResource AboutAppStyle}"
                     Command="{Binding ShowAuthorCommand}" />
-            <Button Style="{StaticResource ExitAppStyle}"
-                    Click="CloseButton_Click"
-                    ToolTip="閉じる" />
+            <ToggleButton x:Name="ExitToggle"
+                          Style="{StaticResource ExitAppToggleStyle}"
+                          Checked="ExitToggle_Checked"
+                          ToolTip="閉じる" />
         </StackPanel>
     </Grid>
 </Window>

@@ -1,5 +1,6 @@
 using System.Windows;
 using System.Windows.Media.Animation;
+using System.Windows.Threading;
 using System.ComponentModel;
 using Plugin.Abstractions;
 using ShellApp.ViewModels;
@@ -17,9 +18,16 @@ public partial class MainWindow : Window
         DataContextChanged += OnDataContextChanged;
     }
 
-    private void CloseButton_Click(object sender, RoutedEventArgs e)
+    private void ExitToggle_Checked(object sender, RoutedEventArgs e)
     {
-        Close();
+        var fadeOut = new DoubleAnimation
+        {
+            To = 0,
+            Duration = TimeSpan.FromMilliseconds(400),
+            EasingFunction = new CubicEase { EasingMode = EasingMode.EaseIn }
+        };
+        fadeOut.Completed += (_, _) => Close();
+        BeginAnimation(OpacityProperty, fadeOut);
     }
 
     private void ToggleMaximizeRestore()
