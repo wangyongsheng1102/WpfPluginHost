@@ -1,6 +1,6 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+                    xmlns:sys="clr-namespace:System;assembly=System.Private.CoreLib">
     <!-- animation params -->
     <sys:Double x:Key="IconHoverScale">1.08</sys:Double>
     <Duration x:Key="IconHoverBreathDuration">0:0:0.9</Duration>
