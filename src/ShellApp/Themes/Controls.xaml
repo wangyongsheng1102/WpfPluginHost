@@ -287,9 +287,26 @@
                                         <ScaleTransform x:Name="AboutIconPulse" ScaleX="1" ScaleY="1" />
                                     </TransformGroup>
                                 </Viewbox.RenderTransform>
-                                <Path Data="{StaticResource AboutIconGeometry}"
-                                      Fill="{DynamicResource PrimaryTextBrush}"
-                                      Stretch="Uniform" />
+                                <Grid Width="24" Height="24">
+                                    <!-- 通常：filled SVG -->
+                                    <svgc:SvgViewbox x:Name="AboutIconFullHost"
+                                                     Source="/Assets/SVG/user-person-profile-block-account-circle-full.svg"
+                                                     Stretch="Uniform"
+                                                     Width="24"
+                                                     Height="24"
+                                                     HorizontalAlignment="Center"
+                                                     VerticalAlignment="Center"
+                                                     Visibility="Visible" />
+                                    <!-- ホバー：empty SVG -->
+                                    <svgc:SvgViewbox x:Name="AboutIconEmptyHost"
+                                                     Source="/Assets/SVG/user-person-profile-block-account-circle-emptysvg.svg"
+                                                     Stretch="Uniform"
+                                                     Width="24"
+                                                     Height="24"
+                                                     HorizontalAlignment="Center"
+                                                     VerticalAlignment="Center"
+                                                     Visibility="Collapsed" />
+                                </Grid>
                             </Viewbox>
                         </Grid>
                         <Border.Triggers>
@@ -389,6 +406,8 @@
                         <Trigger Property="IsMouseOver" Value="True">
                             <Setter TargetName="Root" Property="Background" Value="{DynamicResource ButtonHoverGradientBrush}" />
                             <Setter TargetName="Root" Property="BorderBrush" Value="{DynamicResource HoverBrush}" />
+                            <Setter TargetName="AboutIconFullHost" Property="Visibility" Value="Collapsed" />
+                            <Setter TargetName="AboutIconEmptyHost" Property="Visibility" Value="Visible" />
                         </Trigger>
                         <!-- 按下：弹性缩小 -->
                         <Trigger Property="IsPressed" Value="True">
