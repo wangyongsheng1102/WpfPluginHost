@@ -7,6 +7,7 @@
     <UseWPF>true</UseWPF>
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
     <ApplicationIcon>toolbox_repair_box_tool_box_toolboxes_toolkit_icon_189326.ico</ApplicationIcon>
+    <AssemblyName>ツールボックス</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
