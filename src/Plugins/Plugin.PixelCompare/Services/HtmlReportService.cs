@@ -1,6 +1,7 @@
 using Plugin.PixelCompare.Models;
 using System.Text;
 using System.IO;
+using System.Reflection;
 
 namespace Plugin.PixelCompare.Services;
 
@@ -154,14 +155,34 @@ public sealed class HtmlReportService
     private static IEnumerable<string> GetFontCandidatePaths(string fileName)
     {
         var baseDir = AppContext.BaseDirectory;
+        var assemblyDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+
         yield return Path.Combine(baseDir, "Assets", "Fonts", fileName);
+        if (!string.IsNullOrWhiteSpace(assemblyDir))
+        {
+            yield return Path.Combine(assemblyDir, "Assets", "Fonts", fileName);
+        }
+
+        yield return Path.Combine(baseDir, "plugins", "Plugin.PixelCompare", "Assets", "Fonts", fileName);
         yield return Path.Combine(Directory.GetCurrentDirectory(), "Assets", "Fonts", fileName);
 
         var dir = new DirectoryInfo(baseDir);
         for (var i = 0; i < 5 && dir is not null; i++)
         {
             yield return Path.Combine(dir.FullName, "Assets", "Fonts", fileName);
+            yield return Path.Combine(dir.FullName, "plugins", "Plugin.PixelCompare", "Assets", "Fonts", fileName);
             dir = dir.Parent;
+        }
+
+        if (!string.IsNullOrWhiteSpace(assemblyDir))
+        {
+            dir = new DirectoryInfo(assemblyDir);
+            for (var i = 0; i < 5 && dir is not null; i++)
+            {
+                yield return Path.Combine(dir.FullName, "Assets", "Fonts", fileName);
+                yield return Path.Combine(dir.FullName, "plugins", "Plugin.PixelCompare", "Assets", "Fonts", fileName);
+                dir = dir.Parent;
+            }
         }
     }
 }
