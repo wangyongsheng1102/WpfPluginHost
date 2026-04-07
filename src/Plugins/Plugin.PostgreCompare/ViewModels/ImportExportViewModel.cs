@@ -178,13 +178,14 @@ public partial class ImportExportViewModel : ObservableObject
             _mainViewModel.AppendLog($"エクスポートを開始しています... ({selectedTables.Count} テーブル)", LogLevel.Info);
 
             var connectionString = SelectedConnection.GetConnectionString();
+            await using var conn = await _databaseService.OpenConnectionAsync(connectionString);
             int completed = 0;
 
             foreach (var table in selectedTables)
             {
                 var csvPath = Path.Combine(exportDir, $"{table.TableName}.csv");
                 await _databaseService.ExportTableToCsvAsync(
-                    connectionString,
+                    conn,
                     table.SchemaName,
                     table.TableName,
                     csvPath,
@@ -262,13 +263,14 @@ public partial class ImportExportViewModel : ObservableObject
             _mainViewModel.AppendLog($"インポートを開始しています... ({csvFiles.Length} ファイル)", LogLevel.Info);
 
             var connectionString = SelectedConnection.GetConnectionString();
+            await using var conn = await _databaseService.OpenConnectionAsync(connectionString);
             int completed = 0;
 
             foreach (var csvFile in csvFiles)
             {
                 var tableName = Path.GetFileNameWithoutExtension(csvFile);
                 await _databaseService.ImportTableFromCsvAsync(
-                    connectionString,
+                    conn,
                     SelectedSchema,
                     tableName,
                     csvFile,
@@ -292,4 +294,3 @@ public partial class ImportExportViewModel : ObservableObject
         }
     }
 }
-

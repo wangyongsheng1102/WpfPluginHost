@@ -239,6 +239,9 @@ public partial class CompareViewModel : ObservableObject
             await Task.Run(async () =>
             {
                 var connectionString = SelectedConnection.GetConnectionString();
+                var baseFileMap = BuildCsvLookup(BaseFolderPath);
+                var oldFileMap = BuildCsvLookup(OldFolderPath);
+                var newFileMap = BuildCsvLookup(NewFolderPath);
                 var baseVsOldResults = new List<RowComparisonResult>();
                 var baseVsNewResults = new List<RowComparisonResult>();
                 var completed = 0;
@@ -256,9 +259,9 @@ public partial class CompareViewModel : ObservableObject
                     var csvFileName = csvFileInfo.FileName;
                     _mainViewModel.AppendLog($"{csvFileName} を比較しています...", LogLevel.Info);
 
-                    var baseCsvPath = FindCsvFile(BaseFolderPath, csvFileName);
-                    var oldCsvPath = FindCsvFile(OldFolderPath, csvFileName);
-                    var newCsvPath = FindCsvFile(NewFolderPath, csvFileName);
+                    baseFileMap.TryGetValue(csvFileName, out var baseCsvPath);
+                    oldFileMap.TryGetValue(csvFileName, out var oldCsvPath);
+                    newFileMap.TryGetValue(csvFileName, out var newCsvPath);
 
                     if (baseCsvPath == null || oldCsvPath == null || newCsvPath == null)
                     {
@@ -364,16 +367,19 @@ public partial class CompareViewModel : ObservableObject
         }
     }
 
-    private static string? FindCsvFile(string folderPath, string fileName)
+    private static Dictionary<string, string> BuildCsvLookup(string folderPath)
     {
         try
         {
-            var files = Directory.GetFiles(folderPath, fileName, SearchOption.AllDirectories);
-            return files.FirstOrDefault();
+            return Directory
+                .EnumerateFiles(folderPath, "*.csv", SearchOption.AllDirectories)
+                .GroupBy(Path.GetFileName, StringComparer.OrdinalIgnoreCase)
+                .Where(g => !string.IsNullOrWhiteSpace(g.Key))
+                .ToDictionary(g => g.Key!, g => g.First(), StringComparer.OrdinalIgnoreCase);
         }
         catch
         {
-            return null;
+            return new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         }
     }
 
@@ -413,4 +419,3 @@ public partial class CompareViewModel : ObservableObject
         return "public";
     }
 }
-

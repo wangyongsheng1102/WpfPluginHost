@@ -12,6 +12,15 @@ namespace Plugin.PostgreCompare.Services;
 
 public class DatabaseService
 {
+    private const int CopyBufferSize = 262144;
+
+    public async Task<NpgsqlConnection> OpenConnectionAsync(string connectionString)
+    {
+        var conn = new NpgsqlConnection(connectionString);
+        await conn.OpenAsync();
+        return conn;
+    }
+
     public async Task<List<string>> GetSchemasAsync(string connectionString)
     {
         var schemas = new List<string>();
@@ -187,8 +196,16 @@ public class DatabaseService
 
     public async Task ExportTableToCsvAsync(string connectionString, string schemaName, string tableName, string csvPath, IProgress<string>? progress = null)
     {
-        await using var conn = new NpgsqlConnection(connectionString);
-        await conn.OpenAsync();
+        await using var conn = await OpenConnectionAsync(connectionString);
+        await ExportTableToCsvAsync(conn, schemaName, tableName, csvPath, progress);
+    }
+
+    public async Task ExportTableToCsvAsync(NpgsqlConnection conn, string schemaName, string tableName, string csvPath, IProgress<string>? progress = null)
+    {
+        if (conn.State != System.Data.ConnectionState.Open)
+        {
+            await conn.OpenAsync();
+        }
 
         progress?.Report($"テーブル '{schemaName}.{tableName}' をエクスポートしています...");
 
@@ -204,16 +221,24 @@ public class DatabaseService
                               $"ENCODING 'UTF8'" +
                               $")";
 
-            await using var fileStream = new FileStream(csvPath, FileMode.Create, FileAccess.Write, FileShare.None, 65536, FileOptions.SequentialScan);
-            await using var streamWriter = new StreamWriter(fileStream, Encoding.UTF8, 65536);
+            await using var fileStream = new FileStream(
+                csvPath,
+                FileMode.Create,
+                FileAccess.Write,
+                FileShare.None,
+                CopyBufferSize,
+                FileOptions.SequentialScan | FileOptions.Asynchronous);
+            await using var streamWriter = new StreamWriter(fileStream, new UTF8Encoding(true), CopyBufferSize);
 
-            using var textReader = conn.BeginTextExport(copyCommand);
-            var buffer = new char[65536];
+            using var textReader = await conn.BeginTextExportAsync(copyCommand);
+            var buffer = new char[CopyBufferSize];
             int charsRead;
-            while ((charsRead = await textReader.ReadAsync(buffer, 0, buffer.Length)) > 0)
+            while ((charsRead = await textReader.ReadBlockAsync(buffer, 0, buffer.Length)) > 0)
             {
                 await streamWriter.WriteAsync(buffer, 0, charsRead);
             }
+
+            await streamWriter.FlushAsync();
 
             progress?.Report($"テーブル '{schemaName}.{tableName}' のエクスポートが完了しました。");
         }
@@ -226,10 +251,18 @@ public class DatabaseService
 
     public async Task ImportTableFromCsvAsync(string connectionString, string schemaName, string tableName, string csvPath, IProgress<string>? progress = null)
     {
+        await using var conn = await OpenConnectionAsync(connectionString);
+        await ImportTableFromCsvAsync(conn, schemaName, tableName, csvPath, progress);
+    }
+
+    public async Task ImportTableFromCsvAsync(NpgsqlConnection conn, string schemaName, string tableName, string csvPath, IProgress<string>? progress = null)
+    {
         try
         {
-            await using var conn = new NpgsqlConnection(connectionString);
-            await conn.OpenAsync();
+            if (conn.State != System.Data.ConnectionState.Open)
+            {
+                await conn.OpenAsync();
+            }
 
             progress?.Report($"テーブル '{schemaName}.{tableName}' の存在を確認しています...");
 
@@ -267,22 +300,34 @@ public class DatabaseService
 
                 progress?.Report($"テーブル '{schemaName}.{tableName}' にデータをインポートしています...");
 
-                await using (var writer = conn.BeginTextImport(copySql))
+                using (var writer = await conn.BeginTextImportAsync(copySql))
                 {
-                    using var fileStream = new FileStream(csvPath, FileMode.Open, FileAccess.Read, FileShare.Read, 65536, FileOptions.SequentialScan);
-                    using var reader = new StreamReader(fileStream, Encoding.UTF8, bufferSize: 65536);
+                    await using var fileStream = new FileStream(
+                        csvPath,
+                        FileMode.Open,
+                        FileAccess.Read,
+                        FileShare.Read,
+                        CopyBufferSize,
+                        FileOptions.SequentialScan | FileOptions.Asynchronous);
+                    using var reader = new StreamReader(
+                        fileStream,
+                        Encoding.UTF8,
+                        detectEncodingFromByteOrderMarks: true,
+                        bufferSize: CopyBufferSize);
 
-                    var buffer = new char[65536];
+                    var buffer = new char[CopyBufferSize];
                     int charsRead;
+                    long nextProgressRowCount = 10000;
 
-                    while ((charsRead = await reader.ReadAsync(buffer, 0, buffer.Length)) > 0)
+                    while ((charsRead = await reader.ReadBlockAsync(buffer, 0, buffer.Length)) > 0)
                     {
                         await writer.WriteAsync(buffer, 0, charsRead);
                         importedRows += CountNewlines(buffer, charsRead);
 
-                        if (importedRows % 10000 < 100)
+                        if (importedRows >= nextProgressRowCount)
                         {
                             progress?.Report($"約 {importedRows:N0} 行を処理しました...");
+                            nextProgressRowCount += 10000;
                         }
                     }
                 }
