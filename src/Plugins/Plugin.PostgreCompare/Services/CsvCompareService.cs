@@ -62,12 +62,20 @@ public class CsvCompareService
         {
             var baseHeaders = await ReadHeadersAsync(baseCsvPath);
             var compareHeaders = await ReadHeadersAsync(compareCsvPath);
+            var missingBaseKeys = GetMissingPrimaryKeys(baseHeaders, normalizedPrimaryKeys);
+            var missingCompareKeys = GetMissingPrimaryKeys(compareHeaders, normalizedPrimaryKeys);
 
-            if (!PrimaryKeysResolvable(baseHeaders, normalizedPrimaryKeys) ||
-                !PrimaryKeysResolvable(compareHeaders, normalizedPrimaryKeys))
+            if (missingBaseKeys.Count > 0 || missingCompareKeys.Count > 0)
             {
+                var baseMessage = missingBaseKeys.Count > 0
+                    ? $"Base 不足: {string.Join(", ", missingBaseKeys)}"
+                    : "Base OK";
+                var compareMessage = missingCompareKeys.Count > 0
+                    ? $"Compare 不足: {string.Join(", ", missingCompareKeys)}"
+                    : "Compare OK";
+
                 progress?.Report((0, 0,
-                    "いずれかの CSV で主キー列が見出しと一致しないため、両ファイルとも整行比較モードで実行します。"));
+                    $"主キー列を CSV 見出しに解決できないため、整行比較モードで実行します。({baseMessage}; {compareMessage})"));
                 useFullRowComparison = true;
             }
         }
@@ -380,34 +388,54 @@ public class CsvCompareService
         return csv.HeaderRecord ?? Array.Empty<string>();
     }
 
-    private static bool PrimaryKeysResolvable(IReadOnlyList<string> headers, IReadOnlyList<string> primaryKeyColumns)
+    private static List<string> GetMissingPrimaryKeys(IReadOnlyList<string> headers, IReadOnlyList<string> primaryKeyColumns)
     {
+        var missingKeys = new List<string>();
         if (headers.Count == 0 || primaryKeyColumns.Count == 0)
         {
-            return false;
+            missingKeys.AddRange(primaryKeyColumns);
+            return missingKeys;
         }
 
         for (var i = 0; i < primaryKeyColumns.Count; i++)
         {
             if (FindHeaderIndex(headers, primaryKeyColumns[i]) < 0)
             {
-                return false;
+                missingKeys.Add(primaryKeyColumns[i]);
             }
         }
 
-        return true;
+        return missingKeys;
     }
 
     private static int FindHeaderIndex(IReadOnlyList<string> headers, string columnName)
     {
-        var t = columnName.Trim();
+        var t = NormalizeHeaderToken(columnName);
         for (var i = 0; i < headers.Count; i++)
         {
-            if (string.Equals(headers[i].Trim(), t, StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(NormalizeHeaderToken(headers[i]), t, StringComparison.OrdinalIgnoreCase))
                 return i;
         }
 
         return -1;
+    }
+
+    private static string NormalizeHeaderToken(string? value)
+    {
+        if (string.IsNullOrEmpty(value))
+        {
+            return string.Empty;
+        }
+
+        var normalized = value.Trim().Trim('\uFEFF');
+        if (normalized.Length >= 2 &&
+            normalized[0] == '"' &&
+            normalized[^1] == '"')
+        {
+            normalized = normalized[1..^1].Trim();
+        }
+
+        return normalized;
     }
 
     private sealed class CsvRowData

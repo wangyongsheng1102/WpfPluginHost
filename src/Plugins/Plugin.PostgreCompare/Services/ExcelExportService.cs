@@ -581,7 +581,12 @@ public class ExcelExportService
         worksheet.Column("A").Width = 8.38;
         worksheet.Column("B").Width = 30;
 
-        Directory.CreateDirectory(Path.GetDirectoryName(filePath)!);
+        var directoryPath = Path.GetDirectoryName(filePath);
+        if (!string.IsNullOrWhiteSpace(directoryPath))
+        {
+            Directory.CreateDirectory(directoryPath);
+        }
+
         workbook.SaveAs(filePath);
     }
 

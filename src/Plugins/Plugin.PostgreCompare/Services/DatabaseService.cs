@@ -194,6 +194,103 @@ public class DatabaseService
         return columns;
     }
 
+    public async Task<(string SchemaName, List<string> PrimaryKeys)> ResolvePrimaryKeyColumnsAsync(
+        string connectionString,
+        string? preferredSchema,
+        string tableName)
+    {
+        await using var conn = await OpenConnectionAsync(connectionString);
+        return await ResolvePrimaryKeyColumnsAsync(conn, preferredSchema, tableName);
+    }
+
+    public async Task<(string SchemaName, List<string> PrimaryKeys)> ResolvePrimaryKeyColumnsAsync(
+        NpgsqlConnection conn,
+        string? preferredSchema,
+        string tableName)
+    {
+        if (conn.State != System.Data.ConnectionState.Open)
+        {
+            await conn.OpenAsync();
+        }
+
+        var schemaToPrimaryKeys = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
+
+        const string pkSql = @"
+            SELECT kcu.table_schema, kcu.column_name
+            FROM information_schema.table_constraints tc
+            JOIN information_schema.key_column_usage kcu
+              ON tc.constraint_name = kcu.constraint_name
+             AND tc.table_schema = kcu.table_schema
+             AND tc.table_name = kcu.table_name
+            WHERE tc.constraint_type = 'PRIMARY KEY'
+              AND tc.table_name = @table
+            ORDER BY
+              CASE WHEN kcu.table_schema = @preferredSchema THEN 0 ELSE 1 END,
+              kcu.table_schema,
+              kcu.ordinal_position";
+
+        await using (var cmd = new NpgsqlCommand(pkSql, conn))
+        {
+            cmd.Parameters.AddWithValue("table", tableName);
+            cmd.Parameters.AddWithValue("preferredSchema", (object?)preferredSchema ?? DBNull.Value);
+
+            await using var reader = await cmd.ExecuteReaderAsync();
+            while (await reader.ReadAsync())
+            {
+                var schemaName = reader.GetString(0);
+                var columnName = reader.GetString(1);
+
+                if (!schemaToPrimaryKeys.TryGetValue(schemaName, out var columns))
+                {
+                    columns = new List<string>();
+                    schemaToPrimaryKeys[schemaName] = columns;
+                }
+
+                columns.Add(columnName);
+            }
+        }
+
+        if (!string.IsNullOrWhiteSpace(preferredSchema) &&
+            schemaToPrimaryKeys.TryGetValue(preferredSchema, out var preferredPrimaryKeys))
+        {
+            return (preferredSchema, preferredPrimaryKeys);
+        }
+
+        if (schemaToPrimaryKeys.Count == 1)
+        {
+            var match = schemaToPrimaryKeys.First();
+            return (match.Key, match.Value);
+        }
+
+        if (schemaToPrimaryKeys.Count > 1)
+        {
+            var match = schemaToPrimaryKeys.OrderBy(kvp => kvp.Key, StringComparer.OrdinalIgnoreCase).First();
+            return (match.Key, match.Value);
+        }
+
+        const string tableSql = @"
+            SELECT table_schema
+            FROM information_schema.tables
+            WHERE table_type = 'BASE TABLE'
+              AND table_name = @table
+              AND table_schema NOT IN ('pg_catalog', 'information_schema')
+            ORDER BY
+              CASE WHEN table_schema = @preferredSchema THEN 0 ELSE 1 END,
+              table_schema";
+
+        await using var tableCmd = new NpgsqlCommand(tableSql, conn);
+        tableCmd.Parameters.AddWithValue("table", tableName);
+        tableCmd.Parameters.AddWithValue("preferredSchema", (object?)preferredSchema ?? DBNull.Value);
+
+        var resolvedSchema = (await tableCmd.ExecuteScalarAsync())?.ToString();
+        if (!string.IsNullOrWhiteSpace(resolvedSchema))
+        {
+            return (resolvedSchema, new List<string>());
+        }
+
+        return (preferredSchema ?? "public", new List<string>());
+    }
+
     public async Task ExportTableToCsvAsync(string connectionString, string schemaName, string tableName, string csvPath, IProgress<string>? progress = null)
     {
         await using var conn = await OpenConnectionAsync(connectionString);

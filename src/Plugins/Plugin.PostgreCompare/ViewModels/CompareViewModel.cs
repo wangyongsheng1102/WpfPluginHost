@@ -224,6 +224,8 @@ public partial class CompareViewModel : ObservableObject
             return;
         }
 
+        ExportFilePath = NormalizeExcelExportPath(ExportFilePath);
+
         try
         {
             IsProcessing = true;
@@ -239,6 +241,7 @@ public partial class CompareViewModel : ObservableObject
             await Task.Run(async () =>
             {
                 var connectionString = SelectedConnection.GetConnectionString();
+                var preferredSchemaName = GetSchemaFromUsername(SelectedConnection.User);
                 var baseFileMap = BuildCsvLookup(BaseFolderPath);
                 var oldFileMap = BuildCsvLookup(OldFolderPath);
                 var newFileMap = BuildCsvLookup(NewFolderPath);
@@ -272,15 +275,24 @@ public partial class CompareViewModel : ObservableObject
                     }
 
                     var tableName = Path.GetFileNameWithoutExtension(csvFileName) ?? string.Empty;
-                    var schemaName = GetSchemaFromUsername(SelectedConnection.User);
+                    var schemaName = preferredSchemaName;
 
                     List<string>? primaryKeys = null;
                     try
                     {
-                        primaryKeys = await _databaseService.GetPrimaryKeyColumnsAsync(
+                        var resolvedTable = await _databaseService.ResolvePrimaryKeyColumnsAsync(
                             connectionString,
-                            schemaName,
+                            preferredSchemaName,
                             tableName);
+                        schemaName = resolvedTable.SchemaName;
+                        primaryKeys = resolvedTable.PrimaryKeys;
+
+                        if (!string.Equals(schemaName, preferredSchemaName, StringComparison.OrdinalIgnoreCase))
+                        {
+                            _mainViewModel.AppendLog(
+                                $"テーブル '{tableName}' は推定スキーマ '{preferredSchemaName}' ではなく '{schemaName}' で解決しました。",
+                                LogLevel.Info);
+                        }
 
                         if (primaryKeys.Count > 0)
                         {
@@ -291,8 +303,8 @@ public partial class CompareViewModel : ObservableObject
                         else
                         {
                             _mainViewModel.AppendLog(
-                                $"テーブル '{schemaName}.{tableName}' に主キーがありません。整行比較モードを使用します。",
-                                LogLevel.Info);
+                                $"テーブル '{schemaName}.{tableName}' に主キーが見つかりません。整行比較モードを使用します。",
+                                LogLevel.Warning);
                         }
                     }
                     catch (Exception ex)
@@ -399,6 +411,19 @@ public partial class CompareViewModel : ObservableObject
         {
             return true;
         }
+    }
+
+    private static string NormalizeExcelExportPath(string filePath)
+    {
+        var trimmedPath = filePath.Trim();
+        var extension = Path.GetExtension(trimmedPath);
+
+        if (string.IsNullOrEmpty(extension) || string.Equals(extension, ".", StringComparison.Ordinal))
+        {
+            return $"{trimmedPath.TrimEnd('.')}.xlsx";
+        }
+
+        return trimmedPath;
     }
 
     /// <summary>
