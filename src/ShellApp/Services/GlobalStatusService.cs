@@ -135,11 +135,19 @@ public partial class GlobalStatusService : ObservableObject, IPluginContext
         });
     }
 
+    /// <summary>
+    /// INFO の文言のみ更新する。進行中の <see cref="ReportProgress"/> によるプログレス表示は維持する。
+    /// （DB エクスポート等で <see cref="IProgress{T}"/> から逐次ログするとき、<see cref="ApplyLevelStyle"/> 経由だと ShowProgress が落ちるため）
+    /// </summary>
     public void ReportInfo(string message)
     {
         Application.Current.Dispatcher.Invoke(() =>
         {
-            ApplyLevelStyle(StatusLevel.Info, message, includePrefix: true);
+            _currentLevel = StatusLevel.Info;
+            Message = $"[{GetLevelPrefix(StatusLevel.Info)}] {message}";
+            TextColor = ResolveLevelBrush(_currentLevel);
+            IsSuccessState = false;
+            IsErrorState = false;
         });
     }
 
@@ -147,7 +155,11 @@ public partial class GlobalStatusService : ObservableObject, IPluginContext
     {
         Application.Current.Dispatcher.Invoke(() =>
         {
-            ApplyLevelStyle(StatusLevel.Warning, message, includePrefix: true);
+            _currentLevel = StatusLevel.Warning;
+            Message = $"[{GetLevelPrefix(StatusLevel.Warning)}] {message}";
+            TextColor = ResolveLevelBrush(_currentLevel);
+            IsSuccessState = false;
+            IsErrorState = false;
         });
     }
 
@@ -171,7 +183,11 @@ public partial class GlobalStatusService : ObservableObject, IPluginContext
     {
         Application.Current.Dispatcher.Invoke(() =>
         {
-            ApplyLevelStyle(StatusLevel.Debug, message, includePrefix: true);
+            _currentLevel = StatusLevel.Debug;
+            Message = $"[{GetLevelPrefix(StatusLevel.Debug)}] {message}";
+            TextColor = ResolveLevelBrush(_currentLevel);
+            IsSuccessState = false;
+            IsErrorState = false;
         });
     }
 
