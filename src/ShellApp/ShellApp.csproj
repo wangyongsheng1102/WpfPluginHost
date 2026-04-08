@@ -21,6 +21,8 @@
     <!-- Shell ビルド時にプラグインを先にビルドし、リポジトリ直下の plugins に依存関係を揃える。プラグインアセンブリ自体は参照しない -->
     <ProjectReference Include="..\Plugins\Plugin.SampleA\Plugin.SampleA.csproj" ReferenceOutputAssembly="false" />
     <ProjectReference Include="..\Plugins\Plugin.SampleB\Plugin.SampleB.csproj" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\Plugins\Plugin.PostgreCompare\Plugin.PostgreCompare.csproj" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\Plugins\Plugin.PixelCompare\Plugin.PixelCompare.csproj" ReferenceOutputAssembly="false" />
   </ItemGroup>
 
   <ItemGroup>

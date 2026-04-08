@@ -404,69 +404,6 @@
                             </Border>
                         </Grid>
                     </Grid>
-
-                    <!-- 右下：メインウィンドウ下部ステータスと同型の進捗（インポート・エクスポート作業中のみ表示） -->
-                    <Border Grid.RowSpan="2"
-                            Margin="0,0,4,4"
-                            Padding="8,4"
-                            HorizontalAlignment="Right"
-                            VerticalAlignment="Bottom"
-                            MinWidth="220"
-                            CornerRadius="7"
-                            Background="Transparent"
-                            IsHitTestVisible="False"
-                            Visibility="{Binding ShowProgress, Converter={StaticResource BooleanToVisibilityConverter}}">
-                        <Border.Style>
-                            <Style TargetType="Border">
-                                <Setter Property="Opacity" Value="1" />
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding ShowProgress}" Value="True">
-                                        <DataTrigger.EnterActions>
-                                            <BeginStoryboard>
-                                                <Storyboard RepeatBehavior="Forever" AutoReverse="True">
-                                                    <DoubleAnimation Storyboard.TargetProperty="Opacity"
-                                                                     From="{x:Static abstractions:ThemeDimensions.OpacityHover}"
-                                                                     To="1"
-                                                                     Duration="0:0:0.8" />
-                                                </Storyboard>
-                                            </BeginStoryboard>
-                                        </DataTrigger.EnterActions>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Border.Style>
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="{x:Static abstractions:ThemeDimensions.ProgressBarAreaWidth}" />
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0"
-                                       Margin="0,0,10,0"
-                                       VerticalAlignment="Center"
-                                       FontFamily="{DynamicResource AppFontFamilyBold}"
-                                       FontSize="{x:Static abstractions:ThemeDimensions.MicroFontSize}"
-                                       Foreground="{DynamicResource PrimaryTextBrush}"
-                                       Text="{Binding ProgressValue, StringFormat={}{0:0}%}">
-                                <TextBlock.Style>
-                                    <Style TargetType="TextBlock">
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding ProgressIndeterminate}" Value="True">
-                                                <Setter Property="Text" Value="..." />
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </TextBlock.Style>
-                            </TextBlock>
-                            <ProgressBar Grid.Column="1"
-                                         VerticalAlignment="Center"
-                                         Height="{x:Static abstractions:ThemeDimensions.ProgressBarHeight}"
-                                         Value="{Binding ProgressValue}"
-                                         IsIndeterminate="{Binding ProgressIndeterminate}"
-                                         Minimum="0"
-                                         Maximum="100"
-                                         Style="{StaticResource AppStatusProgressBarStyle}" />
-                        </Grid>
-                    </Border>
                 </Grid>
             </TabItem>
 

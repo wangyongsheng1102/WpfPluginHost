@@ -46,13 +46,6 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty]
     private int _progressValue;
 
-    /// <summary>インポート・エクスポートタブ等で、シェル下部と同型の進捗表示にバインドする。</summary>
-    [ObservableProperty]
-    private bool _showProgress;
-
-    [ObservableProperty]
-    private bool _progressIndeterminate;
-
     [ObservableProperty]
     private bool _isProcessing;
 
@@ -154,8 +147,6 @@ public partial class MainViewModel : ObservableObject
         PostToUi(() =>
         {
             ProgressValue = (int)percentage;
-            ProgressIndeterminate = isIndeterminate;
-            ShowProgress = isIndeterminate || percentage < 100;
             IsProcessing = isIndeterminate || (percentage > 0 && percentage < 100);
             _context?.ReportProgress(message, percentage, isIndeterminate);
         });
