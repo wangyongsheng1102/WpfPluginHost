@@ -176,6 +176,7 @@ public partial class ImportExportViewModel : ObservableObject
             Directory.CreateDirectory(exportDir);
 
             _mainViewModel.AppendLog($"エクスポートを開始しています... ({selectedTables.Count} テーブル)", LogLevel.Info);
+            _mainViewModel.ReportProgress($"エクスポート中... (0/{selectedTables.Count})", 0, false);
 
             var connectionString = SelectedConnection.GetConnectionString();
             await using var conn = await _databaseService.OpenConnectionAsync(connectionString);
@@ -261,6 +262,7 @@ public partial class ImportExportViewModel : ObservableObject
         {
             IsProcessing = true;
             _mainViewModel.AppendLog($"インポートを開始しています... ({csvFiles.Length} ファイル)", LogLevel.Info);
+            _mainViewModel.ReportProgress($"インポート中... (0/{csvFiles.Length})", 0, false);
 
             var connectionString = SelectedConnection.GetConnectionString();
             await using var conn = await _databaseService.OpenConnectionAsync(connectionString);

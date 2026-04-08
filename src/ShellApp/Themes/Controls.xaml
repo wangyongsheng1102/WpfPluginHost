@@ -1145,6 +1145,39 @@
                             <ColumnDefinition Width="*" />
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
+                        <!-- 非可編集時は全幅でヒット領域にし、上に ContentPresenter（IsHitTestVisible=False）を重ねる。可編集時は列1のみ（テキスト入力の左側を阻害しない）。 -->
+                        <ToggleButton x:Name="ToggleButton"
+                                      Grid.Column="0"
+                                      Grid.ColumnSpan="2"
+                                      Focusable="False"
+                                      ClickMode="Press"
+                                      IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}">
+                            <ToggleButton.Template>
+                                <ControlTemplate TargetType="ToggleButton">
+                                    <Border Background="Transparent"
+                                            SnapsToDevicePixels="True">
+                                        <Grid>
+                                            <Border HorizontalAlignment="Right"
+                                                    VerticalAlignment="Stretch"
+                                                    BorderBrush="{DynamicResource BorderSubtleBrush}"
+                                                    BorderThickness="1,0,0,0"
+                                                    Padding="6,0,8,0"
+                                                    SnapsToDevicePixels="True"
+                                                    IsHitTestVisible="False">
+                                                <Path Width="9"
+                                                      Height="5"
+                                                      HorizontalAlignment="Center"
+                                                      VerticalAlignment="Center"
+                                                      Data="M 0,0 L 4.5,4.5 L 9,0 Z"
+                                                      Fill="{DynamicResource PrimaryTextBrush}"
+                                                      Stretch="Fill"
+                                                      SnapsToDevicePixels="True" />
+                                            </Border>
+                                        </Grid>
+                                    </Border>
+                                </ControlTemplate>
+                            </ToggleButton.Template>
+                        </ToggleButton>
                         <ContentPresenter x:Name="ContentSite"
                                           Grid.Column="0"
                                           Margin="{TemplateBinding Padding}"
@@ -1171,30 +1204,6 @@
                                  CaretBrush="{TemplateBinding Foreground}"
                                  Visibility="Collapsed"
                                  IsReadOnly="{Binding IsReadOnly, RelativeSource={RelativeSource TemplatedParent}}" />
-                        <ToggleButton x:Name="ToggleButton"
-                                      Grid.Column="1"
-                                      Focusable="False"
-                                      ClickMode="Press"
-                                      IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}">
-                            <ToggleButton.Template>
-                                <ControlTemplate TargetType="ToggleButton">
-                                    <Border Background="Transparent"
-                                            BorderBrush="{DynamicResource BorderSubtleBrush}"
-                                            BorderThickness="1,0,0,0"
-                                            Padding="6,0,8,0"
-                                            SnapsToDevicePixels="True">
-                                        <Path Width="9"
-                                              Height="5"
-                                              HorizontalAlignment="Center"
-                                              VerticalAlignment="Center"
-                                              Data="M 0,0 L 4.5,4.5 L 9,0 Z"
-                                              Fill="{DynamicResource PrimaryTextBrush}"
-                                              Stretch="Fill"
-                                              SnapsToDevicePixels="True" />
-                                    </Border>
-                                </ControlTemplate>
-                            </ToggleButton.Template>
-                        </ToggleButton>
                         <Popup x:Name="Popup"
                                AllowsTransparency="False"
                                Focusable="False"
@@ -1229,6 +1238,8 @@
                             <Setter Property="IsTabStop" Value="False" />
                             <Setter TargetName="ContentSite" Property="Visibility" Value="Hidden" />
                             <Setter TargetName="PART_EditableTextBox" Property="Visibility" Value="Visible" />
+                            <Setter TargetName="ToggleButton" Property="Grid.Column" Value="1" />
+                            <Setter TargetName="ToggleButton" Property="Grid.ColumnSpan" Value="1" />
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
