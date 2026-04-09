@@ -25,20 +25,37 @@ public sealed class ReviewCheckOrchestrator
         _context?.ReportProgress("文書の探索中…", 0, true);
 
         var results = new List<CheckResultItem>();
-        var discovery = _discoveryService.Discover(request.SvnRootPath, request.FunctionId);
+        var discovery = _discoveryService.Discover(request);
 
         results.AddRange(_discoveryService.ToCheckItems(discovery));
 
         cancellationToken.ThrowIfCancellationRequested();
 
         _context?.ReportProgress("WBS を解析中…", 20, true);
-        WbsPeople people = new(null, null);
+        WbsPeople? people = null;
         if (!string.IsNullOrWhiteSpace(request.WbsExcelPath))
         {
             try
             {
-                people = await Task.Run(() => _wbsLookupService.TryReadPeople(request.WbsExcelPath!), cancellationToken)
+                people = await Task.Run(() =>
+                        _wbsLookupService.TryReadPeople(
+                            request.WbsExcelPath!,
+                            request.FunctionId,
+                            request.SystemName,
+                            request.ObjectName),
+                    cancellationToken)
                     .ConfigureAwait(false);
+
+                if (people is null)
+                {
+                    results.Add(new CheckResultItem(
+                        Step: "content",
+                        Status: "✕",
+                        Severity: CheckSeverity.Warning,
+                        SheetName: "WBS",
+                        CellRef: "",
+                        Message: "WBS から機能ID・System・对象に一致する行を見つけられませんでした。"));
+                }
             }
             catch (Exception ex)
             {
@@ -54,22 +71,39 @@ public sealed class ReviewCheckOrchestrator
 
         cancellationToken.ThrowIfCancellationRequested();
 
-        if (!string.IsNullOrWhiteSpace(discovery.SpecExcelPath))
+        _context?.ReportProgress("Excel 記入内容をチェック中…", 50, true);
+
+        var anyWorkbookChecked = false;
+        foreach (var artifact in discovery.Artifacts)
         {
-            _context?.ReportProgress("Excel 記入内容をチェック中…", 50, true);
-            var excelResult = await Task.Run(() => _excelRules.Check(discovery.SpecExcelPath!, people), cancellationToken)
+            if (string.IsNullOrWhiteSpace(artifact.Path))
+            {
+                continue;
+            }
+            if (artifact.IsFolder)
+            {
+                continue;
+            }
+
+            var key = artifact.Key;
+            var label = artifact.Label;
+            var path = artifact.Path!;
+
+            var excelResult = await Task.Run(() => _excelRules.Check(path, key, label, people), cancellationToken)
                 .ConfigureAwait(false);
             results.AddRange(excelResult.Items);
+            anyWorkbookChecked = true;
         }
-        else
+
+        if (!anyWorkbookChecked)
         {
             results.Add(new CheckResultItem(
                 Step: "content",
                 Status: "ー",
-                Severity: CheckSeverity.Info,
+                Severity: CheckSeverity.Warning,
                 SheetName: "",
                 CellRef: "",
-                Message: "仕様書 Excel が見つからないため、記入内容チェックをスキップしました。"));
+                Message: "content チェック対象の Excel が見つからないためスキップしました。"));
         }
 
         _context?.ReportProgress("完了", 100, false);

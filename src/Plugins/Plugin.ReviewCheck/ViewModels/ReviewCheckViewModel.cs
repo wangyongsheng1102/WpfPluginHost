@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using Plugin.Abstractions;
 using Plugin.ReviewCheck.Services;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Text.Json;
@@ -14,6 +15,10 @@ namespace Plugin.ReviewCheck.ViewModels;
 
 public sealed partial class ReviewCheckViewModel : ObservableObject
 {
+    private static readonly string[] _inputTypeOptions = ["画面", "API"];
+    private static readonly string[] _systemOptions = ["EnabilityCis", "EnabilityOrder", "EnabilityPortal", "EnabilityPortal2"];
+    private static readonly string[] _objectOptions = ["API", "バッチ", "マルチ", "課題対応", "画面", "環境構築", "共通部品", "結合テスト", "差分結合", "差分取込", "性能テスト"];
+
     private readonly IPluginContext? _context;
     private readonly ReviewCheckOrchestrator _orchestrator;
     private CancellationTokenSource? _cts;
@@ -31,6 +36,15 @@ public sealed partial class ReviewCheckViewModel : ObservableObject
     private string _functionId = string.Empty;
 
     [ObservableProperty]
+    private string _systemName = "EnabilityCis";
+
+    [ObservableProperty]
+    private string _objectName = "画面";
+
+    [ObservableProperty]
+    private string _inputType = "画面";
+
+    [ObservableProperty]
     private string _summaryText = "未実行";
 
     [ObservableProperty]
@@ -38,6 +52,9 @@ public sealed partial class ReviewCheckViewModel : ObservableObject
 
     public bool CanRun => !IsRunning && Directory.Exists(SvnRootPath);
     public bool HasResults => Results.Count > 0;
+    public IReadOnlyList<string> InputTypeOptions => _inputTypeOptions;
+    public IReadOnlyList<string> SystemOptions => _systemOptions;
+    public IReadOnlyList<string> ObjectOptions => _objectOptions;
 
     public ReviewCheckViewModel(IPluginContext? context)
     {
@@ -118,7 +135,10 @@ public sealed partial class ReviewCheckViewModel : ObservableObject
             {
                 SvnRootPath = SvnRootPath,
                 WbsExcelPath = WbsExcelPath,
-                FunctionId = FunctionId
+                FunctionId = FunctionId,
+                InputType = InputType,
+                SystemName = SystemName,
+                ObjectName = ObjectName
             };
             _lastRequest = request;
 
@@ -216,6 +236,9 @@ public sealed partial class ReviewCheckViewModel : ObservableObject
             SvnRootPath = settings.SvnRootPath ?? string.Empty;
             WbsExcelPath = settings.WbsExcelPath ?? string.Empty;
             FunctionId = settings.FunctionId ?? string.Empty;
+            SystemName = string.IsNullOrWhiteSpace(settings.SystemName) ? "EnabilityCis" : settings.SystemName;
+            ObjectName = string.IsNullOrWhiteSpace(settings.ObjectName) ? "画面" : settings.ObjectName;
+            InputType = string.IsNullOrWhiteSpace(settings.InputType) ? "画面" : settings.InputType;
         }
         catch
         {
@@ -236,7 +259,10 @@ public sealed partial class ReviewCheckViewModel : ObservableObject
             {
                 SvnRootPath = SvnRootPath,
                 WbsExcelPath = WbsExcelPath,
-                FunctionId = FunctionId
+                FunctionId = FunctionId,
+                SystemName = SystemName,
+                ObjectName = ObjectName,
+                InputType = InputType
             };
             _context.SavePluginSetting("reviewCheck", JsonSerializer.Serialize(settings));
         }
@@ -252,4 +278,7 @@ internal sealed class ReviewCheckSettings
     public string? SvnRootPath { get; set; }
     public string? WbsExcelPath { get; set; }
     public string? FunctionId { get; set; }
+    public string? SystemName { get; set; }
+    public string? ObjectName { get; set; }
+    public string? InputType { get; set; }
 }

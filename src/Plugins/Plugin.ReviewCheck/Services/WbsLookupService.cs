@@ -7,11 +7,11 @@ namespace Plugin.ReviewCheck.Services;
 
 public sealed class WbsLookupService
 {
-    public WbsPeople TryReadPeople(string wbsExcelPath)
+    public WbsPeople? TryReadPeople(string wbsExcelPath, string? functionId, string? systemName, string? objectName)
     {
         if (string.IsNullOrWhiteSpace(wbsExcelPath) || !File.Exists(wbsExcelPath))
         {
-            return new WbsPeople(null, null);
+            return null;
         }
 
         Excel.Application? app = null;
@@ -30,7 +30,11 @@ public sealed class WbsLookupService
                 UpdateLinks: Type.Missing,
                 ReadOnly: true);
 
-            var ws = (Excel.Worksheet)wb.Worksheets[1];
+            var ws = FindWbsSheet(wb);
+            if (ws is null)
+            {
+                return null;
+            }
             try
             {
                 var used = ws.UsedRange;
@@ -38,50 +42,55 @@ public sealed class WbsLookupService
                 {
                     var rowCount = SafeCount(() => used.Rows.Count);
                     var colCount = SafeCount(() => used.Columns.Count);
-                    var maxRow = Math.Min(rowCount, 50);
-                    var maxCol = Math.Min(colCount, 20);
+                    var maxRow = Math.Min(rowCount, 400);
+                    var maxCol = Math.Min(colCount, 60);
 
                     if (maxRow <= 0 || maxCol <= 0)
                     {
-                        return new WbsPeople(null, null);
+                        return null;
                     }
 
-                    string? author = null;
-                    string? reviewer = null;
+                    var normalizedSystem = NormalizeSystemForWbs(systemName);
 
-                    for (int r = 1; r <= maxRow; r++)
+                    for (int r = 8; r <= maxRow; r++)
                     {
-                        for (int c = 1; c <= maxCol; c++)
+                        var rowValues = ReadRow(used, r, maxCol);
+                        if (rowValues.Count < 49)
                         {
-                            var cell = (Excel.Range)used.Cells[r, c];
-                            var text = Convert.ToString(cell.Value2)?.Trim();
-                            Marshal.ReleaseComObject(cell);
-
-                            if (string.IsNullOrWhiteSpace(text))
-                            {
-                                continue;
-                            }
-
-                            var nonNullText = text!;
-
-                            if (author is null && nonNullText.Contains("作成者", StringComparison.OrdinalIgnoreCase))
-                            {
-                                author = ReadNeighborValue(used, r, c + 1);
-                            }
-
-                            if (reviewer is null && (nonNullText.Contains("確認者", StringComparison.OrdinalIgnoreCase) || nonNullText.Contains("レビュア", StringComparison.OrdinalIgnoreCase)))
-                            {
-                                reviewer = ReadNeighborValue(used, r, c + 1);
-                            }
-
-                            if (author is not null && reviewer is not null)
-                            {
-                                return new WbsPeople(author, reviewer);
-                            }
+                            continue;
                         }
+
+                        var rowObject = rowValues[2];
+                        var rowSystem = rowValues[3];
+                        var rowFunctionId = rowValues[4];
+
+                        if (!EqualsText(rowFunctionId, functionId))
+                        {
+                            continue;
+                        }
+                        if (!EqualsText(rowSystem, normalizedSystem))
+                        {
+                            continue;
+                        }
+                        if (!EqualsText(rowObject, objectName))
+                        {
+                            continue;
+                        }
+
+                        return new WbsPeople
+                        {
+                            CodeUserName = rowValues[18],
+                            CodeUserDate = rowValues[21],
+                            CodeReviewUserName = rowValues[27],
+                            CodeReviewUserDate = rowValues[30],
+                            TestUserName = rowValues[36],
+                            TestUserDate = rowValues[39],
+                            TestReviewUserName = rowValues[45],
+                            TestReviewUserDate = rowValues[48]
+                        };
                     }
 
-                    return new WbsPeople(author, reviewer);
+                    return null;
                 }
                 finally
                 {
@@ -124,23 +133,60 @@ public sealed class WbsLookupService
         }
     }
 
-    private static string? ReadNeighborValue(Excel.Range usedRange, int row, int col)
+    private static List<string?> ReadRow(Excel.Range usedRange, int row, int maxCol)
     {
-        try
+        var values = new List<string?>(maxCol);
+        for (int c = 1; c <= maxCol; c++)
         {
-            var cell = (Excel.Range)usedRange.Cells[row, col];
+            var cell = (Excel.Range)usedRange.Cells[row, c];
             try
             {
-                return Convert.ToString(cell.Value2)?.Trim();
+                values.Add(Convert.ToString(cell.Value2)?.Trim());
             }
             finally
             {
                 Marshal.ReleaseComObject(cell);
             }
         }
-        catch
+        return values;
+    }
+
+    private static bool EqualsText(string? left, string? right)
+    {
+        return string.Equals((left ?? string.Empty).Trim(), (right ?? string.Empty).Trim(), StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static string? NormalizeSystemForWbs(string? systemName)
+    {
+        return systemName switch
         {
-            return null;
+            "EnabilityCis" => "EnabilityCis",
+            "EnabilityOrder" => "EnabilityOrder",
+            "EnabilityPortal" => "EnabilityPortal",
+            "EnabilityPortal2" => "EnabilityPortal2",
+            _ => systemName
+        };
+    }
+
+    private static Excel.Worksheet? FindWbsSheet(Excel.Workbook wb)
+    {
+        for (int i = 1; i <= wb.Worksheets.Count; i++)
+        {
+            var ws = (Excel.Worksheet)wb.Worksheets[i];
+            try
+            {
+                if ((ws.Name ?? string.Empty).Contains("WBS", StringComparison.OrdinalIgnoreCase))
+                {
+                    return ws;
+                }
+            }
+            catch
+            {
+                // ignore and continue
+            }
+            Marshal.ReleaseComObject(ws);
         }
+
+        return null;
     }
 }

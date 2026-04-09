@@ -22,6 +22,8 @@
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
@@ -87,8 +89,59 @@
                            VerticalAlignment="Center"
                            Foreground="{DynamicResource SecondaryTextBrush}"
                            FontSize="{x:Static abstractions:ThemeDimensions.CaptionFontSize}"
+                           Text="区分（Type）" />
+                <ComboBox Grid.Row="2"
+                          Grid.Column="1"
+                          Margin="0,0,10,8"
+                          MinHeight="28"
+                          Padding="8,2"
+                          SelectedItem="{Binding InputType}"
+                          ItemsSource="{Binding InputTypeOptions}"
+                          Background="{DynamicResource NavBackgroundBrush}"
+                          BorderBrush="{DynamicResource BorderSubtleBrush}"
+                          Foreground="{DynamicResource PrimaryTextBrush}" />
+
+                <TextBlock Grid.Row="3"
+                           Grid.Column="0"
+                           Margin="0,0,10,8"
+                           VerticalAlignment="Center"
+                           Foreground="{DynamicResource SecondaryTextBrush}"
+                           FontSize="{x:Static abstractions:ThemeDimensions.CaptionFontSize}"
+                           Text="System / 对象" />
+                <Grid Grid.Row="3"
+                      Grid.Column="1"
+                      Margin="0,0,10,8">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="8" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <ComboBox Grid.Column="0"
+                              MinHeight="28"
+                              Padding="8,2"
+                              SelectedItem="{Binding SystemName}"
+                              ItemsSource="{Binding SystemOptions}"
+                              Background="{DynamicResource NavBackgroundBrush}"
+                              BorderBrush="{DynamicResource BorderSubtleBrush}"
+                              Foreground="{DynamicResource PrimaryTextBrush}" />
+                    <ComboBox Grid.Column="2"
+                              MinHeight="28"
+                              Padding="8,2"
+                              SelectedItem="{Binding ObjectName}"
+                              ItemsSource="{Binding ObjectOptions}"
+                              Background="{DynamicResource NavBackgroundBrush}"
+                              BorderBrush="{DynamicResource BorderSubtleBrush}"
+                              Foreground="{DynamicResource PrimaryTextBrush}" />
+                </Grid>
+
+                <TextBlock Grid.Row="4"
+                           Grid.Column="0"
+                           Margin="0,0,10,8"
+                           VerticalAlignment="Center"
+                           Foreground="{DynamicResource SecondaryTextBrush}"
+                           FontSize="{x:Static abstractions:ThemeDimensions.CaptionFontSize}"
                            Text="機能ID（任意）" />
-                <TextBox Grid.Row="2"
+                <TextBox Grid.Row="4"
                          Grid.Column="1"
                          Margin="0,0,10,8"
                          MinHeight="28"
@@ -98,7 +151,7 @@
                          BorderBrush="{DynamicResource BorderSubtleBrush}"
                          Foreground="{DynamicResource PrimaryTextBrush}"
                          CaretBrush="{DynamicResource PrimaryTextBrush}" />
-                <TextBlock Grid.Row="2"
+                <TextBlock Grid.Row="4"
                            Grid.Column="2"
                            Margin="0,0,0,8"
                            VerticalAlignment="Center"
@@ -106,7 +159,7 @@
                            FontSize="{x:Static abstractions:ThemeDimensions.CaptionFontSize}"
                            Text="" />
 
-                <StackPanel Grid.Row="3"
+                <StackPanel Grid.Row="5"
                             Grid.Column="0"
                             Grid.ColumnSpan="3"
                             Orientation="Horizontal"
@@ -152,23 +205,86 @@
                            FontSize="{x:Static abstractions:ThemeDimensions.CaptionFontSize}"
                            Text="{Binding SummaryText}" />
 
-                <DataGrid Grid.Row="1"
-                          Margin="12,0,12,12"
-                          ItemsSource="{Binding Results}"
-                          AutoGenerateColumns="False"
-                          IsReadOnly="True"
-                          CanUserAddRows="False"
-                          HeadersVisibility="Column"
-                          GridLinesVisibility="None">
-                    <DataGrid.Columns>
-                        <DataGridTextColumn Header="ステップ" Binding="{Binding Step}" Width="140" />
-                        <DataGridTextColumn Header="結果" Binding="{Binding Status}" Width="70" />
-                        <DataGridTextColumn Header="重要度" Binding="{Binding Severity}" Width="80" />
-                        <DataGridTextColumn Header="Sheet" Binding="{Binding SheetName}" Width="160" />
-                        <DataGridTextColumn Header="Cell" Binding="{Binding CellRef}" Width="80" />
-                        <DataGridTextColumn Header="メッセージ" Binding="{Binding Message}" Width="*" />
-                    </DataGrid.Columns>
-                </DataGrid>
+                <Grid Grid.Row="1"
+                      Grid.IsSharedSizeScope="True"
+                      Margin="12,0,12,12">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <Grid Grid.Row="0" Margin="8,0,8,8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" SharedSizeGroup="RcStep" />
+                            <ColumnDefinition Width="12" />
+                            <ColumnDefinition Width="Auto" SharedSizeGroup="RcStatus" />
+                            <ColumnDefinition Width="12" />
+                            <ColumnDefinition Width="Auto" SharedSizeGroup="RcSeverity" />
+                            <ColumnDefinition Width="12" />
+                            <ColumnDefinition Width="Auto" SharedSizeGroup="RcSheet" />
+                            <ColumnDefinition Width="12" />
+                            <ColumnDefinition Width="Auto" SharedSizeGroup="RcCell" />
+                            <ColumnDefinition Width="12" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Grid.Column="0" Text="ステップ" Style="{DynamicResource CaptionTextStyle}" />
+                        <TextBlock Grid.Column="2" Text="結果" Style="{DynamicResource CaptionTextStyle}" />
+                        <TextBlock Grid.Column="4" Text="重要度" Style="{DynamicResource CaptionTextStyle}" />
+                        <TextBlock Grid.Column="6" Text="Sheet" Style="{DynamicResource CaptionTextStyle}" />
+                        <TextBlock Grid.Column="8" Text="Cell" Style="{DynamicResource CaptionTextStyle}" />
+                        <TextBlock Grid.Column="10" Text="メッセージ" Style="{DynamicResource CaptionTextStyle}" />
+                    </Grid>
+
+                    <ListBox Grid.Row="1"
+                             ItemsSource="{Binding Results}"
+                             Background="Transparent"
+                             BorderThickness="0"
+                             ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                             ScrollViewer.VerticalScrollBarVisibility="Auto"
+                             SelectionMode="Single">
+                        <ListBox.ItemContainerStyle>
+                            <Style TargetType="ListBoxItem"
+                                   BasedOn="{StaticResource AppFlatSelectableRowListBoxItemStyle}">
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                            </Style>
+                        </ListBox.ItemContainerStyle>
+
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Border BorderBrush="{DynamicResource BorderSubtleBrush}"
+                                        BorderThickness="0,0,0,1"
+                                        Padding="8,6">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" SharedSizeGroup="RcStep" />
+                                            <ColumnDefinition Width="12" />
+                                            <ColumnDefinition Width="Auto" SharedSizeGroup="RcStatus" />
+                                            <ColumnDefinition Width="12" />
+                                            <ColumnDefinition Width="Auto" SharedSizeGroup="RcSeverity" />
+                                            <ColumnDefinition Width="12" />
+                                            <ColumnDefinition Width="Auto" SharedSizeGroup="RcSheet" />
+                                            <ColumnDefinition Width="12" />
+                                            <ColumnDefinition Width="Auto" SharedSizeGroup="RcCell" />
+                                            <ColumnDefinition Width="12" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+
+                                        <TextBlock Grid.Column="0" Text="{Binding Step}" Style="{DynamicResource BodyTextStyle}" />
+                                        <TextBlock Grid.Column="2" Text="{Binding Status}" Style="{DynamicResource BodyTextStyle}" />
+                                        <TextBlock Grid.Column="4" Text="{Binding Severity}" Style="{DynamicResource BodyTextStyle}" />
+                                        <TextBlock Grid.Column="6" Text="{Binding SheetName}" Style="{DynamicResource BodyTextStyle}" />
+                                        <TextBlock Grid.Column="8" Text="{Binding CellRef}" Style="{DynamicResource BodyTextStyle}" />
+                                        <TextBlock Grid.Column="10"
+                                                   Text="{Binding Message}"
+                                                   Style="{DynamicResource BodyTextStyle}"
+                                                   TextWrapping="Wrap" />
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </Grid>
             </Grid>
         </Border>
     </Grid>

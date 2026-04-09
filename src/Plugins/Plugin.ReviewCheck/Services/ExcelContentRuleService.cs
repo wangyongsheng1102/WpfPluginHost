@@ -9,7 +9,7 @@ namespace Plugin.ReviewCheck.Services;
 
 public sealed class ExcelContentRuleService
 {
-    public ExcelContentCheckResult Check(string workbookPath, WbsPeople wbsPeople)
+    public ExcelContentCheckResult Check(string workbookPath, string artifactKey, string artifactLabel, WbsPeople? wbsPeople)
     {
         if (string.IsNullOrWhiteSpace(workbookPath) || !File.Exists(workbookPath))
         {
@@ -45,8 +45,9 @@ public sealed class ExcelContentRuleService
                     sheets.Add((Excel.Worksheet)wb.Worksheets[i]);
                 }
 
-                items.AddRange(CheckExpectedSheets(sheets));
-                items.AddRange(CheckCoverPeople(sheets, wbsPeople));
+                items.Add(new CheckResultItem("content", "〇", CheckSeverity.Info, "", "", $"対象: {artifactLabel}"));
+                items.AddRange(CheckExpectedSheets(sheets, artifactKey));
+                items.AddRange(CheckCoverPeople(sheets, artifactKey, wbsPeople));
             }
             finally
             {
@@ -82,13 +83,18 @@ public sealed class ExcelContentRuleService
         }
     }
 
-    private static IReadOnlyList<CheckResultItem> CheckExpectedSheets(IReadOnlyList<Excel.Worksheet> sheets)
+    private static IReadOnlyList<CheckResultItem> CheckExpectedSheets(IReadOnlyList<Excel.Worksheet> sheets, string artifactKey)
     {
         var items = new List<CheckResultItem>();
 
+        // content_check 的重点 sheet 组（按旧脚本）
         items.Add(ToSheetExistence(sheets, "表紙", "表紙"));
-        items.Add(ToSheetExistence(sheets, "一覧", "一覧"));
+        items.Add(ToSheetExistence(sheets, "成果物一覧", "成果物一覧"));
         items.Add(ToSheetExistence(sheets, "ソース", "ソースファイル"));
+        if (artifactKey != "EXCEL_CD_CHECKLIST")
+        {
+            items.Add(ToSheetExistence(sheets, "作業結果確認", "⑤作業結果確認"));
+        }
 
         return items;
     }
@@ -105,7 +111,7 @@ public sealed class ExcelContentRuleService
             Message: hit ? $"Sheet「{displayName}」が見つかりました。" : $"Sheet「{displayName}」が見つかりません（キーワード: {keyword}）。");
     }
 
-    private static IReadOnlyList<CheckResultItem> CheckCoverPeople(IReadOnlyList<Excel.Worksheet> sheets, WbsPeople wbsPeople)
+    private static IReadOnlyList<CheckResultItem> CheckCoverPeople(IReadOnlyList<Excel.Worksheet> sheets, string artifactKey, WbsPeople? wbsPeople)
     {
         var items = new List<CheckResultItem>();
 
@@ -124,14 +130,18 @@ public sealed class ExcelContentRuleService
         items.Add(ToRequiredValueItem("content", GetNameSafe(cover), authorCell, "作成者", authorValue));
         items.Add(ToRequiredValueItem("content", GetNameSafe(cover), reviewerCell, "確認者", reviewerValue));
 
-        if (!string.IsNullOrWhiteSpace(wbsPeople.Author))
+        var expectedUser = SelectExpectedUser(artifactKey, wbsPeople);
+        var expectedDate = SelectExpectedDate(artifactKey, wbsPeople);
+
+        if (!string.IsNullOrWhiteSpace(expectedUser))
         {
-            items.Add(ToEqualsItem("content", GetNameSafe(cover), authorCell, "作成者(WBS)", wbsPeople.Author!, authorValue));
+            items.Add(ToEqualsItem("content", GetNameSafe(cover), authorCell, "作成者(WBS)", expectedUser!, authorValue));
         }
 
-        if (!string.IsNullOrWhiteSpace(wbsPeople.Reviewer))
+        if (!string.IsNullOrWhiteSpace(expectedDate))
         {
-            items.Add(ToEqualsItem("content", GetNameSafe(cover), reviewerCell, "確認者(WBS)", wbsPeople.Reviewer!, reviewerValue));
+            var (dateCell, dateValue) = FindLabelNeighborValue(cover, "作成日");
+            items.Add(ToEqualsItem("content", GetNameSafe(cover), dateCell, "作成日(WBS)", expectedDate!, dateValue));
         }
 
         return items;
@@ -261,5 +271,29 @@ public sealed class ExcelContentRuleService
     private static string Normalize(string? value)
     {
         return (value ?? string.Empty).Trim();
+    }
+
+    private static string? SelectExpectedUser(string artifactKey, WbsPeople? people)
+    {
+        if (people is null)
+        {
+            return null;
+        }
+
+        return artifactKey is "EXCEL_LIST" or "EXCEL_COMPARE" or "EXCEL_CD_CHECKLIST"
+            ? people.CodeUserName
+            : people.TestUserName;
+    }
+
+    private static string? SelectExpectedDate(string artifactKey, WbsPeople? people)
+    {
+        if (people is null)
+        {
+            return null;
+        }
+
+        return artifactKey is "EXCEL_LIST" or "EXCEL_COMPARE" or "EXCEL_CD_CHECKLIST"
+            ? people.CodeUserDate
+            : people.TestUserDate;
     }
 }
