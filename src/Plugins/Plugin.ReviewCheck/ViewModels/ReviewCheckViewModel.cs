@@ -15,7 +15,7 @@ namespace Plugin.ReviewCheck.ViewModels;
 
 public sealed partial class ReviewCheckViewModel : ObservableObject
 {
-    private static readonly string[] _inputTypeOptions = ["画面", "API"];
+    private static readonly string[] _inputTypeOptions = ["画面", "バッチ", "API", "共通部品", "共通部品(基盤)"];
     private static readonly string[] _systemOptions = ["EnabilityCis", "EnabilityOrder", "EnabilityPortal", "EnabilityPortal2"];
     private static readonly string[] _objectOptions = ["API", "バッチ", "マルチ", "課題対応", "画面", "環境構築", "共通部品", "結合テスト", "差分結合", "差分取込", "性能テスト"];
 
