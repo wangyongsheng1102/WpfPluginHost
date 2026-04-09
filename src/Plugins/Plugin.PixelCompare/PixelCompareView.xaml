@@ -23,6 +23,10 @@
                 BorderThickness="1"
                 BorderBrush="{DynamicResource BorderSubtleBrush}">
             <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
                     <ColumnDefinition Width="*" />
@@ -33,7 +37,7 @@
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
 
-                <Button Grid.Column="0"
+                <Button Grid.Row="0" Grid.Column="0"
                         Content="Excelを選択"
                         Height="36"
                         MinWidth="110"
@@ -41,13 +45,13 @@
                         Style="{DynamicResource ActionButtonStyle}"
                         Command="{Binding SelectExcelCommand}" />
 
-                <TextBlock Grid.Column="1"
+                <TextBlock Grid.Row="0" Grid.Column="1"
                            Margin="12,0,16,0"
                            VerticalAlignment="Center"
                            Style="{DynamicResource BodyTextStyle}"
                            Text="{Binding ExcelPath}" />
 
-                <Border Grid.Column="2"
+                <Border Grid.Row="0" Grid.Column="2"
                         Style="{DynamicResource AppInputChromeBorderStyle}"
                         Height="36"
                         Width="170"
@@ -57,7 +61,7 @@
                               SelectedItem="{Binding SelectedSheet, Mode=TwoWay}" />
                 </Border>
 
-                <Border Grid.Column="3"
+                <Border Grid.Row="0" Grid.Column="3"
                         Style="{DynamicResource AppInputChromeBorderStyle}"
                         Height="36"
                         Width="90"
@@ -68,13 +72,13 @@
                               Text="{Binding LeftColumnName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                 </Border>
 
-                <TextBlock Grid.Column="4"
+                <TextBlock Grid.Row="0" Grid.Column="4"
                            Margin="0,0,8,0"
                            VerticalAlignment="Center"
                            Style="{DynamicResource CaptionTextStyle}"
                            Text="vs" />
 
-                <Border Grid.Column="5"
+                <Border Grid.Row="0" Grid.Column="5"
                         Style="{DynamicResource AppInputChromeBorderStyle}"
                         Height="36"
                         Width="90"
@@ -85,7 +89,7 @@
                               Text="{Binding RightColumnName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                 </Border>
 
-                <StackPanel Grid.Column="6" Orientation="Horizontal">
+                <StackPanel Grid.Row="0" Grid.Column="6" Orientation="Horizontal">
                     <Button Content="シートを再読込"
                             Height="36"
                             MinWidth="100"
@@ -101,6 +105,74 @@
                             Style="{DynamicResource PrimaryButtonStyle}"
                             Command="{Binding ExportReportCommand}" />
                 </StackPanel>
+
+                <Grid Grid.Row="1"
+                      Grid.Column="0"
+                      Grid.ColumnSpan="7"
+                      Margin="0,12,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="70" />
+                        <ColumnDefinition Width="12" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="70" />
+                        <ColumnDefinition Width="12" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="70" />
+                        <ColumnDefinition Width="12" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="70" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Column="0"
+                               Margin="0,0,8,0"
+                               VerticalAlignment="Center"
+                               Style="{DynamicResource CaptionTextStyle}"
+                               Text="閾値" />
+                    <Border Grid.Column="1"
+                            Style="{DynamicResource AppInputChromeBorderStyle}"
+                            Height="32">
+                        <TextBox Style="{DynamicResource AppTextBoxFlatStyle}"
+                                 Text="{Binding DiffThresholdText, UpdateSourceTrigger=PropertyChanged}" />
+                    </Border>
+
+                    <TextBlock Grid.Column="3"
+                               Margin="0,0,8,0"
+                               VerticalAlignment="Center"
+                               Style="{DynamicResource CaptionTextStyle}"
+                               Text="最小領域" />
+                    <Border Grid.Column="4"
+                            Style="{DynamicResource AppInputChromeBorderStyle}"
+                            Height="32">
+                        <TextBox Style="{DynamicResource AppTextBoxFlatStyle}"
+                                 Text="{Binding MinRegionAreaText, UpdateSourceTrigger=PropertyChanged}" />
+                    </Border>
+
+                    <TextBlock Grid.Column="6"
+                               Margin="0,0,8,0"
+                               VerticalAlignment="Center"
+                               Style="{DynamicResource CaptionTextStyle}"
+                               Text="結合距離" />
+                    <Border Grid.Column="7"
+                            Style="{DynamicResource AppInputChromeBorderStyle}"
+                            Height="32">
+                        <TextBox Style="{DynamicResource AppTextBoxFlatStyle}"
+                                 Text="{Binding MergeDistanceText, UpdateSourceTrigger=PropertyChanged}" />
+                    </Border>
+
+                    <TextBlock Grid.Column="9"
+                               Margin="0,0,8,0"
+                               VerticalAlignment="Center"
+                               Style="{DynamicResource CaptionTextStyle}"
+                               Text="膨張px" />
+                    <Border Grid.Column="10"
+                            Style="{DynamicResource AppInputChromeBorderStyle}"
+                            Height="32">
+                        <TextBox Style="{DynamicResource AppTextBoxFlatStyle}"
+                                 Text="{Binding ExpandPixelsText, UpdateSourceTrigger=PropertyChanged}" />
+                    </Border>
+                </Grid>
             </Grid>
         </Border>
 

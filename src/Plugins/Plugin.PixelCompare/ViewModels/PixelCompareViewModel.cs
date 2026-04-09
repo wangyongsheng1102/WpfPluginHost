@@ -20,7 +20,6 @@ public partial class PixelCompareViewModel : ObservableObject, IDisposable
     private readonly ExcelImageExtractorService _excelExtractorService = new();
     private readonly ImageComparisonService _imageComparisonService = new(new DifferenceRegionService(), new ImageAnnotationService());
     private readonly HtmlReportService _htmlReportService = new();
-    private readonly CompareOptions _options = new();
     private bool _isDisposed;
 
     public ObservableCollection<string> AvailableSheets { get; } = new();
@@ -59,6 +58,18 @@ public partial class PixelCompareViewModel : ObservableObject, IDisposable
 
     [ObservableProperty]
     private bool _showLeftPreview = true;
+
+    [ObservableProperty]
+    private string _diffThresholdText = "30";
+
+    [ObservableProperty]
+    private string _minRegionAreaText = "50";
+
+    [ObservableProperty]
+    private string _mergeDistanceText = "10";
+
+    [ObservableProperty]
+    private string _expandPixelsText = "3";
 
     public bool HasItems => CompareItems.Count > 0;
     public bool CanStartCompare =>
@@ -245,7 +256,8 @@ public partial class PixelCompareViewModel : ObservableObject, IDisposable
                 });
             }
 
-            await RunComparisonForItemsAsync(CompareItems);
+            var options = BuildCompareOptions();
+            await RunComparisonForItemsAsync(CompareItems, options);
             OnPropertyChanged(nameof(HasItems));
             ExportReportCommand.NotifyCanExecuteChanged();
         }
@@ -288,6 +300,7 @@ public partial class PixelCompareViewModel : ObservableObject, IDisposable
             var allResults = new List<(string SheetName, int RowIndex, ComparisonResult Result)>();
             var totalSheets = sheets.Count;
             var sheetsProcessed = 0;
+            var options = BuildCompareOptions();
 
             foreach (var sheet in sheets)
             {
@@ -317,7 +330,7 @@ public partial class PixelCompareViewModel : ObservableObject, IDisposable
                         ComparisonResult result;
                         if (ext.IsPixelComparable)
                         {
-                            result = await _imageComparisonService.CompareAsync(ext.Image1Path, ext.Image2Path, ext.RowIndex, _options);
+                            result = await _imageComparisonService.CompareAsync(ext.Image1Path, ext.Image2Path, ext.RowIndex, options);
                         }
                         else
                         {
@@ -373,7 +386,7 @@ public partial class PixelCompareViewModel : ObservableObject, IDisposable
         };
     }
 
-    private async Task RunComparisonForItemsAsync(IEnumerable<CompareRowItem> items)
+    private async Task RunComparisonForItemsAsync(IEnumerable<CompareRowItem> items, CompareOptions options)
     {
         var itemList = items.ToList();
         var total = itemList.Count;
@@ -403,7 +416,7 @@ public partial class PixelCompareViewModel : ObservableObject, IDisposable
                 }
                 else
                 {
-                    var result = await _imageComparisonService.CompareAsync(item.Image1Path, item.Image2Path, item.RowIndex, _options);
+                    var result = await _imageComparisonService.CompareAsync(item.Image1Path, item.Image2Path, item.RowIndex, options);
                     await RunOnUiAsync(() =>
                     {
                         item.IsLoading = false;
@@ -522,6 +535,48 @@ public partial class PixelCompareViewModel : ObservableObject, IDisposable
                 // 一時ファイル削除失敗時もレポート出力結果は維持する。
             }
         }
+    }
+
+    private CompareOptions BuildCompareOptions()
+    {
+        var options = new CompareOptions
+        {
+            DiffThreshold = ParseOption(DiffThresholdText, 30, 0, 255),
+            MinRegionArea = ParseOption(MinRegionAreaText, 50, 1, 20000),
+            MergeDistance = ParseOption(MergeDistanceText, 10, 0, 200),
+            ExpandPixels = ParseOption(ExpandPixelsText, 3, 0, 50)
+        };
+
+        // 正規化後の値を UI に戻して、入力ミス時の実効値を可視化。
+        DiffThresholdText = options.DiffThreshold.ToString();
+        MinRegionAreaText = options.MinRegionArea.ToString();
+        MergeDistanceText = options.MergeDistance.ToString();
+        ExpandPixelsText = options.ExpandPixels.ToString();
+
+        _context?.ReportInfo(
+            $"比較精度: threshold={options.DiffThreshold}, minArea={options.MinRegionArea}, merge={options.MergeDistance}, expand={options.ExpandPixels}");
+
+        return options;
+    }
+
+    private static int ParseOption(string? text, int fallback, int min, int max)
+    {
+        if (!int.TryParse(text, out var value))
+        {
+            return fallback;
+        }
+
+        if (value < min)
+        {
+            return min;
+        }
+
+        if (value > max)
+        {
+            return max;
+        }
+
+        return value;
     }
 
     public void Dispose()

@@ -2,8 +2,8 @@ namespace Plugin.PixelCompare.Models;
 
 public sealed class CompareOptions
 {
-    public int DiffThreshold { get; init; } = 30;
-    public int MinRegionArea { get; init; } = 50;
-    public int MergeDistance { get; init; } = 10;
-    public int ExpandPixels { get; init; } = 3;
+    public int DiffThreshold { get; set; } = 30;
+    public int MinRegionArea { get; set; } = 50;
+    public int MergeDistance { get; set; } = 10;
+    public int ExpandPixels { get; set; } = 3;
 }
