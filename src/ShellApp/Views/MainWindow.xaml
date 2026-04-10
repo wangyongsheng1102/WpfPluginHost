@@ -170,7 +170,7 @@
                         </Button.Style>
                         <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
                             <Image x:Name="HomeIcon"
-                                   Source="/Assets/Images/icons8-eclipse-50.png"
+                                   Source="pack://application:,,,/Assets/Images/icons8-eclipse-50.png"
                                    Width="{x:Static abstractions:ThemeDimensions.HomeIconSize}"
                                    Height="{x:Static abstractions:ThemeDimensions.HomeIconSize}"
                                    Stretch="Uniform"

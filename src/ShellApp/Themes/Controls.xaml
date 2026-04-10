@@ -290,7 +290,7 @@
                                 <Grid Width="24" Height="24">
                                     <!-- 通常：filled SVG -->
                                     <svgc:SvgViewbox x:Name="AboutIconFullHost"
-                                                     Source="/Assets/SVG/user-person-profile-block-account-circle-full.svg"
+                                                     Source="pack://application:,,,/Assets/SVG/user-person-profile-block-account-circle-full.svg"
                                                      Stretch="Uniform"
                                                      Width="24"
                                                      Height="24"
@@ -299,7 +299,7 @@
                                                      Visibility="Visible" />
                                     <!-- ホバー：empty SVG -->
                                     <svgc:SvgViewbox x:Name="AboutIconEmptyHost"
-                                                     Source="/Assets/SVG/user-person-profile-block-account-circle-emptysvg.svg"
+                                                     Source="pack://application:,,,/Assets/SVG/user-person-profile-block-account-circle-emptysvg.svg"
                                                      Stretch="Uniform"
                                                      Width="24"
                                                      Height="24"
@@ -499,14 +499,14 @@
                         <Grid>
                             <!-- ON 状態（通常表示） -->
                             <svgc:SvgViewbox x:Name="SwitchOnIcon"
-                                             Source="/Assets/SVG/switch-on-svgrepo-com.svg"
+                                             Source="pack://application:,,,/Assets/SVG/switch-on-svgrepo-com.svg"
                                              Stretch="Uniform"
                                              HorizontalAlignment="Center"
                                              VerticalAlignment="Center"
                                              Visibility="Visible" />
                             <!-- OFF 状態（クリック後表示） -->
                             <svgc:SvgViewbox x:Name="SwitchOffIcon"
-                                             Source="/Assets/SVG/switch-off-svgrepo-com.svg"
+                                             Source="pack://application:,,,/Assets/SVG/switch-off-svgrepo-com.svg"
                                              Stretch="Uniform"
                                              HorizontalAlignment="Center"
                                              VerticalAlignment="Center"

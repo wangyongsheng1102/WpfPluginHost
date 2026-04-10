@@ -41,7 +41,7 @@
                         <TextBlock Text="{Binding VersionDisplay}" Style="{StaticResource BodyTextStyle}" Foreground="{DynamicResource SecondaryTextBrush}" Margin="0,4,0,20" />
 
                         <StackPanel Orientation="Horizontal">
-                            <svgc:SvgViewbox Source="/Assets/SVG/avatar-bad-breaking-svgrepo-com.svg"
+                            <svgc:SvgViewbox Source="pack://application:,,,/Assets/SVG/avatar-bad-breaking-svgrepo-com.svg"
                                              Width="{x:Static abstractions:ThemeDimensions.AuthorAvatarSize}" Height="{x:Static abstractions:ThemeDimensions.AuthorAvatarSize}"
                                              Stretch="Uniform"
                                              VerticalAlignment="Center"

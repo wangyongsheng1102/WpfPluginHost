@@ -1,8 +1,15 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <!-- 本文・コントロール既定：Light。見出し・列見出し等は AppFontFamilyBold。両方 Assets/Fonts に配置（LXGW リリースの Light / Bold）。ファミリー名は「LXGW WenKai」。絵文字は Segoe UI Emoji にフォールバック -->
+    <!--
+      既定はシステムフォント（ttf 未同梱でも起動できる）。
+      LXGW を使う場合：Assets/Fonts に LXGWWenKai-Light.ttf / Bold を配置し、下記コメントの pack 行に差し替える。
+    -->
+    <FontFamily x:Key="AppFontFamily">Segoe UI, Segoe UI Emoji</FontFamily>
+    <FontFamily x:Key="AppFontFamilyBold">Segoe UI Semibold, Segoe UI, Segoe UI Emoji</FontFamily>
+    <!--
     <FontFamily x:Key="AppFontFamily">pack://application:,,,/Assets/Fonts/LXGWWenKai-Light.ttf#LXGW WenKai, Segoe UI Emoji</FontFamily>
     <FontFamily x:Key="AppFontFamilyBold">pack://application:,,,/Assets/Fonts/LXGWWenKai-Bold.ttf#LXGW WenKai, Segoe UI Emoji</FontFamily>
+    -->
 
     <Style TargetType="Window">
         <Setter Property="TextElement.FontFamily" Value="{StaticResource AppFontFamily}" />

@@ -86,6 +86,7 @@ public partial class DbConfigViewModel : ObservableObject
             _mainViewModel.AppendLog($"WSL ディストリビューション「{distro}」で pg ユーザーとして pg_ctl start を実行しています...", LogLevel.Info);
 
             var result = await _wslService.StartPostgreSqlAsPgAsync(distro);
+            var alreadyRunning = LooksLikePostgreAlreadyRunning(result);
 
             if (!string.IsNullOrEmpty(result.StandardOutput))
             {
@@ -94,14 +95,17 @@ public partial class DbConfigViewModel : ObservableObject
 
             if (!string.IsNullOrEmpty(result.StandardError))
             {
-                _mainViewModel.AppendLog(result.StandardError, LogLevel.Warning);
+                // pg_ctl は既起動時に stderr へ「another server might be running ...」等を出すことがある（異常ではない）
+                _mainViewModel.AppendLog(
+                    result.StandardError,
+                    alreadyRunning ? LogLevel.Info : LogLevel.Warning);
             }
 
-            if (result.ExitCode == 0 || LooksLikePostgreAlreadyRunning(result))
+            if (result.ExitCode == 0 || alreadyRunning)
             {
                 _mainViewModel.AppendLog(
-                    LooksLikePostgreAlreadyRunning(result) && result.ExitCode != 0
-                        ? "PostgreSQL は既に起動している可能性があります。"
+                    alreadyRunning && result.ExitCode != 0
+                        ? "PostgreSQL は既に起動している可能性が高いです（上記は pg_ctl の情報メッセージです）。"
                         : "PostgreSQL の起動コマンドが完了しました。",
                     LogLevel.Success);
             }
@@ -125,7 +129,15 @@ public partial class DbConfigViewModel : ObservableObject
     private static bool LooksLikePostgreAlreadyRunning(WslPostgreStartResult result)
     {
         var text = $"{result.StandardOutput}\n{result.StandardError}";
+        if (string.IsNullOrEmpty(text))
+        {
+            return false;
+        }
+
+        // 例: "pg_ctl: another server might be running, trying to start server anyway"
         return text.Contains("another postgresql server might be running", StringComparison.OrdinalIgnoreCase)
+               || text.Contains("another server might be running", StringComparison.OrdinalIgnoreCase)
+               || text.Contains("trying to start server anyway", StringComparison.OrdinalIgnoreCase)
                || text.Contains("already running", StringComparison.OrdinalIgnoreCase);
     }
 

@@ -6,7 +6,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
-    <ApplicationIcon>toolbox_repair_box_tool_box_toolboxes_toolkit_icon_189326.ico</ApplicationIcon>
+    <!-- .exe アイコンは csproj と同じフォルダ（src/ShellApp）に置く。無い場合はビルドを止めない -->
+    <ApplicationIcon Condition="Exists('$(MSBuildProjectDirectory)\toolbox_repair_box_tool_box_toolboxes_toolkit_icon_189326.ico')">toolbox_repair_box_tool_box_toolboxes_toolkit_icon_189326.ico</ApplicationIcon>
     <AssemblyName>ツールボックス</AssemblyName>
   </PropertyGroup>
 
@@ -25,6 +26,7 @@
     <ProjectReference Include="..\Plugins\Plugin.PixelCompare\Plugin.PixelCompare.csproj" ReferenceOutputAssembly="false" />
   </ItemGroup>
 
+  <!-- 画像・フォント・SVG はすべてこのプロジェクト配下（src/ShellApp/Assets/...）に置くと Resource として埋め込まれる -->
   <ItemGroup>
     <Resource Include="Assets\Images\**\*.*" />
     <Resource Include="Assets\Fonts\**\*.ttf" />
