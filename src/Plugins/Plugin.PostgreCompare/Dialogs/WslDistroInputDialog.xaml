@@ -1,0 +1,43 @@
+<Window x:Class="Plugin.PostgreCompare.Dialogs.WslDistroInputDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="WSL ディストリビューション"
+        SizeToContent="WidthAndHeight"
+        MinWidth="420"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        ShowInTaskbar="False">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <TextBlock Grid.Row="0"
+                   Text="PostgreSQL がインストールされている WSL のディストリビューション名を入力してください（例: Ubuntu-22.04）。pg ユーザーで source ~/.bash_profile の後に pg_ctl start を実行します。"
+                   TextWrapping="Wrap"
+                   Margin="0,0,0,12" />
+
+        <TextBox x:Name="DistroTextBox"
+                 Grid.Row="1"
+                 Height="32"
+                 VerticalContentAlignment="Center"
+                 Margin="0,0,0,16" />
+
+        <StackPanel Grid.Row="2"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Right">
+            <Button Content="OK"
+                    Width="88"
+                    Height="32"
+                    Margin="0,0,8,0"
+                    IsDefault="True"
+                    Click="OkButton_Click" />
+            <Button Content="キャンセル"
+                    Width="100"
+                    Height="32"
+                    IsCancel="True" />
+        </StackPanel>
+    </Grid>
+</Window>

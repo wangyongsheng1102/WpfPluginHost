@@ -78,6 +78,14 @@
                                     Padding="16,0"
                                     Style="{DynamicResource PostgrePrimaryButtonStyle}"
                                     Command="{Binding DbConfigViewModel.AddConnectionCommand}" />
+                            <Button Content="WSL で DB 起動"
+                                    Height="36"
+                                    MinWidth="140"
+                                    Padding="16,0"
+                                    Margin="12,0,0,0"
+                                    Style="{DynamicResource PostgreActionButtonStyle}"
+                                    Command="{Binding DbConfigViewModel.StartPostgreSqlInWslCommand}"
+                                    ToolTip="WSL 上の PostgreSQL を pg ユーザーで起動します（source ~/.bash_profile 後に pg_ctl start）" />
                         </StackPanel>
                     </Border>
 
