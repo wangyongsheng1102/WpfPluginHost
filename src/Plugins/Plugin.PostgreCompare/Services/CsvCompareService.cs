@@ -117,7 +117,7 @@ public class CsvCompareService
                 {
                     TableName = fullTableName,
                     Status = ComparisonStatus.Updated,
-                    PrimaryKeyValues = compareRow.PrimaryKeyValues,
+                    PrimaryKeyValues = kvp.Value.PrimaryKeyValues,
                     OldValues = kvp.Value.Values,
                     NewValues = compareRow.Values
                 });
