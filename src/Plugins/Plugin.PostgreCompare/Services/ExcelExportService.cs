@@ -147,28 +147,6 @@ public class ExcelExportService
                 currentRow++;
             }
 
-            foreach (var newResult in newResults)
-            {
-                string pkKey = string.Join("|", newResult.PrimaryKeyValues.OrderBy(k => k.Key).Select(k => $"{k.Key}={k.Value}"));
-
-                if (oldBeforeRowMap.ContainsKey(pkKey))
-                    continue;
-
-                worksheet.Cell(currentRow, 2).Value = "";
-
-                oldBeforeRowMap[pkKey] = currentRow;
-
-                int dataCol = headerStartCol;
-                foreach (var column in columns)
-                {
-                    worksheet.Cell(currentRow, dataCol).Value = "";
-                    ApplyCellBorder(worksheet.Cell(currentRow, dataCol));
-                    dataCol++;
-                }
-
-                currentRow++;
-            }
-
             currentRow++;
 
             worksheet.Cell(currentRow, headerStartCol).Value = tableComment;
@@ -235,28 +213,6 @@ public class ExcelExportService
                 currentRow++;
             }
 
-            foreach (var newResult in newResults)
-            {
-                string pkKey = string.Join("|", newResult.PrimaryKeyValues.OrderBy(k => k.Key).Select(k => $"{k.Key}={k.Value}"));
-
-                if (oldAfterRowMap.ContainsKey(pkKey))
-                    continue;
-
-                worksheet.Cell(currentRow, 2).Value = "";
-
-                oldAfterRowMap[pkKey] = currentRow;
-
-                int dataCol = headerStartCol;
-                foreach (var column in columns)
-                {
-                    worksheet.Cell(currentRow, dataCol).Value = "";
-                    ApplyCellBorder(worksheet.Cell(currentRow, dataCol));
-                    dataCol++;
-                }
-
-                currentRow++;
-            }
-
             currentRow += 2;
 
             // ========== 新システム ==========
@@ -299,39 +255,9 @@ public class ExcelExportService
             var newBeforeRowMap = new Dictionary<string, int>();
             var newAfterRowMap = new Dictionary<string, int>();
 
-            var newResultMapForBefore = newResults.ToDictionary(r =>
-                string.Join("|", r.PrimaryKeyValues.OrderBy(k => k.Key).Select(k => $"{k.Key}={k.Value}")));
-
-            foreach (var oldResult in oldResults)
-            {
-                string pkKey = string.Join("|", oldResult.PrimaryKeyValues.OrderBy(k => k.Key).Select(k => $"{k.Key}={k.Value}"));
-
-                newResultMapForBefore.TryGetValue(pkKey, out var nrBeforeRow);
-                string statusLabel = nrBeforeRow != null ? GetBeforeLabel(nrBeforeRow.Status) : "";
-                worksheet.Cell(currentRow, 2).Value = statusLabel;
-
-                newBeforeRowMap[pkKey] = currentRow;
-
-                int dataCol = headerStartCol;
-                foreach (var column in columns)
-                {
-                    object? value = null;
-                    if (nrBeforeRow != null)
-                        value = nrBeforeRow.Status == ComparisonStatus.Added ? null : GetBaseValue(nrBeforeRow, column);
-                    worksheet.Cell(currentRow, dataCol).Value = value?.ToString() ?? "";
-                    ApplyCellBorder(worksheet.Cell(currentRow, dataCol));
-                    dataCol++;
-                }
-
-                currentRow++;
-            }
-
             foreach (var newResult in newResults)
             {
                 string pkKey = string.Join("|", newResult.PrimaryKeyValues.OrderBy(k => k.Key).Select(k => $"{k.Key}={k.Value}"));
-
-                if (newBeforeRowMap.ContainsKey(pkKey))
-                    continue;
 
                 string statusLabel = GetBeforeLabel(newResult.Status);
                 worksheet.Cell(currentRow, 2).Value = statusLabel;
@@ -384,56 +310,12 @@ public class ExcelExportService
             }
             currentRow++;
 
-            var newResultMapForAfter = newResults.ToDictionary(r =>
-                string.Join("|", r.PrimaryKeyValues.OrderBy(k => k.Key).Select(k => $"{k.Key}={k.Value}")));
-
-            foreach (var oldResult in oldResults)
-            {
-                string pkKey = string.Join("|", oldResult.PrimaryKeyValues.OrderBy(k => k.Key).Select(k => $"{k.Key}={k.Value}"));
-
-                string statusLabelAfter = "";
-                if (newResultMapForAfter.TryGetValue(pkKey, out var nrAfterStatus))
-                    statusLabelAfter = GetAfterLabel(nrAfterStatus.Status);
-                worksheet.Cell(currentRow, 2).Value = statusLabelAfter;
-
-                newAfterRowMap[pkKey] = currentRow;
-
-                newResultMapForAfter.TryGetValue(pkKey, out var nrAfterRow);
-
-                int dataCol = headerStartCol;
-                foreach (var column in columns)
-                {
-                    object? value = null;
-                    if (nrAfterRow != null)
-                        value = nrAfterRow.Status == ComparisonStatus.Deleted ? null : GetNewValue(nrAfterRow, column);
-                    var cell = worksheet.Cell(currentRow, dataCol);
-                    cell.Value = value?.ToString() ?? "";
-                    ApplyCellBorder(cell);
-
-                    if (nrAfterRow != null && nrAfterRow.Status == ComparisonStatus.Updated && newBeforeRowMap.ContainsKey(pkKey))
-                    {
-                        object? beforeVal = GetBaseValue(nrAfterRow, column);
-                        string beforeStr = beforeVal?.ToString() ?? "";
-                        string afterStr = value?.ToString() ?? "";
-                        if (beforeStr != afterStr)
-                            cell.Style.Fill.BackgroundColor = XLColor.Yellow;
-                    }
-
-                    dataCol++;
-                }
-
-                currentRow++;
-            }
-
             foreach (var newResult in newResults)
             {
                 string pkKey = string.Join("|", newResult.PrimaryKeyValues.OrderBy(k => k.Key).Select(k => $"{k.Key}={k.Value}"));
 
-                if (newAfterRowMap.ContainsKey(pkKey))
-                    continue;
-
-                string statusLabel = GetAfterLabel(newResult.Status);
-                worksheet.Cell(currentRow, 2).Value = statusLabel;
+                string statusLabelAfter = GetAfterLabel(newResult.Status);
+                worksheet.Cell(currentRow, 2).Value = statusLabelAfter;
 
                 newAfterRowMap[pkKey] = currentRow;
 
@@ -445,7 +327,7 @@ public class ExcelExportService
                     cell.Value = value?.ToString() ?? "";
                     ApplyCellBorder(cell);
 
-                    if (newResult.Status == ComparisonStatus.Updated && newBeforeRowMap.TryGetValue(pkKey, out _))
+                    if (newResult.Status == ComparisonStatus.Updated && newBeforeRowMap.ContainsKey(pkKey))
                     {
                         object? beforeVal = GetBaseValue(newResult, column);
                         string beforeStr = beforeVal?.ToString() ?? "";
