@@ -44,8 +44,13 @@
                            Style="{StaticResource BodyTextStyle}"
                            TextWrapping="Wrap"
                            LineHeight="{x:Static abstractions:ThemeDimensions.LineHeightRelaxed}"
-                           Text="PostgreSQL がインストールされている WSL のディストリビューション名を入力してください（例: Ubuntu-22.04）。pg ユーザーで source ~/.bash_profile の後に pg_ctl start を実行します。"
-                           Margin="0,0,0,14" />
+                           Margin="0,0,0,14">
+                    <Run Text="PostgreSQL がインストールされている WSL の" />
+                    <Run FontFamily="{StaticResource AppFontFamilyBold}"
+                         FontWeight="Bold"
+                         Text="ディストリビューション名" />
+                    <Run Text="を入力してください（例: Ubuntu-22.04）。pg ユーザーで source ~/.bash_profile の後に pg_ctl start を実行します。" />
+                </TextBlock>
 
                 <Border Grid.Row="1"
                         Style="{StaticResource AppInputChromeBorderStyle}"
