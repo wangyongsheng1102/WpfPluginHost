@@ -409,8 +409,10 @@ public class ExcelExportService
 
             foreach (var (oldPk, newPk) in pairs)
             {
-                bool hasOld = oldPk != null && oldAfterRowMap.TryGetValue(oldPk, out int oldRow);
-                bool hasNew = newPk != null && newAfterRowMap.TryGetValue(newPk, out int newRow);
+                int oldRow = 0;
+                int newRow = 0;
+                bool hasOld = oldPk != null && oldAfterRowMap.TryGetValue(oldPk, out oldRow);
+                bool hasNew = newPk != null && newAfterRowMap.TryGetValue(newPk, out newRow);
 
                 ComparisonStatus? oldStatus = null;
                 ComparisonStatus? newStatus = null;
