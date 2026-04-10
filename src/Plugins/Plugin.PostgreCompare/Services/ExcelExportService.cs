@@ -366,19 +366,58 @@ public class ExcelExportService
             var newResultMap = newResults.ToDictionary(r =>
                 string.Join("|", r.PrimaryKeyValues.OrderBy(k => k.Key).Select(k => $"{k.Key}={k.Value}")));
 
-            foreach (var oldResult in oldResults)
-            {
-                string pkKey = string.Join("|", oldResult.PrimaryKeyValues.OrderBy(k => k.Key).Select(k => $"{k.Key}={k.Value}"));
+            var oldKeys = oldResults
+                .Select(r => string.Join("|", r.PrimaryKeyValues.OrderBy(k => k.Key).Select(k => $"{k.Key}={k.Value}")))
+                .ToList();
+            var newKeys = newResults
+                .Select(r => string.Join("|", r.PrimaryKeyValues.OrderBy(k => k.Key).Select(k => $"{k.Key}={k.Value}")))
+                .ToList();
+            var newKeySet = new HashSet<string>(newKeys);
+            var oldKeySet = new HashSet<string>(oldKeys);
 
-                bool hasOld = oldAfterRowMap.TryGetValue(pkKey, out int oldRow);
-                bool hasNew = newAfterRowMap.TryGetValue(pkKey, out int newRow);
+            var pairs = new List<(string? oldPk, string? newPk)>();
+            var oldOnlyKeys = new List<string>();
+            var newOnlyKeys = newKeys.Where(k => !oldKeySet.Contains(k)).ToList();
+
+            foreach (var oldPk in oldKeys)
+            {
+                if (newKeySet.Contains(oldPk))
+                    pairs.Add((oldPk, oldPk));
+                else
+                    oldOnlyKeys.Add(oldPk);
+            }
+
+            foreach (var oldPk in oldOnlyKeys)
+            {
+                var oldStatusForPair = oldResultMap[oldPk].Status;
+                int pairIndex = newOnlyKeys.FindIndex(newPk => newResultMap[newPk].Status == oldStatusForPair);
+
+                if (pairIndex >= 0)
+                {
+                    string matchedNewPk = newOnlyKeys[pairIndex];
+                    pairs.Add((oldPk, matchedNewPk));
+                    newOnlyKeys.RemoveAt(pairIndex);
+                }
+                else
+                {
+                    pairs.Add((oldPk, null));
+                }
+            }
+
+            foreach (var newPk in newOnlyKeys)
+                pairs.Add((null, newPk));
+
+            foreach (var (oldPk, newPk) in pairs)
+            {
+                bool hasOld = oldPk != null && oldAfterRowMap.TryGetValue(oldPk, out int oldRow);
+                bool hasNew = newPk != null && newAfterRowMap.TryGetValue(newPk, out int newRow);
 
                 ComparisonStatus? oldStatus = null;
                 ComparisonStatus? newStatus = null;
 
-                if (hasOld && oldResultMap.TryGetValue(pkKey, out var oldResultForStatus))
+                if (oldPk != null && oldResultMap.TryGetValue(oldPk, out var oldResultForStatus))
                     oldStatus = oldResultForStatus.Status;
-                if (hasNew && newResultMap.TryGetValue(pkKey, out var newResultForStatus))
+                if (newPk != null && newResultMap.TryGetValue(newPk, out var newResultForStatus))
                     newStatus = newResultForStatus.Status;
 
                 worksheet.Cell(currentRow, 2).Value = BuildCompareLabel(oldStatus, newStatus);
@@ -406,47 +445,6 @@ public class ExcelExportService
                         var currentCellRef = GetCellReference(currentRow, colIndex);
                         conditionalFormat.WhenIsTrue($"={currentCellRef}=FALSE").Fill.SetBackgroundColor(XLColor.Yellow);
                     }
-
-                    colIndex++;
-                }
-
-                currentRow++;
-            }
-
-            foreach (var newResult in newResults)
-            {
-                string pkKey = string.Join("|", newResult.PrimaryKeyValues.OrderBy(k => k.Key).Select(k => $"{k.Key}={k.Value}"));
-
-                if (oldAfterRowMap.ContainsKey(pkKey))
-                    continue;
-
-                bool hasOld = oldAfterRowMap.TryGetValue(pkKey, out int oldRow);
-                bool hasNew = newAfterRowMap.TryGetValue(pkKey, out int newRow);
-
-                ComparisonStatus? oldStatus = null;
-                ComparisonStatus? newStatus = null;
-
-                if (hasOld && oldResultMap.TryGetValue(pkKey, out var oldResultForStatus))
-                    oldStatus = oldResultForStatus.Status;
-                if (hasNew && newResultMap.TryGetValue(pkKey, out var newResultForStatus))
-                    newStatus = newResultForStatus.Status;
-
-                worksheet.Cell(currentRow, 2).Value = BuildCompareLabel(oldStatus, newStatus);
-
-                colIndex = headerStartCol;
-                foreach (var column in columns)
-                {
-                    string oldCellRef = hasOld ? GetCellReference(oldRow, colIndex) : GetCellReference(newRow, colIndex);
-                    string newCellRef = GetCellReference(newRow, colIndex);
-                    string formula = $"=EXACT({oldCellRef},{newCellRef})";
-
-                    var cell = worksheet.Cell(currentRow, colIndex);
-                    cell.SetFormulaA1(formula);
-                    ApplyCellBorder(cell);
-
-                    var conditionalFormat = cell.AddConditionalFormat();
-                    var currentCellRef = GetCellReference(currentRow, colIndex);
-                    conditionalFormat.WhenIsTrue($"={currentCellRef}=FALSE").Fill.SetBackgroundColor(XLColor.Yellow);
 
                     colIndex++;
                 }
