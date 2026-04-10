@@ -4,12 +4,14 @@ using Microsoft.Win32;
 using Plugin.Abstractions;
 using Plugin.PixelCompare.Models;
 using Plugin.PixelCompare.Services;
+using System.ComponentModel;
 using System.Collections.Specialized;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Windows;
+using System.Windows.Data;
 using System.Windows.Threading;
 
 namespace Plugin.PixelCompare.ViewModels;
@@ -25,6 +27,7 @@ public partial class PixelCompareViewModel : ObservableObject, IDisposable
     public ObservableCollection<string> AvailableSheets { get; } = new();
     public ObservableCollection<string> AvailableColumns { get; } = new();
     public ObservableCollection<CompareRowItem> CompareItems { get; } = new();
+    public ICollectionView CompareItemsView { get; }
 
     public event EventHandler? CompareCompleted;
 
@@ -71,7 +74,17 @@ public partial class PixelCompareViewModel : ObservableObject, IDisposable
     [ObservableProperty]
     private string _expandPixelsText = "3";
 
+    [ObservableProperty]
+    private string _sortKey = nameof(CompareRowItem.RowIndex);
+
+    [ObservableProperty]
+    private bool _sortAscending = true;
+
     public bool HasItems => CompareItems.Count > 0;
+    public string RowIndexHeaderText => BuildSortHeader("行番号", nameof(CompareRowItem.RowIndex));
+    public string StatusHeaderText => BuildSortHeader("結果", nameof(CompareRowItem.StatusText));
+    public string DiffCountHeaderText => BuildSortHeader("差異数", nameof(CompareRowItem.SortDiffCount));
+    public string DiffPctHeaderText => BuildSortHeader("差異率", nameof(CompareRowItem.DifferencePercentage));
     public bool CanStartCompare =>
         !IsProcessing &&
         File.Exists(ExcelPath) &&
@@ -86,6 +99,8 @@ public partial class PixelCompareViewModel : ObservableObject, IDisposable
     public PixelCompareViewModel(IPluginContext? context)
     {
         _context = context;
+        CompareItemsView = CollectionViewSource.GetDefaultView(CompareItems);
+        ApplySort(SortKey, SortAscending);
         // 一般的な列名の範囲をプリセット (A-Z, AA-ZZ)
         for (var c = 'A'; c <= 'Z'; c++)
         {
@@ -135,6 +150,22 @@ public partial class PixelCompareViewModel : ObservableObject, IDisposable
         }
 
         _ = RunCompareAsync();
+    }
+
+    partial void OnSortKeyChanged(string value)
+    {
+        OnPropertyChanged(nameof(RowIndexHeaderText));
+        OnPropertyChanged(nameof(StatusHeaderText));
+        OnPropertyChanged(nameof(DiffCountHeaderText));
+        OnPropertyChanged(nameof(DiffPctHeaderText));
+    }
+
+    partial void OnSortAscendingChanged(bool value)
+    {
+        OnPropertyChanged(nameof(RowIndexHeaderText));
+        OnPropertyChanged(nameof(StatusHeaderText));
+        OnPropertyChanged(nameof(DiffCountHeaderText));
+        OnPropertyChanged(nameof(DiffPctHeaderText));
     }
 
     [RelayCommand]
@@ -208,6 +239,27 @@ public partial class PixelCompareViewModel : ObservableObject, IDisposable
         {
             await RunCompareAsync();
         }
+    }
+
+    [RelayCommand]
+    private void SortBy(string? key)
+    {
+        if (string.IsNullOrWhiteSpace(key))
+        {
+            return;
+        }
+
+        if (string.Equals(SortKey, key, StringComparison.Ordinal))
+        {
+            SortAscending = !SortAscending;
+        }
+        else
+        {
+            SortKey = key;
+            SortAscending = true;
+        }
+
+        ApplySort(SortKey, SortAscending);
     }
 
     private async Task RunCompareAsync()
@@ -541,7 +593,7 @@ public partial class PixelCompareViewModel : ObservableObject, IDisposable
     {
         var options = new CompareOptions
         {
-            DiffThreshold = ParseOption(DiffThresholdText, 30, 0, 255),
+            DiffThreshold = ParseOption(DiffThresholdText, 35, 0, 255),
             MinRegionArea = ParseOption(MinRegionAreaText, 50, 1, 20000),
             MergeDistance = ParseOption(MergeDistanceText, 10, 0, 200),
             ExpandPixels = ParseOption(ExpandPixelsText, 3, 0, 50)
@@ -577,6 +629,24 @@ public partial class PixelCompareViewModel : ObservableObject, IDisposable
         }
 
         return value;
+    }
+
+    private void ApplySort(string key, bool ascending)
+    {
+        using var _ = CompareItemsView.DeferRefresh();
+        CompareItemsView.SortDescriptions.Clear();
+        CompareItemsView.SortDescriptions.Add(
+            new SortDescription(key, ascending ? ListSortDirection.Ascending : ListSortDirection.Descending));
+    }
+
+    private string BuildSortHeader(string caption, string key)
+    {
+        if (!string.Equals(SortKey, key, StringComparison.Ordinal))
+        {
+            return caption;
+        }
+
+        return SortAscending ? $"{caption} ▲" : $"{caption} ▼";
     }
 
     public void Dispose()

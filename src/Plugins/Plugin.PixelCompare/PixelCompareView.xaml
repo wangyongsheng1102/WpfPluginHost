@@ -217,30 +217,58 @@
                                 <ColumnDefinition Width="Auto" SharedSizeGroup="PcDiffPct" />
                             </Grid.ColumnDefinitions>
 
-                            <TextBlock Grid.Column="0"
-                                       Text="行番号"
-                                       Style="{DynamicResource CaptionTextStyle}"
-                                       HorizontalAlignment="Center"
-                                       VerticalAlignment="Center" />
-                            <TextBlock Grid.Column="2"
-                                       Text="結果"
-                                       Style="{DynamicResource CaptionTextStyle}"
-                                       HorizontalAlignment="Center"
-                                       VerticalAlignment="Center" />
-                            <TextBlock Grid.Column="4"
-                                       Text="差異数"
-                                       Style="{DynamicResource CaptionTextStyle}"
-                                       HorizontalAlignment="Center"
-                                       VerticalAlignment="Center" />
-                            <TextBlock Grid.Column="6"
-                                       Text="差異率"
-                                       Style="{DynamicResource CaptionTextStyle}"
-                                       HorizontalAlignment="Center"
-                                       VerticalAlignment="Center" />
+                            <Button Grid.Column="0"
+                                    Background="Transparent"
+                                    BorderThickness="0"
+                                    Padding="0"
+                                    Cursor="Hand"
+                                    Command="{Binding SortByCommand}"
+                                    CommandParameter="RowIndex">
+                                <TextBlock Text="{Binding RowIndexHeaderText}"
+                                           Style="{DynamicResource CaptionTextStyle}"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center" />
+                            </Button>
+                            <Button Grid.Column="2"
+                                    Background="Transparent"
+                                    BorderThickness="0"
+                                    Padding="0"
+                                    Cursor="Hand"
+                                    Command="{Binding SortByCommand}"
+                                    CommandParameter="StatusText">
+                                <TextBlock Text="{Binding StatusHeaderText}"
+                                           Style="{DynamicResource CaptionTextStyle}"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center" />
+                            </Button>
+                            <Button Grid.Column="4"
+                                    Background="Transparent"
+                                    BorderThickness="0"
+                                    Padding="0"
+                                    Cursor="Hand"
+                                    Command="{Binding SortByCommand}"
+                                    CommandParameter="SortDiffCount">
+                                <TextBlock Text="{Binding DiffCountHeaderText}"
+                                           Style="{DynamicResource CaptionTextStyle}"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center" />
+                            </Button>
+                            <Button Grid.Column="6"
+                                    Background="Transparent"
+                                    BorderThickness="0"
+                                    Padding="0"
+                                    Cursor="Hand"
+                                    Command="{Binding SortByCommand}"
+                                    CommandParameter="DifferencePercentage">
+                                <TextBlock Text="{Binding DiffPctHeaderText}"
+                                           Style="{DynamicResource CaptionTextStyle}"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center" />
+                            </Button>
                         </Grid>
 
                         <ListBox Grid.Row="1"
-                                 ItemsSource="{Binding CompareItems}"
+                                 ItemsSource="{Binding CompareItemsView}"
                                  SelectedItem="{Binding SelectedItem, Mode=TwoWay}"
                                  IsEnabled="{Binding IsProcessing, Converter={StaticResource InverseBooleanConverter}}"
                                  Background="Transparent"

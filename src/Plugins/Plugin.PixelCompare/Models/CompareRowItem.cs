@@ -14,7 +14,7 @@ public partial class CompareRowItem : ObservableObject
     private string _image2Path = string.Empty;
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(DiffCountDisplay), nameof(HasNonZeroDiffCount))]
+    [NotifyPropertyChangedFor(nameof(DiffCountDisplay), nameof(HasNonZeroDiffCount), nameof(SortDiffCount))]
     private int _diffCount;
 
     [ObservableProperty]
@@ -22,11 +22,11 @@ public partial class CompareRowItem : ObservableObject
     private double _differencePercentage;
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(DifferencePercentageText), nameof(DiffCountDisplay), nameof(HasNonZeroDiffCount), nameof(HasInfinityStyleDiffCount))]
+    [NotifyPropertyChangedFor(nameof(DifferencePercentageText), nameof(DiffCountDisplay), nameof(HasNonZeroDiffCount), nameof(HasInfinityStyleDiffCount), nameof(SortDiffCount))]
     private bool _isSizeMismatch;
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(DifferencePercentageText), nameof(DiffCountDisplay), nameof(HasNonZeroDiffCount), nameof(HasInfinityStyleDiffCount))]
+    [NotifyPropertyChangedFor(nameof(DifferencePercentageText), nameof(DiffCountDisplay), nameof(HasNonZeroDiffCount), nameof(HasInfinityStyleDiffCount), nameof(SortDiffCount))]
     private bool _isRowValidationError;
 
     [ObservableProperty]
@@ -106,4 +106,7 @@ public partial class CompareRowItem : ObservableObject
 
     /// <summary>ピクセル差異数が 0 より大きい（サイズ不一致・行検証エラーは除く）。</summary>
     public bool HasNonZeroDiffCount => !IsSizeMismatch && !IsRowValidationError && DiffCount > 0;
+
+    /// <summary>ソート用の差異数。∞ 行は最大値として扱い、一覧で目立つよう末尾/先頭へ移動できる。</summary>
+    public int SortDiffCount => HasInfinityStyleDiffCount ? int.MaxValue : DiffCount;
 }
