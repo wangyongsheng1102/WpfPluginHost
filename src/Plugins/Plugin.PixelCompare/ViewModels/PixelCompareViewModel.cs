@@ -63,7 +63,7 @@ public partial class PixelCompareViewModel : ObservableObject, IDisposable
     private bool _showLeftPreview = true;
 
     [ObservableProperty]
-    private string _diffThresholdText = "30";
+    private string _diffThresholdText = "35";
 
     [ObservableProperty]
     private string _minRegionAreaText = "50";

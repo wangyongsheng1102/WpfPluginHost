@@ -146,6 +146,7 @@
                             Style="{DynamicResource AppInputChromeBorderStyle}"
                             Height="32">
                         <TextBox Style="{DynamicResource AppTextBoxFlatStyle}"
+                                 IsEnabled="False"
                                  Text="{Binding MinRegionAreaText, UpdateSourceTrigger=PropertyChanged}" />
                     </Border>
 
@@ -158,6 +159,7 @@
                             Style="{DynamicResource AppInputChromeBorderStyle}"
                             Height="32">
                         <TextBox Style="{DynamicResource AppTextBoxFlatStyle}"
+                                 IsEnabled="False"
                                  Text="{Binding MergeDistanceText, UpdateSourceTrigger=PropertyChanged}" />
                     </Border>
 
@@ -170,6 +172,7 @@
                             Style="{DynamicResource AppInputChromeBorderStyle}"
                             Height="32">
                         <TextBox Style="{DynamicResource AppTextBoxFlatStyle}"
+                                 IsEnabled="False"
                                  Text="{Binding ExpandPixelsText, UpdateSourceTrigger=PropertyChanged}" />
                     </Border>
                 </Grid>
