@@ -238,9 +238,21 @@ public partial class CompareViewModel : ObservableObject
                 return;
             }
 
+            var connectionString = SelectedConnection.GetConnectionString();
+            _mainViewModel.AppendLog("データベース接続を確認しています...", LogLevel.Info);
+            var (dbOk, dbError) = await _databaseService.CheckDatabaseReachableAsync(connectionString);
+            if (!dbOk)
+            {
+                _mainViewModel.AppendLog(
+                    $"データベースに接続できません。PostgreSQL が起動しているか、ホスト・ポート・DB 名・認証情報を確認してください。詳細: {dbError}",
+                    LogLevel.Error);
+                return;
+            }
+
+            _mainViewModel.AppendLog("データベース接続を確認しました。", LogLevel.Success);
+
             await Task.Run(async () =>
             {
-                var connectionString = SelectedConnection.GetConnectionString();
                 var preferredSchemaName = GetSchemaFromUsername(SelectedConnection.User);
                 var baseFileMap = BuildCsvLookup(BaseFolderPath);
                 var oldFileMap = BuildCsvLookup(OldFolderPath);

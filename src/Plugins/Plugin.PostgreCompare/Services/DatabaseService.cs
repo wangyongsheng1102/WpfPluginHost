@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Npgsql;
 using Plugin.PostgreCompare.Models;
@@ -13,6 +14,40 @@ namespace Plugin.PostgreCompare.Services;
 public class DatabaseService
 {
     private const int CopyBufferSize = 262144;
+    private const int ReachabilityCheckTimeoutSeconds = 5;
+
+    /// <summary>
+    /// PostgreSQL サーバーが応答し、接続・認証・DB 指定が有効かを短時間で確認する。
+    /// </summary>
+    /// <returns>成功時は (true, null)、失敗時は (false, エラー内容)。</returns>
+    public async Task<(bool Ok, string? ErrorDetail)> CheckDatabaseReachableAsync(
+        string connectionString,
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var builder = new NpgsqlConnectionStringBuilder(connectionString)
+            {
+                Timeout = ReachabilityCheckTimeoutSeconds
+            };
+
+            await using var conn = new NpgsqlConnection(builder.ConnectionString);
+            await conn.OpenAsync(cancellationToken);
+
+            await using var cmd = new NpgsqlCommand("SELECT 1", conn);
+            await cmd.ExecuteScalarAsync(cancellationToken);
+
+            return (true, null);
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            return (false, ex.Message);
+        }
+    }
 
     public async Task<NpgsqlConnection> OpenConnectionAsync(string connectionString)
     {
