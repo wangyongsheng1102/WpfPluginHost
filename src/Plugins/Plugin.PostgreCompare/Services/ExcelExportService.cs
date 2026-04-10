@@ -13,6 +13,7 @@ namespace Plugin.PostgreCompare.Services;
 /// </summary>
 public class ExcelExportService
 {
+    private const int MaxExcelRows = 1_048_576;
     private readonly DatabaseService _databaseService = new();
 
     public void ExportComparisonResults(
@@ -22,13 +23,6 @@ public class ExcelExportService
         string connectionString)
     {
         using var workbook = new XLWorkbook();
-        var worksheet = workbook.Worksheets.Add("データ比較");
-
-        worksheet.Cell(1, 1).Value = "[自動採番]、[登録/更新/削除日時]、[登録/更新/削除者]、[登録/更新/削除機能]のデータ比較結果が「FALSE」の場合、補足説明が必要がない。";
-        worksheet.Cell(1, 1).Style.Font.FontColor = XLColor.Red;
-        worksheet.Cell(1, 1).Style.Font.Bold = true;
-        worksheet.Cell(1, 1).Style.Font.FontSize = 11;
-        worksheet.Cell(1, 1).Style.Font.SetFontName("MS PGothic");
 
         var builder = new DbConnectionStringBuilder
         {
@@ -37,11 +31,8 @@ public class ExcelExportService
 
         string? database = builder.ContainsKey("username") ? builder["username"]?.ToString() : null;
 
-        worksheet.Cell(3, 1).Value = database != null && database.Split("_").Length > 1
-            ? database.Split("_")[0]
-            : "データベース名取得失敗";
-        worksheet.Cell(3, 1).Style.Font.Bold = true;
-
+        int sheetIndex = 1;
+        var worksheet = CreateWorksheet(workbook, sheetIndex, database);
         int currentRow = 5;
 
         var allTableNames = baseVsOldResults.Select(r => r.TableName)
@@ -54,6 +45,20 @@ public class ExcelExportService
         {
             var oldResults = baseVsOldResults.Where(r => r.TableName == tableName).ToList();
             var newResults = baseVsNewResults.Where(r => r.TableName == tableName).ToList();
+            int estimatedRows = EstimateRequiredRows(oldResults.Count, newResults.Count);
+
+            if (currentRow + estimatedRows - 1 > MaxExcelRows)
+            {
+                sheetIndex++;
+                worksheet = CreateWorksheet(workbook, sheetIndex, database);
+                currentRow = 5;
+
+                if (currentRow + estimatedRows - 1 > MaxExcelRows)
+                {
+                    throw new InvalidOperationException(
+                        $"テーブル '{tableName}' の比較結果は1シートの上限行数({MaxExcelRows})を超えています。");
+                }
+            }
 
             var parts = tableName.Split('.');
             string schemaName = parts.Length >= 2 ? parts[0] : "public";
@@ -470,6 +475,31 @@ public class ExcelExportService
         }
 
         workbook.SaveAs(filePath);
+    }
+
+    private static IXLWorksheet CreateWorksheet(XLWorkbook workbook, int sheetIndex, string? database)
+    {
+        string sheetName = sheetIndex == 1 ? "データ比較" : $"データ比較_{sheetIndex}";
+        var worksheet = workbook.Worksheets.Add(sheetName);
+
+        worksheet.Cell(1, 1).Value = "[自動採番]、[登録/更新/削除日時]、[登録/更新/削除者]、[登録/更新/削除機能]のデータ比較結果が「FALSE」の場合、補足説明が必要がない。";
+        worksheet.Cell(1, 1).Style.Font.FontColor = XLColor.Red;
+        worksheet.Cell(1, 1).Style.Font.Bold = true;
+        worksheet.Cell(1, 1).Style.Font.FontSize = 11;
+        worksheet.Cell(1, 1).Style.Font.SetFontName("MS PGothic");
+
+        worksheet.Cell(3, 1).Value = database != null && database.Split("_").Length > 1
+            ? database.Split("_")[0]
+            : "データベース名取得失敗";
+        worksheet.Cell(3, 1).Style.Font.Bold = true;
+
+        return worksheet;
+    }
+
+    private static int EstimateRequiredRows(int oldResultCount, int newResultCount)
+    {
+        int pairCountUpperBound = oldResultCount + newResultCount;
+        return 28 + (oldResultCount * 2) + (newResultCount * 2) + pairCountUpperBound;
     }
 
     private static object? GetBaseValue(RowComparisonResult result, string column)
