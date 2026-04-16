@@ -58,7 +58,10 @@ public partial class InputRecorderViewModel : ObservableObject
     {
         Events.Clear();
         IsRecording = true;
-        StatusMessage = "● 録画中... (ESCキーで終了して復元します)";
+        
+        var msg = "録画中... (ESCキーで終了して復元します)";
+        StatusMessage = "● " + msg;
+        _context?.ReportProgress(msg, 0, true);
         
         if (System.Windows.Application.Current?.MainWindow != null)
         {
@@ -92,7 +95,9 @@ public partial class InputRecorderViewModel : ObservableObject
             SaveCommand.NotifyCanExecuteChanged();
             ReplayCommand.NotifyCanExecuteChanged();
             
-            StatusMessage = $"録画完了 (イベント数: {Events.Count})";
+            var msg = $"録画完了 (イベント数: {Events.Count})";
+            StatusMessage = msg;
+            _context?.ReportSuccess(msg);
         }
     }
 
@@ -101,6 +106,7 @@ public partial class InputRecorderViewModel : ObservableObject
     {
         IsReplaying = true;
         StatusMessage = "▶ リプレイ中...";
+        _context?.ReportProgress("リプレイ実行中...", 0, true);
         
         using var cts = new CancellationTokenSource();
         // Give user 1 second to release mouse/keyboard
@@ -110,10 +116,12 @@ public partial class InputRecorderViewModel : ObservableObject
         {
             await _hookService.ReplayAsync(Events, cts.Token);
             StatusMessage = "リプレイ完了";
+            _context?.ReportSuccess("リプレイが完了しました。");
         }
         catch (Exception ex)
         {
             StatusMessage = $"エラー: {ex.Message}";
+            _context?.ReportError($"リプレイエラー: {ex.Message}");
         }
         finally
         {
@@ -138,10 +146,12 @@ public partial class InputRecorderViewModel : ObservableObject
                 var json = JsonSerializer.Serialize(Events, options);
                 await File.WriteAllTextAsync(dialog.FileName, json);
                 StatusMessage = "保存完了";
+                _context?.ReportSuccess("スクリプトの保存が完了しました。");
             }
             catch (Exception ex)
             {
                 StatusMessage = $"保存エラー: {ex.Message}";
+                _context?.ReportError($"保存エラー: {ex.Message}");
             }
         }
     }
@@ -168,16 +178,20 @@ public partial class InputRecorderViewModel : ObservableObject
                         Events.Add(ev);
                     }
                     _hookService.LoadEvents(Events);
-                    StatusMessage = $"読み込み完了 (イベント数: {Events.Count})";
+                    
+                    var msg = $"読み込み完了 (イベント数: {Events.Count})";
+                    StatusMessage = msg;
+                    _context?.ReportSuccess(msg);
                     
                     // Trigger Requery for commands
-                    OnPropertyChanged(nameof(CanReplay));
-                    OnPropertyChanged(nameof(CanSave));
+                    ReplayCommand.NotifyCanExecuteChanged();
+                    SaveCommand.NotifyCanExecuteChanged();
                 }
             }
             catch (Exception ex)
             {
                 StatusMessage = $"読込エラー: {ex.Message}";
+                _context?.ReportError($"読込エラー: {ex.Message}");
             }
         }
     }
