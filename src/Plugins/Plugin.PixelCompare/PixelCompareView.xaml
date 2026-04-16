@@ -148,6 +148,8 @@
                                 Style="{DynamicResource AppInputChromeBorderStyle}"
                                 Height="32">
                             <TextBox Style="{DynamicResource AppTextBoxFlatStyle}"
+                                     IsReadOnly="{Binding IsDiffThresholdReadOnly}"
+                                     PreviewMouseLeftButtonDown="OnDiffThresholdTextBoxPreviewMouseLeftButtonDown"
                                      Text="{Binding DiffThresholdText, UpdateSourceTrigger=PropertyChanged}" />
                         </Border>
                     </Grid>

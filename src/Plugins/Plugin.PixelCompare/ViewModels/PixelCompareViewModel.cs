@@ -65,6 +65,13 @@ public partial class PixelCompareViewModel : ObservableObject, IDisposable
     [ObservableProperty]
     private string _diffThresholdText = "35";
 
+    /// <summary> 既定は読み取り専用。入力欄を左クリックで連続操作すると解除される。 </summary>
+    [ObservableProperty]
+    private bool _isDiffThresholdReadOnly = true;
+
+    private int _diffThresholdUnlockClickCount;
+    private DateTime _diffThresholdUnlockLastClickUtc = DateTime.MinValue;
+
     [ObservableProperty]
     private string _minRegionAreaText = "50";
 
@@ -116,6 +123,34 @@ public partial class PixelCompareViewModel : ObservableObject, IDisposable
 
         CompareItems.CollectionChanged += OnCompareItemsCollectionChanged;
         AvailableSheets.CollectionChanged += OnAvailableSheetsCollectionChanged;
+    }
+
+    /// <summary>
+    /// 閾値欄が読み取り専用のとき、左クリックの連続操作で編集可能にする（約 2 秒以内に 5 回）。
+    /// </summary>
+    public void RegisterDiffThresholdUnlockClick()
+    {
+        if (!IsDiffThresholdReadOnly)
+        {
+            return;
+        }
+
+        var now = DateTime.UtcNow;
+        if ((now - _diffThresholdUnlockLastClickUtc).TotalSeconds > 2)
+        {
+            _diffThresholdUnlockClickCount = 1;
+        }
+        else
+        {
+            _diffThresholdUnlockClickCount++;
+        }
+
+        _diffThresholdUnlockLastClickUtc = now;
+
+        if (_diffThresholdUnlockClickCount >= 5)
+        {
+            IsDiffThresholdReadOnly = false;
+        }
     }
 
     partial void OnSelectedItemChanged(CompareRowItem? value)

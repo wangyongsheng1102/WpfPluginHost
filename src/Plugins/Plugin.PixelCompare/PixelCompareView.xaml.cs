@@ -54,6 +54,16 @@ public partial class PixelCompareView : UserControl
         // 列幅の自動調整は不要。
     }
 
+    private void OnDiffThresholdTextBoxPreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+    {
+        if (DataContext is not PixelCompareViewModel vm)
+        {
+            return;
+        }
+
+        vm.RegisterDiffThresholdUnlockClick();
+    }
+
     private void OnPreviewImageMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
     {
         if (e.ClickCount < 2)
