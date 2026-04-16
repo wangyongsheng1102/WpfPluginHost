@@ -125,17 +125,32 @@
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
 
-                    <TextBlock Grid.Column="0"
-                               Margin="0,0,8,0"
-                               VerticalAlignment="Center"
-                               Style="{DynamicResource CaptionTextStyle}"
-                               Text="閾値" />
-                    <Border Grid.Column="1"
-                            Style="{DynamicResource AppInputChromeBorderStyle}"
-                            Height="32">
-                        <TextBox Style="{DynamicResource AppTextBoxFlatStyle}"
-                                 Text="{Binding DiffThresholdText, UpdateSourceTrigger=PropertyChanged}" />
-                    </Border>
+                    <Grid Grid.Column="0"
+                          Grid.ColumnSpan="2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="70" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.ToolTip>
+                            <ToolTip>
+                                <TextBlock Style="{DynamicResource BodyTextStyle}"
+                                           Text="通常は既定値（35）のままご利用ください。変更が必要な場合は、管理者にご確認のうえでお願いいたします。"
+                                           TextWrapping="Wrap"
+                                           MaxWidth="280" />
+                            </ToolTip>
+                        </Grid.ToolTip>
+                        <TextBlock Grid.Column="0"
+                                   Margin="0,0,8,0"
+                                   VerticalAlignment="Center"
+                                   Style="{DynamicResource CaptionTextStyle}"
+                                   Text="閾値" />
+                        <Border Grid.Column="1"
+                                Style="{DynamicResource AppInputChromeBorderStyle}"
+                                Height="32">
+                            <TextBox Style="{DynamicResource AppTextBoxFlatStyle}"
+                                     Text="{Binding DiffThresholdText, UpdateSourceTrigger=PropertyChanged}" />
+                        </Border>
+                    </Grid>
 
                     <TextBlock Grid.Column="3"
                                Margin="0,0,8,0"
