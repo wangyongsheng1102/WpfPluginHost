@@ -33,6 +33,14 @@ public partial class InputRecorderViewModel : ObservableObject
     [NotifyPropertyChangedFor(nameof(CanLoad))]
     private bool _isReplaying;
 
+    [ObservableProperty]
+    private string? _chromeExecutablePath;
+
+    partial void OnChromeExecutablePathChanged(string? value)
+    {
+        SaveSettings();
+    }
+
     public ObservableCollection<InputEvent> Events { get; } = new();
 
     public bool CanRecord => !IsRecording && !IsReplaying;
@@ -43,6 +51,8 @@ public partial class InputRecorderViewModel : ObservableObject
     public InputRecorderViewModel(IPluginContext? context)
     {
         _context = context;
+        LoadSettings();
+        
         _hookService = new InputHookService();
         _hookService.OnEscapePressed += () =>
         {
@@ -51,6 +61,83 @@ public partial class InputRecorderViewModel : ObservableObject
                 System.Windows.Application.Current.Dispatcher.Invoke(() => StopRecording());
             }
         };
+        _hookService.OnScreenshotCaptured += (path) =>
+        {
+            System.Windows.Application.Current?.Dispatcher.Invoke(() =>
+            {
+                _context?.ReportSuccess($"スクリーンショットを保存しました: {path}");
+            });
+        };
+
+        _hookService.OnF10Pressed += () =>
+        {
+            System.Windows.Application.Current?.Dispatcher.Invoke(async () =>
+            {
+                await HandleF10CaptureAsync();
+            });
+        };
+    }
+
+    private bool _isCapturingPuppeteer = false;
+
+    private async Task HandleF10CaptureAsync()
+    {
+        if (_isCapturingPuppeteer) return;
+
+        string? url = null;
+        try
+        {
+            if (System.Windows.Clipboard.ContainsText())
+            {
+                url = System.Windows.Clipboard.GetText();
+            }
+        }
+        catch { /* クリップボードの例外を無視する */ }
+
+        if (string.IsNullOrWhiteSpace(url) || (!url.StartsWith("http://") && !url.StartsWith("https://")))
+        {
+            _context?.ReportError("クリップボードに有効なURLが見つかりません。対象ブラウザでURLをコピー（Ctrl+C）してからF10を押してください。");
+            return;
+        }
+
+        _isCapturingPuppeteer = true;
+        
+        var folder = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "InputRecord");
+        if (!System.IO.Directory.Exists(folder))
+            System.IO.Directory.CreateDirectory(folder);
+
+        var fileName = $"FullPage_{Guid.NewGuid().ToString("N")[..8]}.png";
+        var path = System.IO.Path.Combine(folder, fileName);
+
+        var isCustomChrome = !string.IsNullOrWhiteSpace(ChromeExecutablePath) && File.Exists(ChromeExecutablePath);
+        if (isCustomChrome)
+            _context?.ReportProgress("指定されたChromeを利用してフル画面長図をキャプチャ中...", 0, true);
+        else
+            _context?.ReportProgress("Chromiumを自動利用してフル画面長図をキャプチャ中... (初回はダウンロードで数分かかります)", 0, true);
+
+        await Task.Run(async () =>
+        {
+            try
+            {
+                var puppeteer = new PuppeteerService();
+                await puppeteer.CaptureFullPageAsync(url, path, ChromeExecutablePath);
+                System.Windows.Application.Current?.Dispatcher.Invoke(() =>
+                {
+                    _context?.ReportSuccess($"長図キャプチャ完了: {path}");
+                });
+            }
+            catch (Exception ex)
+            {
+                System.Windows.Application.Current?.Dispatcher.Invoke(() =>
+                {
+                    _context?.ReportError($"長図キャプチャ失敗: {ex.Message}");
+                });
+            }
+            finally
+            {
+                _isCapturingPuppeteer = false;
+            }
+        });
     }
 
     [RelayCommand(CanExecute = nameof(CanRecord))]
@@ -59,7 +146,7 @@ public partial class InputRecorderViewModel : ObservableObject
         Events.Clear();
         IsRecording = true;
         
-        var msg = "録画中... (ESCキーで終了して復元します)";
+        var msg = "録画中... (Escで終了・復元、F9で画面キャプチャ、F10でフル画面長図キャプチャ)";
         StatusMessage = "● " + msg;
         _context?.ReportProgress(msg, 0, true);
         
@@ -109,7 +196,7 @@ public partial class InputRecorderViewModel : ObservableObject
         _context?.ReportProgress("リプレイ実行中...", 0, true);
         
         using var cts = new CancellationTokenSource();
-        // Give user 1 second to release mouse/keyboard
+        // ユーザーがマウス・キーボードから手を離すための猶予（1秒）を与える
         await Task.Delay(1000, cts.Token);
         
         try
@@ -183,7 +270,7 @@ public partial class InputRecorderViewModel : ObservableObject
                     StatusMessage = msg;
                     _context?.ReportSuccess(msg);
                     
-                    // Trigger Requery for commands
+                    // コマンドの状態を再評価する
                     ReplayCommand.NotifyCanExecuteChanged();
                     SaveCommand.NotifyCanExecuteChanged();
                 }
@@ -194,5 +281,53 @@ public partial class InputRecorderViewModel : ObservableObject
                 _context?.ReportError($"読込エラー: {ex.Message}");
             }
         }
+    }
+
+    [RelayCommand]
+    private void BrowseChromePath()
+    {
+        var dialog = new Microsoft.Win32.OpenFileDialog
+        {
+            Filter = "Executables (*.exe)|*.exe|All Files (*.*)|*.*",
+            Title = "Chrome.exe の場所を選択してください"
+        };
+        
+        if (dialog.ShowDialog() == true)
+        {
+            ChromeExecutablePath = dialog.FileName;
+        }
+    }
+
+    private class PluginSettings
+    {
+        public string? ChromePath { get; set; }
+    }
+
+    private void LoadSettings()
+    {
+        var json = _context?.GetPluginSetting("inputRecorder");
+        if (!string.IsNullOrWhiteSpace(json))
+        {
+            try
+            {
+                var settings = JsonSerializer.Deserialize<PluginSettings>(json);
+                if (settings != null)
+                {
+                    _chromeExecutablePath = settings.ChromePath;
+                }
+            }
+            catch { }
+        }
+    }
+
+    private void SaveSettings()
+    {
+        var settings = new PluginSettings { ChromePath = ChromeExecutablePath };
+        try
+        {
+            var json = JsonSerializer.Serialize(settings);
+            _context?.SavePluginSetting("inputRecorder", json);
+        }
+        catch { }
     }
 }

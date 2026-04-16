@@ -130,6 +130,8 @@ public class InputHookService : IDisposable
     private Stopwatch? _stopwatch;
 
     public event Action? OnEscapePressed;
+    public event Action<string>? OnScreenshotCaptured;
+    public event Action? OnF10Pressed;
 
     public bool IsRecording { get; private set; }
     public bool IsReplaying { get; private set; }
@@ -171,8 +173,7 @@ public class InputHookService : IDisposable
         
         _stopwatch?.Stop();
         
-        // Remove the key stroke that stopped the recording (often ESC or some button click, but filtering cleanly is tricky)
-        // Usually handled by the UI.
+        // 録画を停止したキーストローク（ESCなど）の削除は、通常UI側で処理されるためここでは行わない
 
         IsRecording = false;
     }
@@ -217,7 +218,7 @@ public class InputHookService : IDisposable
         {
             case InputEventType.MouseMove:
                 input.type = 0; // INPUT_MOUSE
-                // Convert absolute to normalized coords for SendInput
+                // SendInput用に絶対座標を正規化座標に変換する
                 input.U.mi.dx = (ev.X * 65535) / GetSystemMetrics(0); // SM_CXSCREEN
                 input.U.mi.dy = (ev.Y * 65535) / GetSystemMetrics(1); // SM_CYSCREEN
                 input.U.mi.dwFlags = 0x8001; // MOUSEEVENTF_ABSOLUTE | MOUSEEVENTF_MOVE
@@ -251,6 +252,38 @@ public class InputHookService : IDisposable
             case 3: return isDown ? 0x0020U : 0x0040U; // MBUTTON
             default: return 0;
         }
+    }
+
+    private void TakeScreenshotAsync()
+    {
+        Task.Run(() =>
+        {
+            try
+            {
+                var folder = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "InputRecord");
+                if (!System.IO.Directory.Exists(folder))
+                {
+                    System.IO.Directory.CreateDirectory(folder);
+                }
+
+                var workArea = System.Windows.Forms.Screen.PrimaryScreen?.WorkingArea ?? new System.Drawing.Rectangle(0, 0, 1920, 1080);
+                
+                using var bmp = new System.Drawing.Bitmap(workArea.Width, workArea.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+                using var gfx = System.Drawing.Graphics.FromImage(bmp);
+                
+                gfx.CopyFromScreen(workArea.X, workArea.Y, 0, 0, workArea.Size, System.Drawing.CopyPixelOperation.SourceCopy);
+                
+                var fileName = $"Screenshot_{DateTime.Now:yyyyMMdd_HHmmss}.png";
+                var path = System.IO.Path.Combine(folder, fileName);
+                bmp.Save(path, System.Drawing.Imaging.ImageFormat.Png);
+                
+                OnScreenshotCaptured?.Invoke(path);
+            }
+            catch
+            {
+                // フック実行中のキャプチャ失敗は安全に無視する
+            }
+        });
     }
 
     private IntPtr MouseHookCallback(int nCode, IntPtr wParam, IntPtr lParam)
@@ -301,13 +334,30 @@ public class InputHookService : IDisposable
                 KeyCode = (int)hookStruct.vkCode
             };
 
+            if (hookStruct.vkCode == 121) // VK_F10
+            {
+                if (wP == WM_KEYDOWN || wP == WM_SYSKEYDOWN)
+                {
+                    OnF10Pressed?.Invoke();
+                }
+            }
+
+            if (hookStruct.vkCode == 120) // VK_F9
+            {
+                if (wP == WM_KEYDOWN || wP == WM_SYSKEYDOWN)
+                {
+                    TakeScreenshotAsync();
+                }
+                // 他の操作でもF9を使用できるよう、入力をブロックせずパッシブにフックする
+            }
+
             if (hookStruct.vkCode == 27) // VK_ESCAPE
             {
                 if (wP == WM_KEYDOWN || wP == WM_SYSKEYDOWN)
                 {
                     OnEscapePressed?.Invoke();
                 }
-                return (IntPtr)1; // Swallow the ESC key
+                return (IntPtr)1; // ESCキーの入力をブロック（無効化）する
             }
 
             if (wP == WM_KEYDOWN || wP == WM_SYSKEYDOWN)

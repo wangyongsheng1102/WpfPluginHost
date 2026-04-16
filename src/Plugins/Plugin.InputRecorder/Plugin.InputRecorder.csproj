@@ -4,6 +4,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>
@@ -16,6 +17,7 @@
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2">
       <ExcludeAssets>runtime</ExcludeAssets>
     </PackageReference>
+    <PackageReference Include="PuppeteerSharp" Version="17.0.0" />
   </ItemGroup>
 
   <Target Name="CopyPluginToRuntimeFolder" AfterTargets="Build">
