@@ -29,16 +29,14 @@
                     <Button Content="● 録画開始" 
                             Style="{DynamicResource PrimaryButtonStyle}" 
                             Command="{Binding StartRecordingCommand}"
-                            Visibility="{Binding IsRecording, Converter={StaticResource InverseBooleanToVisibilityConverter}}"
                             MinWidth="120" Height="36" Padding="16,0" />
                             
                     <Button Content="⏹ 停止" 
                             Style="{DynamicResource ActionButtonStyle}" 
                             Command="{Binding StopRecordingCommand}"
-                            Visibility="{Binding IsRecording, Converter={StaticResource BooleanToVisibilityConverter}}"
                             Background="#FFF87171"
                             Foreground="White"
-                            MinWidth="120" Height="36" Padding="16,0" />
+                            MinWidth="120" Height="36" Padding="16,0" Margin="12,0,0,0" />
                 </StackPanel>
             </StackPanel>
         </Border>
