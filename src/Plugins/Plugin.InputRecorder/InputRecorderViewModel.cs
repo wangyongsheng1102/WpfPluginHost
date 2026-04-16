@@ -89,6 +89,9 @@ public partial class InputRecorderViewModel : ObservableObject
                 Events.Add(ev);
             }
             
+            SaveCommand.NotifyCanExecuteChanged();
+            ReplayCommand.NotifyCanExecuteChanged();
+            
             StatusMessage = $"録画完了 (イベント数: {Events.Count})";
         }
     }
