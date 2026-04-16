@@ -166,7 +166,7 @@ public class CsvCompareService
     /// <summary>
     /// 参照 CompareViewModel.GetSchemaFromUsername：接頭辞で DB 種別を判定し、
     /// 「ログイン日時」相当の安定列（主キーの一部が変わっても同一行とみなす）を返す。
-    /// cis → create_time、order → register_id、portal → insert_date。
+    /// cis → create_time、order → register_time、portal → insert_date。
     /// </summary>
     private static string? ResolveLoginAnchorColumnName(string username)
     {
@@ -176,7 +176,7 @@ public class CsvCompareService
         if (username.StartsWith("cis", StringComparison.OrdinalIgnoreCase))
             return "create_time";
         if (username.StartsWith("order", StringComparison.OrdinalIgnoreCase))
-            return "register_id";
+            return "register_time";
         if (username.StartsWith("portal", StringComparison.OrdinalIgnoreCase))
             return "insert_date";
 
