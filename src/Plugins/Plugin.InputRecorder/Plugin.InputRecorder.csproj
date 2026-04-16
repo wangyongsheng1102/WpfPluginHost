@@ -17,7 +17,7 @@
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2">
       <ExcludeAssets>runtime</ExcludeAssets>
     </PackageReference>
-    <PackageReference Include="PuppeteerSharp" Version="17.0.0" />
+    <PackageReference Include="PuppeteerSharp" Version="20.2.1" />
   </ItemGroup>
 
   <Target Name="CopyPluginToRuntimeFolder" AfterTargets="Build">

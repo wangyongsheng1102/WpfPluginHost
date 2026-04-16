@@ -30,8 +30,7 @@ public class PuppeteerService
         // 動的コンテンツの読み込みを確実にするため、ネットワークがアイドル状態になるまで待機する
         var navOptions = new NavigationOptions
         {
-            WaitUntil = new[] { WaitUntilNavigation.Networkidle2 },
-            Referer = "" // invalid referrerPolicy エラーを回避するため空を指定
+            WaitUntil = new[] { WaitUntilNavigation.Networkidle2 }
         };
         await page.GoToAsync(url.Trim(), navOptions);
         
