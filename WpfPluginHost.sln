@@ -1,4 +1,4 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
@@ -20,6 +20,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Plugins", "Plugins", "{58D3A2C3-F96F-5E57-2C6B-ECE59D6A18FC}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plugin.ReviewCheck", "src\Plugins\Plugin.ReviewCheck\Plugin.ReviewCheck.csproj", "{A3765AF2-6106-43F8-AC3C-3EA49BF0D688}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plugin.InputRecorder", "src\Plugins\Plugin.InputRecorder\Plugin.InputRecorder.csproj", "{EE1ABDE0-1A2B-4A1B-8B1D-67890ABCDEF0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -115,6 +117,18 @@ Global
 		{A3765AF2-6106-43F8-AC3C-3EA49BF0D688}.Release|x64.Build.0 = Release|Any CPU
 		{A3765AF2-6106-43F8-AC3C-3EA49BF0D688}.Release|x86.ActiveCfg = Release|Any CPU
 		{A3765AF2-6106-43F8-AC3C-3EA49BF0D688}.Release|x86.Build.0 = Release|Any CPU
+		{EE1ABDE0-1A2B-4A1B-8B1D-67890ABCDEF0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EE1ABDE0-1A2B-4A1B-8B1D-67890ABCDEF0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EE1ABDE0-1A2B-4A1B-8B1D-67890ABCDEF0}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{EE1ABDE0-1A2B-4A1B-8B1D-67890ABCDEF0}.Debug|x64.Build.0 = Debug|Any CPU
+		{EE1ABDE0-1A2B-4A1B-8B1D-67890ABCDEF0}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{EE1ABDE0-1A2B-4A1B-8B1D-67890ABCDEF0}.Debug|x86.Build.0 = Debug|Any CPU
+		{EE1ABDE0-1A2B-4A1B-8B1D-67890ABCDEF0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EE1ABDE0-1A2B-4A1B-8B1D-67890ABCDEF0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EE1ABDE0-1A2B-4A1B-8B1D-67890ABCDEF0}.Release|x64.ActiveCfg = Release|Any CPU
+		{EE1ABDE0-1A2B-4A1B-8B1D-67890ABCDEF0}.Release|x64.Build.0 = Release|Any CPU
+		{EE1ABDE0-1A2B-4A1B-8B1D-67890ABCDEF0}.Release|x86.ActiveCfg = Release|Any CPU
+		{EE1ABDE0-1A2B-4A1B-8B1D-67890ABCDEF0}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -128,5 +142,6 @@ Global
 		{A65EC31A-53F2-4B26-AF77-A4B8A96CC352} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 		{58D3A2C3-F96F-5E57-2C6B-ECE59D6A18FC} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 		{A3765AF2-6106-43F8-AC3C-3EA49BF0D688} = {58D3A2C3-F96F-5E57-2C6B-ECE59D6A18FC}
+		{EE1ABDE0-1A2B-4A1B-8B1D-67890ABCDEF0} = {58D3A2C3-F96F-5E57-2C6B-ECE59D6A18FC}
 	EndGlobalSection
 EndGlobal
