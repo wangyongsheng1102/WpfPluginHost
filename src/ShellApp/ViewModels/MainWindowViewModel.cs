@@ -194,10 +194,12 @@ public partial class MainWindowViewModel : ObservableObject
         try
         {
             await Task.Run(_pluginManager.ReloadAll);
+            _globalStatus.ReportProgress(string.Empty, 100, false);
             _globalStatus.ReportInfo("プラグインの再読み込みを完了しました。");
         }
         catch (Exception ex)
         {
+            _globalStatus.ReportProgress(string.Empty, 100, false);
             _globalStatus.ReportError($"プラグイン再読み込みに失敗しました: {ex.Message}");
         }
         finally
