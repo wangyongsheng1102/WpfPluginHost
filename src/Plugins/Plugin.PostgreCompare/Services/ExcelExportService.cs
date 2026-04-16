@@ -513,19 +513,20 @@ public class ExcelExportService
 
     private static object? GetOldValue(RowComparisonResult result, string column)
     {
-        if (result.PrimaryKeyValues.TryGetValue(column, out var pkValue))
-            return pkValue;
+        // 主キーが変化した更新では NewValues に Compare 側の主キー列が入るため、先に参照する。
         if (result.NewValues.TryGetValue(column, out var newValue))
             return newValue;
+        if (result.PrimaryKeyValues.TryGetValue(column, out var pkValue))
+            return pkValue;
         return null;
     }
 
     private static object? GetNewValue(RowComparisonResult result, string column)
     {
-        if (result.PrimaryKeyValues.TryGetValue(column, out var pkValue))
-            return pkValue;
         if (result.NewValues.TryGetValue(column, out var newValue))
             return newValue;
+        if (result.PrimaryKeyValues.TryGetValue(column, out var pkValue))
+            return pkValue;
         return null;
     }
 

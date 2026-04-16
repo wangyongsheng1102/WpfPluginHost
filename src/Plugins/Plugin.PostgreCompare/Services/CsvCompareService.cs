@@ -44,7 +44,8 @@ public class CsvCompareService
         string connectionString,
         string schemaName,
         string tableName,
-        IProgress<(int current, int total, string message)>? progress = null)
+        IProgress<(int current, int total, string message)>? progress = null,
+        string? dbUsernameHint = null)
     {
         progress?.Report((0, 0, $"CSV ファイルの比較を開始しています..."));
 
@@ -53,6 +54,7 @@ public class CsvCompareService
             .ToArray() ?? Array.Empty<string>();
 
         bool useFullRowComparison = normalizedPrimaryKeys.Length == 0;
+        string[]? baseHeadersForAnchor = null;
 
         if (useFullRowComparison)
         {
@@ -61,6 +63,7 @@ public class CsvCompareService
         else
         {
             var baseHeaders = await ReadHeadersAsync(baseCsvPath);
+            baseHeadersForAnchor = baseHeaders;
             var compareHeaders = await ReadHeadersAsync(compareCsvPath);
             var missingBaseKeys = GetMissingPrimaryKeys(baseHeaders, normalizedPrimaryKeys);
             var missingCompareKeys = GetMissingPrimaryKeys(compareHeaders, normalizedPrimaryKeys);
@@ -77,6 +80,7 @@ public class CsvCompareService
                 progress?.Report((0, 0,
                     $"主キー列を CSV 見出しに解決できないため、整行比較モードで実行します。({baseMessage}; {compareMessage})"));
                 useFullRowComparison = true;
+                baseHeadersForAnchor = null;
             }
         }
 
@@ -138,12 +142,202 @@ public class CsvCompareService
             }
         }
 
+        if (!useFullRowComparison &&
+            normalizedPrimaryKeys.Length > 1 &&
+            baseHeadersForAnchor != null &&
+            !string.IsNullOrWhiteSpace(dbUsernameHint))
+        {
+            var anchorLogical = ResolveLoginAnchorColumnName(dbUsernameHint);
+            if (!string.IsNullOrEmpty(anchorLogical) &&
+                FindHeaderIndex(baseHeadersForAnchor, anchorLogical) >= 0)
+            {
+                ReconcileCompositePkChangeAsUpdates(results, anchorLogical, normalizedPrimaryKeys);
+            }
+        }
+
         progress?.Report((results.Count, results.Count,
             $"比較完了: 削除={results.Count(r => r.Status == ComparisonStatus.Deleted)}, " +
             $"追加={results.Count(r => r.Status == ComparisonStatus.Added)}, " +
             $"更新={results.Count(r => r.Status == ComparisonStatus.Updated)}"));
 
         return results;
+    }
+
+    /// <summary>
+    /// 参照 CompareViewModel.GetSchemaFromUsername：接頭辞で DB 種別を判定し、
+    /// 「ログイン日時」相当の安定列（主キーの一部が変わっても同一行とみなす）を返す。
+    /// cis → create_time、order → register_id、portal → insert_date。
+    /// </summary>
+    private static string? ResolveLoginAnchorColumnName(string username)
+    {
+        if (string.IsNullOrEmpty(username))
+            return null;
+
+        if (username.StartsWith("cis", StringComparison.OrdinalIgnoreCase))
+            return "create_time";
+        if (username.StartsWith("order", StringComparison.OrdinalIgnoreCase))
+            return "register_id";
+        if (username.StartsWith("portal", StringComparison.OrdinalIgnoreCase))
+            return "insert_date";
+
+        return null;
+    }
+
+    /// <summary>
+    /// 複合主キーの一部のみ変化し、ログイン日時列が同一の行は削除+追加ではなく更新とする。
+    /// </summary>
+    private static void ReconcileCompositePkChangeAsUpdates(
+        List<RowComparisonResult> results,
+        string anchorColumnLogical,
+        IReadOnlyList<string> primaryKeyColumnNames)
+    {
+        var deleted = results
+            .Select((r, i) => (r, i))
+            .Where(x => x.r.Status == ComparisonStatus.Deleted)
+            .ToList();
+        var added = results
+            .Select((r, i) => (r, i))
+            .Where(x => x.r.Status == ComparisonStatus.Added)
+            .ToList();
+
+        if (deleted.Count == 0 || added.Count == 0)
+            return;
+
+        string? NormalizeAnchor(object? v) =>
+            v == null ? null : string.Equals(v.ToString(), string.Empty, StringComparison.Ordinal) ? null : v.ToString();
+
+        var deletedByAnchor = new Dictionary<string, List<(RowComparisonResult r, int idx)>>(StringComparer.Ordinal);
+        foreach (var (r, idx) in deleted)
+        {
+            if (!TryGetColumnValueLoose(r, anchorColumnLogical, out var raw))
+                continue;
+            var key = NormalizeAnchor(raw) ?? "\0NULL\0";
+            if (!deletedByAnchor.TryGetValue(key, out var list))
+            {
+                list = new List<(RowComparisonResult, int)>();
+                deletedByAnchor[key] = list;
+            }
+
+            list.Add((r, idx));
+        }
+
+        var addedByAnchor = new Dictionary<string, List<(RowComparisonResult r, int idx)>>(StringComparer.Ordinal);
+        foreach (var (r, idx) in added)
+        {
+            if (!TryGetColumnValueLoose(r, anchorColumnLogical, out var raw))
+                continue;
+            var key = NormalizeAnchor(raw) ?? "\0NULL\0";
+            if (!addedByAnchor.TryGetValue(key, out var list))
+            {
+                list = new List<(RowComparisonResult, int)>();
+                addedByAnchor[key] = list;
+            }
+
+            list.Add((r, idx));
+        }
+
+        var indicesToRemove = new HashSet<int>();
+        var merged = new List<RowComparisonResult>();
+
+        foreach (var kvp in deletedByAnchor)
+        {
+            if (!addedByAnchor.TryGetValue(kvp.Key, out var addedList))
+                continue;
+
+            var delList = kvp.Value;
+            var n = Math.Min(delList.Count, addedList.Count);
+            for (var i = 0; i < n; i++)
+            {
+                var (delRow, delIx) = delList[i];
+                var (addRow, addIx) = addedList[i];
+
+                if (!PrimaryKeyDictsDiffer(delRow.PrimaryKeyValues, addRow.PrimaryKeyValues, primaryKeyColumnNames))
+                    continue;
+
+                var updated = new RowComparisonResult
+                {
+                    TableName = delRow.TableName,
+                    Status = ComparisonStatus.Updated,
+                    PrimaryKeyValues = new Dictionary<string, object?>(delRow.PrimaryKeyValues),
+                    OldValues = new Dictionary<string, object?>(delRow.OldValues),
+                    NewValues = new Dictionary<string, object?>(addRow.NewValues)
+                };
+
+                foreach (var pkName in primaryKeyColumnNames)
+                {
+                    if (TryGetFromDictionaryLoose(addRow.PrimaryKeyValues, pkName, out var newPk))
+                        updated.NewValues[pkName] = newPk;
+                }
+
+                merged.Add(updated);
+                indicesToRemove.Add(delIx);
+                indicesToRemove.Add(addIx);
+            }
+        }
+
+        if (merged.Count == 0)
+            return;
+
+        var next = new List<RowComparisonResult>(results.Count - indicesToRemove.Count + merged.Count);
+        for (var i = 0; i < results.Count; i++)
+        {
+            if (indicesToRemove.Contains(i))
+                continue;
+            next.Add(results[i]);
+        }
+
+        next.AddRange(merged);
+        results.Clear();
+        results.AddRange(next);
+    }
+
+    private static bool PrimaryKeyDictsDiffer(
+        Dictionary<string, object?> a,
+        Dictionary<string, object?> b,
+        IReadOnlyList<string> primaryKeyColumnNames)
+    {
+        foreach (var name in primaryKeyColumnNames)
+        {
+            TryGetFromDictionaryLoose(a, name, out var va);
+            TryGetFromDictionaryLoose(b, name, out var vb);
+            var sa = va?.ToString();
+            var sb = vb?.ToString();
+            if (!string.Equals(sa ?? string.Empty, sb ?? string.Empty, StringComparison.Ordinal))
+                return true;
+        }
+
+        return false;
+    }
+
+    private static bool TryGetColumnValueLoose(RowComparisonResult row, string columnLogical, out object? value)
+    {
+        if (TryGetFromDictionaryLoose(row.PrimaryKeyValues, columnLogical, out value))
+            return true;
+        if (TryGetFromDictionaryLoose(row.OldValues, columnLogical, out value))
+            return true;
+        if (TryGetFromDictionaryLoose(row.NewValues, columnLogical, out value))
+            return true;
+        value = null;
+        return false;
+    }
+
+    private static bool TryGetFromDictionaryLoose(
+        Dictionary<string, object?> dict,
+        string columnLogical,
+        out object? value)
+    {
+        var t = NormalizeHeaderToken(columnLogical);
+        foreach (var kv in dict)
+        {
+            if (string.Equals(NormalizeHeaderToken(kv.Key), t, StringComparison.OrdinalIgnoreCase))
+            {
+                value = kv.Value;
+                return true;
+            }
+        }
+
+        value = null;
+        return false;
     }
 
     private async Task<Dictionary<string, CsvRowData>> LoadCsvDataAsync(

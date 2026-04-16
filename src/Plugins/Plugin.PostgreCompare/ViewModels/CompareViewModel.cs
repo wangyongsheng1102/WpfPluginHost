@@ -339,7 +339,8 @@ public partial class CompareViewModel : ObservableObject
                         connectionString,
                         schemaName,
                         tableName,
-                        fileProgress1);
+                        fileProgress1,
+                        SelectedConnection.User);
 
                     baseVsOldResults.AddRange(results1);
 
@@ -356,7 +357,8 @@ public partial class CompareViewModel : ObservableObject
                         connectionString,
                         schemaName,
                         tableName,
-                        fileProgress2);
+                        fileProgress2,
+                        SelectedConnection.User);
 
                     baseVsNewResults.AddRange(results2);
 
