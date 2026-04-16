@@ -138,6 +138,18 @@ public class InputHookService : IDisposable
 
     public IReadOnlyList<InputEvent> GetRecordedEvents() => _recordedEvents;
 
+    public InputHookService()
+    {
+        _keyboardProc = KeyboardHookCallback;
+        
+        using (Process curProcess = Process.GetCurrentProcess())
+        using (ProcessModule curModule = curProcess.MainModule!)
+        {
+            IntPtr moduleHandle = GetModuleHandle(curModule.ModuleName);
+            _keyboardHookId = SetWindowsHookEx(WH_KEYBOARD_LL, _keyboardProc, moduleHandle, 0);
+        }
+    }
+
     public void StartRecording()
     {
         if (IsRecording || IsReplaying) return;
@@ -146,14 +158,12 @@ public class InputHookService : IDisposable
         _stopwatch = Stopwatch.StartNew();
 
         _mouseProc = MouseHookCallback;
-        _keyboardProc = KeyboardHookCallback;
-
+        
         using (Process curProcess = Process.GetCurrentProcess())
         using (ProcessModule curModule = curProcess.MainModule!)
         {
             IntPtr moduleHandle = GetModuleHandle(curModule.ModuleName);
             _mouseHookId = SetWindowsHookEx(WH_MOUSE_LL, _mouseProc, moduleHandle, 0);
-            _keyboardHookId = SetWindowsHookEx(WH_KEYBOARD_LL, _keyboardProc, moduleHandle, 0);
         }
 
         IsRecording = true;
@@ -163,13 +173,12 @@ public class InputHookService : IDisposable
     {
         if (!IsRecording) return;
         
-        UnhookWindowsHookEx(_mouseHookId);
-        UnhookWindowsHookEx(_keyboardHookId);
-        
-        _mouseHookId = IntPtr.Zero;
-        _keyboardHookId = IntPtr.Zero;
-        _mouseProc = null;
-        _keyboardProc = null;
+        if (_mouseHookId != IntPtr.Zero)
+        {
+            UnhookWindowsHookEx(_mouseHookId);
+            _mouseHookId = IntPtr.Zero;
+            _mouseProc = null;
+        }
         
         _stopwatch?.Stop();
         
@@ -351,7 +360,7 @@ public class InputHookService : IDisposable
                 // 他の操作でもF9を使用できるよう、入力をブロックせずパッシブにフックする
             }
 
-            if (hookStruct.vkCode == 27) // VK_ESCAPE
+            if (hookStruct.vkCode == 27 && IsRecording) // VK_ESCAPE
             {
                 if (wP == WM_KEYDOWN || wP == WM_SYSKEYDOWN)
                 {
@@ -360,15 +369,18 @@ public class InputHookService : IDisposable
                 return (IntPtr)1; // ESCキーの入力をブロック（無効化）する
             }
 
-            if (wP == WM_KEYDOWN || wP == WM_SYSKEYDOWN)
+            if (IsRecording)
             {
-                ev.EventType = InputEventType.KeyDown;
-                _recordedEvents.Add(ev);
-            }
-            else if (wP == WM_KEYUP || wP == WM_SYSKEYUP)
-            {
-                ev.EventType = InputEventType.KeyUp;
-                _recordedEvents.Add(ev);
+                if (wP == WM_KEYDOWN || wP == WM_SYSKEYDOWN)
+                {
+                    ev.EventType = InputEventType.KeyDown;
+                    _recordedEvents.Add(ev);
+                }
+                else if (wP == WM_KEYUP || wP == WM_SYSKEYUP)
+                {
+                    ev.EventType = InputEventType.KeyUp;
+                    _recordedEvents.Add(ev);
+                }
             }
         }
         return CallNextHookEx(_keyboardHookId, nCode, wParam, lParam);
@@ -377,5 +389,11 @@ public class InputHookService : IDisposable
     public void Dispose()
     {
         StopRecording();
+        if (_keyboardHookId != IntPtr.Zero)
+        {
+            UnhookWindowsHookEx(_keyboardHookId);
+            _keyboardHookId = IntPtr.Zero;
+            _keyboardProc = null;
+        }
     }
 }

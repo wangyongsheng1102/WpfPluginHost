@@ -28,7 +28,12 @@ public class PuppeteerService
         await page.SetViewportAsync(new ViewPortOptions { Width = 1920, Height = 1080 });
         
         // 動的コンテンツの読み込みを確実にするため、ネットワークがアイドル状態になるまで待機する
-        await page.GoToAsync(url, WaitUntilNavigation.Networkidle0);
+        var navOptions = new NavigationOptions
+        {
+            WaitUntil = new[] { WaitUntilNavigation.Networkidle2 },
+            Referer = "" // invalid referrerPolicy エラーを回避するため空を指定
+        };
+        await page.GoToAsync(url.Trim(), navOptions);
         
         // フルページのレイアウトをキャプチャする
         await page.ScreenshotAsync(outputPath, new ScreenshotOptions { FullPage = true });

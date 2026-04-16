@@ -79,6 +79,7 @@ public partial class InputRecorderViewModel : ObservableObject
     }
 
     private bool _isCapturingPuppeteer = false;
+    private string? _lastValidUrl;
 
     private async Task HandleF10CaptureAsync()
     {
@@ -89,15 +90,26 @@ public partial class InputRecorderViewModel : ObservableObject
         {
             if (System.Windows.Clipboard.ContainsText())
             {
-                url = System.Windows.Clipboard.GetText();
+                url = System.Windows.Clipboard.GetText()?.Trim();
             }
         }
         catch { /* クリップボードの例外を無視する */ }
 
         if (string.IsNullOrWhiteSpace(url) || (!url.StartsWith("http://") && !url.StartsWith("https://")))
         {
-            _context?.ReportError("クリップボードに有効なURLが見つかりません。対象ブラウザでURLをコピー（Ctrl+C）してからF10を押してください。");
-            return;
+            if (!string.IsNullOrWhiteSpace(_lastValidUrl))
+            {
+                url = _lastValidUrl; // Use the previously used valid URL
+            }
+            else
+            {
+                _context?.ReportError("クリップボードに有効なURLが見つかりません。対象ブラウザでURLをコピー（Ctrl+C）してからF10を押してください。");
+                return;
+            }
+        }
+        else
+        {
+            _lastValidUrl = url; // Remember correctly formatted URL
         }
 
         _isCapturingPuppeteer = true;

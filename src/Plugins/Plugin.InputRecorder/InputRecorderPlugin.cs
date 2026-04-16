@@ -18,7 +18,7 @@ public sealed class InputRecorderPlugin : IPluginModule
         _context = context;
     }
 
-    public UserControl CreateView()
+    public System.Windows.Controls.UserControl CreateView()
     {
         return new InputRecorderView(_context);
     }

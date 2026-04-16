@@ -3,7 +3,7 @@ using System.Windows.Controls;
 
 namespace Plugin.InputRecorder;
 
-public partial class InputRecorderView : UserControl
+public partial class InputRecorderView : System.Windows.Controls.UserControl
 {
     private readonly InputRecorderViewModel _viewModel;
 
