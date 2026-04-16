@@ -282,9 +282,10 @@ public sealed class ExcelImageExtractorService
         var lastRowFromPictures = 0;
         foreach (var drawing in worksheet.Drawings)
         {
-            if (drawing is ExcelPicture pic)
+            if (drawing is ExcelPicture pic && pic.From is not null)
             {
-                lastRowFromPictures = Math.Max(lastRowFromPictures, Math.Max(pic.From.Row, pic.To.Row) + 1);
+                var toRow = pic.To?.Row ?? pic.From.Row;
+                lastRowFromPictures = Math.Max(lastRowFromPictures, Math.Max(pic.From.Row, toRow) + 1);
             }
         }
 
