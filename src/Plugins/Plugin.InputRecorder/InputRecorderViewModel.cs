@@ -33,13 +33,6 @@ public partial class InputRecorderViewModel : ObservableObject
     [NotifyPropertyChangedFor(nameof(CanLoad))]
     private bool _isReplaying;
 
-    [ObservableProperty]
-    private string? _chromeExecutablePath;
-
-    partial void OnChromeExecutablePathChanged(string? value)
-    {
-        SaveSettings();
-    }
 
     public ObservableCollection<InputEvent> Events { get; } = new();
 
@@ -51,7 +44,7 @@ public partial class InputRecorderViewModel : ObservableObject
     public InputRecorderViewModel(IPluginContext? context)
     {
         _context = context;
-        LoadSettings();
+
         
         _hookService = new InputHookService();
         _hookService.OnEscapePressed += () =>
@@ -78,41 +71,12 @@ public partial class InputRecorderViewModel : ObservableObject
         };
     }
 
-    private bool _isCapturingPuppeteer = false;
-    private string? _lastValidUrl;
+    private bool _isCapturingLongScreenshot = false;
 
     private async Task HandleF10CaptureAsync()
     {
-        if (_isCapturingPuppeteer) return;
-
-        string? url = null;
-        try
-        {
-            if (System.Windows.Clipboard.ContainsText())
-            {
-                url = System.Windows.Clipboard.GetText()?.Trim();
-            }
-        }
-        catch { /* クリップボードの例外を無視する */ }
-
-        if (string.IsNullOrWhiteSpace(url) || (!url.StartsWith("http://") && !url.StartsWith("https://")))
-        {
-            if (!string.IsNullOrWhiteSpace(_lastValidUrl))
-            {
-                url = _lastValidUrl; // Use the previously used valid URL
-            }
-            else
-            {
-                _context?.ReportError("クリップボードに有効なURLが見つかりません。対象ブラウザでURLをコピー（Ctrl+C）してからF10を押してください。");
-                return;
-            }
-        }
-        else
-        {
-            _lastValidUrl = url; // Remember correctly formatted URL
-        }
-
-        _isCapturingPuppeteer = true;
+        if (_isCapturingLongScreenshot) return;
+        _isCapturingLongScreenshot = true;
         
         var folder = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "InputRecord");
         if (!System.IO.Directory.Exists(folder))
@@ -121,18 +85,20 @@ public partial class InputRecorderViewModel : ObservableObject
         var fileName = $"FullPage_{Guid.NewGuid().ToString("N")[..8]}.png";
         var path = System.IO.Path.Combine(folder, fileName);
 
-        var isCustomChrome = !string.IsNullOrWhiteSpace(ChromeExecutablePath) && File.Exists(ChromeExecutablePath);
-        if (isCustomChrome)
-            _context?.ReportProgress("指定されたChromeを利用してフル画面長図をキャプチャ中...", 0, true);
-        else
-            _context?.ReportProgress("Chromiumを自動利用してフル画面長図をキャプチャ中... (初回はダウンロードで数分かかります)", 0, true);
+        _context?.ReportProgress("アクティブ画面のフル機能長図キャプチャを開始します...", 0, true);
 
         await Task.Run(async () =>
         {
             try
             {
-                var puppeteer = new PuppeteerService();
-                await puppeteer.CaptureFullPageAsync(url, path, ChromeExecutablePath);
+                var stitcher = new LongScreenshotService();
+                await stitcher.CaptureLongScreenshotAsync(path, (msg, progress, ind) => 
+                {
+                    System.Windows.Application.Current?.Dispatcher.Invoke(() =>
+                    {
+                        _context?.ReportProgress(msg, progress, ind);
+                    });
+                });
                 System.Windows.Application.Current?.Dispatcher.Invoke(() =>
                 {
                     _context?.ReportSuccess($"長図キャプチャ完了: {path}");
@@ -147,7 +113,7 @@ public partial class InputRecorderViewModel : ObservableObject
             }
             finally
             {
-                _isCapturingPuppeteer = false;
+                _isCapturingLongScreenshot = false;
             }
         });
     }
@@ -295,51 +261,4 @@ public partial class InputRecorderViewModel : ObservableObject
         }
     }
 
-    [RelayCommand]
-    private void BrowseChromePath()
-    {
-        var dialog = new Microsoft.Win32.OpenFileDialog
-        {
-            Filter = "Executables (*.exe)|*.exe|All Files (*.*)|*.*",
-            Title = "Chrome.exe の場所を選択してください"
-        };
-        
-        if (dialog.ShowDialog() == true)
-        {
-            ChromeExecutablePath = dialog.FileName;
-        }
-    }
-
-    private class PluginSettings
-    {
-        public string? ChromePath { get; set; }
-    }
-
-    private void LoadSettings()
-    {
-        var json = _context?.GetPluginSetting("inputRecorder");
-        if (!string.IsNullOrWhiteSpace(json))
-        {
-            try
-            {
-                var settings = JsonSerializer.Deserialize<PluginSettings>(json);
-                if (settings != null)
-                {
-                    _chromeExecutablePath = settings.ChromePath;
-                }
-            }
-            catch { }
-        }
-    }
-
-    private void SaveSettings()
-    {
-        var settings = new PluginSettings { ChromePath = ChromeExecutablePath };
-        try
-        {
-            var json = JsonSerializer.Serialize(settings);
-            _context?.SavePluginSetting("inputRecorder", json);
-        }
-        catch { }
-    }
 }
