@@ -226,6 +226,7 @@ public class InputHookService : IDisposable
         IsReplaying = true;
 
         long lastTime = 0;
+        long replayTimeCompensationMs = 0;
         try
         {
             foreach (var ev in events)
@@ -233,11 +234,17 @@ public class InputHookService : IDisposable
                 if (cancellationToken.IsCancellationRequested) break;
 
                 long delay = ev.TimeOffset - lastTime;
-                if (delay > 0)
-                    await Task.Delay(TimeSpan.FromMilliseconds(delay), cancellationToken).ConfigureAwait(false);
+                long adjustedDelay = Math.Max(0, delay - replayTimeCompensationMs);
+                replayTimeCompensationMs = Math.Max(0, replayTimeCompensationMs - delay);
+                if (adjustedDelay > 0)
+                    await Task.Delay(TimeSpan.FromMilliseconds(adjustedDelay), cancellationToken).ConfigureAwait(false);
 
                 lastTime = ev.TimeOffset;
+                var started = Stopwatch.GetTimestamp();
                 await SimulateEventAsync(ev, cancellationToken).ConfigureAwait(false);
+                var elapsedMs = (long)Math.Round((Stopwatch.GetTimestamp() - started) * 1000.0 / Stopwatch.Frequency);
+                if (ev.EventType == InputEventType.LongScreenshot && elapsedMs > 0)
+                    replayTimeCompensationMs += elapsedMs;
             }
         }
         finally
