@@ -1,9 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing.Imaging;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using Plugin.InputRecorder.Models;
 
 namespace Plugin.InputRecorder.Services;
@@ -25,6 +28,20 @@ public class InputHookService : IDisposable
     private const int WM_RBUTTONUP = 0x0205;
     private const int WM_MBUTTONDOWN = 0x0207;
     private const int WM_MBUTTONUP = 0x0208;
+    private const int WM_MOUSEWHEEL = 0x020A;
+
+    private const uint INPUT_MOUSE = 0;
+    private const uint INPUT_KEYBOARD = 1;
+    private const uint MOUSEEVENTF_MOVE = 0x0001;
+    private const uint MOUSEEVENTF_LEFTDOWN = 0x0002;
+    private const uint MOUSEEVENTF_LEFTUP = 0x0004;
+    private const uint MOUSEEVENTF_RIGHTDOWN = 0x0008;
+    private const uint MOUSEEVENTF_RIGHTUP = 0x0010;
+    private const uint MOUSEEVENTF_MIDDLEDOWN = 0x0020;
+    private const uint MOUSEEVENTF_MIDDLEUP = 0x0040;
+    private const uint MOUSEEVENTF_WHEEL = 0x0800;
+    private const uint MOUSEEVENTF_ABSOLUTE = 0x8000;
+    private const uint KEYEVENTF_KEYUP = 0x0002;
 
     private delegate IntPtr LowLevelProc(int nCode, IntPtr wParam, IntPtr lParam);
 
@@ -39,11 +56,13 @@ public class InputHookService : IDisposable
     private static extern IntPtr CallNextHookEx(IntPtr hhk, int nCode, IntPtr wParam, IntPtr lParam);
 
     [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-    private static extern IntPtr GetModuleHandle(string lpModuleName);
+    private static extern IntPtr GetModuleHandle(string? lpModuleName);
 
-    // Replay imports
     [DllImport("user32.dll")]
     private static extern uint SendInput(uint nInputs, ref INPUT pInputs, int cbSize);
+
+    [DllImport("user32.dll")]
+    private static extern int GetSystemMetrics(int nIndex);
 
     [StructLayout(LayoutKind.Sequential)]
     private struct INPUT
@@ -56,12 +75,9 @@ public class InputHookService : IDisposable
     [StructLayout(LayoutKind.Explicit)]
     private struct InputUnion
     {
-        [FieldOffset(0)]
-        public MOUSEINPUT mi;
-        [FieldOffset(0)]
-        public KEYBDINPUT ki;
-        [FieldOffset(0)]
-        public HARDWAREINPUT hi;
+        [FieldOffset(0)] public MOUSEINPUT mi;
+        [FieldOffset(0)] public KEYBDINPUT ki;
+        [FieldOffset(0)] public HARDWAREINPUT hi;
     }
 
     [StructLayout(LayoutKind.Sequential)]
@@ -93,7 +109,6 @@ public class InputHookService : IDisposable
         public ushort wParamH;
     }
 
-    // Hook Structs
     [StructLayout(LayoutKind.Sequential)]
     private struct MSLLHOOKSTRUCT
     {
@@ -129,26 +144,22 @@ public class InputHookService : IDisposable
     private readonly List<InputEvent> _recordedEvents = new();
     private Stopwatch? _stopwatch;
 
+    private long _lastMoveSampleMs = -1;
+    private int _lastMoveSampleX = int.MinValue;
+    private int _lastMoveSampleY = int.MinValue;
+    private bool _longScreenshotBusy;
+
     public event Action? OnEscapePressed;
     public event Action<string>? OnScreenshotCaptured;
-    public event Action? OnF10Pressed;
+    /// <summary>録画中の F10。引数は既に <see cref="_recordedEvents"/> に追加済みのイベント（完了後に ExtraPath を埋める）。</summary>
+    public event Action<InputEvent>? OnLongScreenshotRecordingRequested;
 
     public bool IsRecording { get; private set; }
     public bool IsReplaying { get; private set; }
 
-    public IReadOnlyList<InputEvent> GetRecordedEvents() => _recordedEvents;
+    public IReadOnlyList<InputEvent> GetRecordedEvents() => new List<InputEvent>(_recordedEvents);
 
-    public InputHookService()
-    {
-        _keyboardProc = KeyboardHookCallback;
-        
-        using (Process curProcess = Process.GetCurrentProcess())
-        using (ProcessModule curModule = curProcess.MainModule!)
-        {
-            IntPtr moduleHandle = GetModuleHandle(curModule.ModuleName);
-            _keyboardHookId = SetWindowsHookEx(WH_KEYBOARD_LL, _keyboardProc, moduleHandle, 0);
-        }
-    }
+    public void NotifyLongScreenshotCaptureEnded() => _longScreenshotBusy = false;
 
     public void StartRecording()
     {
@@ -156,14 +167,24 @@ public class InputHookService : IDisposable
 
         _recordedEvents.Clear();
         _stopwatch = Stopwatch.StartNew();
+        _lastMoveSampleMs = -1;
+        _lastMoveSampleX = int.MinValue;
+        _lastMoveSampleY = int.MinValue;
+        _longScreenshotBusy = false;
 
-        _mouseProc = MouseHookCallback;
-        
-        using (Process curProcess = Process.GetCurrentProcess())
-        using (ProcessModule curModule = curProcess.MainModule!)
+        _keyboardProc ??= KeyboardHookCallback;
+        _mouseProc ??= MouseHookCallback;
+
+        IntPtr moduleHandle = GetModuleHandle(Process.GetCurrentProcess().MainModule?.ModuleName);
+        _keyboardHookId = SetWindowsHookEx(WH_KEYBOARD_LL, _keyboardProc, moduleHandle, 0);
+        _mouseHookId = SetWindowsHookEx(WH_MOUSE_LL, _mouseProc, moduleHandle, 0);
+        if (_keyboardHookId == IntPtr.Zero || _mouseHookId == IntPtr.Zero)
         {
-            IntPtr moduleHandle = GetModuleHandle(curModule.ModuleName);
-            _mouseHookId = SetWindowsHookEx(WH_MOUSE_LL, _mouseProc, moduleHandle, 0);
+            RemoveKeyboardHook();
+            RemoveMouseHook();
+            _stopwatch?.Stop();
+            _stopwatch = null;
+            return;
         }
 
         IsRecording = true;
@@ -172,18 +193,11 @@ public class InputHookService : IDisposable
     public void StopRecording()
     {
         if (!IsRecording) return;
-        
-        if (_mouseHookId != IntPtr.Zero)
-        {
-            UnhookWindowsHookEx(_mouseHookId);
-            _mouseHookId = IntPtr.Zero;
-            _mouseProc = null;
-        }
-        
-        _stopwatch?.Stop();
-        
-        // 録画を停止したキーストローク（ESCなど）の削除は、通常UI側で処理されるためここでは行わない
 
+        RemoveMouseHook();
+        RemoveKeyboardHook();
+
+        _stopwatch?.Stop();
         IsRecording = false;
     }
 
@@ -192,25 +206,25 @@ public class InputHookService : IDisposable
         if (IsRecording || IsReplaying) return;
         IsReplaying = true;
 
-        var sw = Stopwatch.StartNew();
         long lastTime = 0;
-
-        foreach (var ev in events)
+        try
         {
-            if (cancellationToken.IsCancellationRequested) break;
-
-            long delay = ev.TimeOffset - lastTime;
-            if (delay > 0)
+            foreach (var ev in events)
             {
-                await Task.Delay(TimeSpan.FromMilliseconds(delay), cancellationToken).ConfigureAwait(false);
+                if (cancellationToken.IsCancellationRequested) break;
+
+                long delay = ev.TimeOffset - lastTime;
+                if (delay > 0)
+                    await Task.Delay(TimeSpan.FromMilliseconds(delay), cancellationToken).ConfigureAwait(false);
+
+                lastTime = ev.TimeOffset;
+                await SimulateEventAsync(ev, cancellationToken).ConfigureAwait(false);
             }
-
-            lastTime = ev.TimeOffset;
-            SimulateEvent(ev);
         }
-
-        sw.Stop();
-        IsReplaying = false;
+        finally
+        {
+            IsReplaying = false;
+        }
     }
 
     public void LoadEvents(IEnumerable<InputEvent> events)
@@ -219,114 +233,239 @@ public class InputHookService : IDisposable
         _recordedEvents.AddRange(events);
     }
 
-    private void SimulateEvent(InputEvent ev)
+    private static string EnsureInputRecordFolder()
     {
-        INPUT input = new INPUT();
-        
-        switch (ev.EventType)
-        {
-            case InputEventType.MouseMove:
-                input.type = 0; // INPUT_MOUSE
-                // SendInput用に絶対座標を正規化座標に変換する
-                input.U.mi.dx = (ev.X * 65535) / GetSystemMetrics(0); // SM_CXSCREEN
-                input.U.mi.dy = (ev.Y * 65535) / GetSystemMetrics(1); // SM_CYSCREEN
-                input.U.mi.dwFlags = 0x8001; // MOUSEEVENTF_ABSOLUTE | MOUSEEVENTF_MOVE
-                break;
-            case InputEventType.MouseDown:
-            case InputEventType.MouseUp:
-                input.type = 0; // INPUT_MOUSE
-                input.U.mi.dwFlags = GetMouseFlags(ev);
-                break;
-            case InputEventType.KeyDown:
-            case InputEventType.KeyUp:
-                input.type = 1; // INPUT_KEYBOARD
-                input.U.ki.wVk = (ushort)ev.KeyCode;
-                input.U.ki.dwFlags = ev.EventType == InputEventType.KeyUp ? 2U : 0U; // KEYEVENTF_KEYUP
-                break;
-        }
-
-        SendInput(1, ref input, INPUT.Size);
+        var folder = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "InputRecord");
+        if (!Directory.Exists(folder))
+            Directory.CreateDirectory(folder);
+        return folder;
     }
 
-    [DllImport("user32.dll")]
-    private static extern int GetSystemMetrics(int nIndex);
-
-    private uint GetMouseFlags(InputEvent ev)
+    private static string GenerateScreenshotPath()
     {
-        bool isDown = ev.EventType == InputEventType.MouseDown;
-        switch (ev.KeyCode)
-        {
-            case 1: return isDown ? 0x0002U : 0x0004U; // LBUTTON
-            case 2: return isDown ? 0x0008U : 0x0010U; // RBUTTON
-            case 3: return isDown ? 0x0020U : 0x0040U; // MBUTTON
-            default: return 0;
-        }
+        var folder = EnsureInputRecordFolder();
+        return Path.Combine(folder, $"Screenshot_{DateTime.Now:yyyyMMdd_HHmmss_fff}.png");
     }
 
-    private void TakeScreenshotAsync()
+    /// <summary>プライマリ画面の作業領域を PNG 保存（録画・リプレイ共通）</summary>
+    public static void CapturePrimaryWorkAreaToFile(string path)
     {
+        var workArea = Screen.PrimaryScreen?.WorkingArea ?? new System.Drawing.Rectangle(0, 0, 1920, 1080);
+        using var bmp = new System.Drawing.Bitmap(workArea.Width, workArea.Height, PixelFormat.Format32bppArgb);
+        using var gfx = System.Drawing.Graphics.FromImage(bmp);
+        gfx.CopyFromScreen(workArea.X, workArea.Y, 0, 0, workArea.Size, System.Drawing.CopyPixelOperation.SourceCopy);
+        bmp.Save(path, ImageFormat.Png);
+    }
+
+    private void EnqueueScreenshotEventAndCapture(string path)
+    {
+        _recordedEvents.Add(new InputEvent
+        {
+            EventType = InputEventType.Screenshot,
+            TimeOffset = _stopwatch?.ElapsedMilliseconds ?? 0,
+            ExtraPath = path
+        });
+
         Task.Run(() =>
         {
             try
             {
-                var folder = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "InputRecord");
-                if (!System.IO.Directory.Exists(folder))
-                {
-                    System.IO.Directory.CreateDirectory(folder);
-                }
-
-                var workArea = System.Windows.Forms.Screen.PrimaryScreen?.WorkingArea ?? new System.Drawing.Rectangle(0, 0, 1920, 1080);
-                
-                using var bmp = new System.Drawing.Bitmap(workArea.Width, workArea.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-                using var gfx = System.Drawing.Graphics.FromImage(bmp);
-                
-                gfx.CopyFromScreen(workArea.X, workArea.Y, 0, 0, workArea.Size, System.Drawing.CopyPixelOperation.SourceCopy);
-                
-                var fileName = $"Screenshot_{DateTime.Now:yyyyMMdd_HHmmss}.png";
-                var path = System.IO.Path.Combine(folder, fileName);
-                bmp.Save(path, System.Drawing.Imaging.ImageFormat.Png);
-                
+                CapturePrimaryWorkAreaToFile(path);
                 OnScreenshotCaptured?.Invoke(path);
             }
             catch
             {
-                // フック実行中のキャプチャ失敗は安全に無視する
+                // フック経路では握りつぶし
             }
         });
     }
 
-    private IntPtr MouseHookCallback(int nCode, IntPtr wParam, IntPtr lParam)
+    private async Task SimulateEventAsync(InputEvent ev, CancellationToken cancellationToken)
     {
-        if (nCode >= 0)
+        switch (ev.EventType)
         {
-            MSLLHOOKSTRUCT hookStruct = Marshal.PtrToStructure<MSLLHOOKSTRUCT>(lParam);
-            
-            var ev = new InputEvent
+            case InputEventType.MouseMove:
+                SendMouseMoveAbsolute(ev.X, ev.Y);
+                break;
+            case InputEventType.MouseDown:
+            case InputEventType.MouseUp:
+                SendMouseMoveAbsolute(ev.X, ev.Y);
+                SendMouseButton(ev.EventType, ev.KeyCode);
+                break;
+            case InputEventType.MouseWheel:
+                SendMouseMoveAbsolute(ev.X, ev.Y);
+                SendMouseWheel(ev.KeyCode);
+                break;
+            case InputEventType.KeyDown:
+            case InputEventType.KeyUp:
+                SendKey(ev.KeyCode, ev.EventType == InputEventType.KeyUp);
+                break;
+            case InputEventType.Screenshot:
             {
-                TimeOffset = _stopwatch?.ElapsedMilliseconds ?? 0,
-                X = hookStruct.pt.x,
-                Y = hookStruct.pt.y
-            };
-
-            int wP = wParam.ToInt32();
-            if (wP == WM_MOUSEMOVE)
-            {
-                ev.EventType = InputEventType.MouseMove;
-                _recordedEvents.Add(ev);
+                var path = Path.Combine(EnsureInputRecordFolder(), $"Screenshot_replay_{DateTime.Now:yyyyMMdd_HHmmss_fff}.png");
+                await Task.Run(() => CapturePrimaryWorkAreaToFile(path), cancellationToken).ConfigureAwait(false);
+                break;
             }
-            else if (wP == WM_LBUTTONDOWN || wP == WM_RBUTTONDOWN || wP == WM_MBUTTONDOWN)
+            case InputEventType.LongScreenshot:
             {
-                ev.EventType = InputEventType.MouseDown;
-                ev.KeyCode = wP == WM_LBUTTONDOWN ? 1 : wP == WM_RBUTTONDOWN ? 2 : 3;
-                _recordedEvents.Add(ev);
-            }
-            else if (wP == WM_LBUTTONUP || wP == WM_RBUTTONUP || wP == WM_MBUTTONUP)
-            {
-                ev.EventType = InputEventType.MouseUp;
-                ev.KeyCode = wP == WM_LBUTTONUP ? 1 : wP == WM_RBUTTONUP ? 2 : 3;
-                _recordedEvents.Add(ev);
+                var path = Path.Combine(EnsureInputRecordFolder(), $"FullPage_replay_{DateTime.Now:yyyyMMdd_HHmmss_fff}.png");
+                var stitcher = new LongScreenshotService();
+                await stitcher.CaptureLongScreenshotAsync(path, null, cancellationToken).ConfigureAwait(false);
+                break;
             }
         }
+    }
+
+    private static void SendMouseMoveAbsolute(int x, int y)
+    {
+        int sw = Math.Max(1, GetSystemMetrics(0) - 1);
+        int sh = Math.Max(1, GetSystemMetrics(1) - 1);
+        int nx = (int)(x * 65535L / sw);
+        int ny = (int)(y * 65535L / sh);
+        var mi = new MOUSEINPUT
+        {
+            dx = nx,
+            dy = ny,
+            mouseData = 0,
+            dwFlags = MOUSEEVENTF_ABSOLUTE | MOUSEEVENTF_MOVE,
+            time = 0,
+            dwExtraInfo = IntPtr.Zero
+        };
+        var input = new INPUT { type = INPUT_MOUSE, U = new InputUnion { mi = mi } };
+        SendInput(1, ref input, INPUT.Size);
+    }
+
+    private static void SendMouseButton(InputEventType eventType, int button)
+    {
+        uint flags = button switch
+        {
+            1 => eventType == InputEventType.MouseDown ? MOUSEEVENTF_LEFTDOWN : MOUSEEVENTF_LEFTUP,
+            2 => eventType == InputEventType.MouseDown ? MOUSEEVENTF_RIGHTDOWN : MOUSEEVENTF_RIGHTUP,
+            3 => eventType == InputEventType.MouseDown ? MOUSEEVENTF_MIDDLEDOWN : MOUSEEVENTF_MIDDLEUP,
+            _ => 0
+        };
+        if (flags == 0) return;
+
+        var mi = new MOUSEINPUT
+        {
+            dx = 0,
+            dy = 0,
+            mouseData = 0,
+            dwFlags = flags,
+            time = 0,
+            dwExtraInfo = IntPtr.Zero
+        };
+        var input = new INPUT { type = INPUT_MOUSE, U = new InputUnion { mi = mi } };
+        SendInput(1, ref input, INPUT.Size);
+    }
+
+    private static void SendMouseWheel(int delta)
+    {
+        var mi = new MOUSEINPUT
+        {
+            dx = 0,
+            dy = 0,
+            mouseData = unchecked((uint)delta),
+            dwFlags = MOUSEEVENTF_WHEEL,
+            time = 0,
+            dwExtraInfo = IntPtr.Zero
+        };
+        var input = new INPUT { type = INPUT_MOUSE, U = new InputUnion { mi = mi } };
+        SendInput(1, ref input, INPUT.Size);
+    }
+
+    private static void SendKey(int virtualKey, bool keyUp)
+    {
+        var ki = new KEYBDINPUT
+        {
+            wVk = (ushort)virtualKey,
+            wScan = 0,
+            dwFlags = keyUp ? KEYEVENTF_KEYUP : 0,
+            time = 0,
+            dwExtraInfo = IntPtr.Zero
+        };
+        var input = new INPUT { type = INPUT_KEYBOARD, U = new InputUnion { ki = ki } };
+        SendInput(1, ref input, INPUT.Size);
+    }
+
+    private bool ShouldSkipMouseMoveSample(int x, int y, long t)
+    {
+        if (_lastMoveSampleMs < 0) return false;
+        long dt = t - _lastMoveSampleMs;
+        int dx = Math.Abs(x - _lastMoveSampleX);
+        int dy = Math.Abs(y - _lastMoveSampleY);
+        return dx < 4 && dy < 4 && dt < 25;
+    }
+
+    private IntPtr MouseHookCallback(int nCode, IntPtr wParam, IntPtr lParam)
+    {
+        if (nCode >= 0 && IsRecording)
+        {
+            var hookStruct = Marshal.PtrToStructure<MSLLHOOKSTRUCT>(lParam);
+            int wP = wParam.ToInt32();
+            long t = _stopwatch?.ElapsedMilliseconds ?? 0;
+
+            if (wP == WM_MOUSEMOVE)
+            {
+                if (!ShouldSkipMouseMoveSample(hookStruct.pt.x, hookStruct.pt.y, t))
+                {
+                    _lastMoveSampleMs = t;
+                    _lastMoveSampleX = hookStruct.pt.x;
+                    _lastMoveSampleY = hookStruct.pt.y;
+                    _recordedEvents.Add(new InputEvent
+                    {
+                        EventType = InputEventType.MouseMove,
+                        TimeOffset = t,
+                        X = hookStruct.pt.x,
+                        Y = hookStruct.pt.y
+                    });
+                }
+            }
+            else if (wP is WM_LBUTTONDOWN or WM_RBUTTONDOWN or WM_MBUTTONDOWN)
+            {
+                _lastMoveSampleMs = t;
+                _lastMoveSampleX = hookStruct.pt.x;
+                _lastMoveSampleY = hookStruct.pt.y;
+                _recordedEvents.Add(new InputEvent
+                {
+                    EventType = InputEventType.MouseDown,
+                    TimeOffset = t,
+                    X = hookStruct.pt.x,
+                    Y = hookStruct.pt.y,
+                    KeyCode = wP == WM_LBUTTONDOWN ? 1 : wP == WM_RBUTTONDOWN ? 2 : 3
+                });
+            }
+            else if (wP is WM_LBUTTONUP or WM_RBUTTONUP or WM_MBUTTONUP)
+            {
+                _lastMoveSampleMs = t;
+                _lastMoveSampleX = hookStruct.pt.x;
+                _lastMoveSampleY = hookStruct.pt.y;
+                _recordedEvents.Add(new InputEvent
+                {
+                    EventType = InputEventType.MouseUp,
+                    TimeOffset = t,
+                    X = hookStruct.pt.x,
+                    Y = hookStruct.pt.y,
+                    KeyCode = wP == WM_LBUTTONUP ? 1 : wP == WM_RBUTTONUP ? 2 : 3
+                });
+            }
+            else if (wP == WM_MOUSEWHEEL)
+            {
+                _lastMoveSampleMs = t;
+                _lastMoveSampleX = hookStruct.pt.x;
+                _lastMoveSampleY = hookStruct.pt.y;
+                short delta = (short)(hookStruct.mouseData >> 16);
+                _recordedEvents.Add(new InputEvent
+                {
+                    EventType = InputEventType.MouseWheel,
+                    TimeOffset = t,
+                    X = hookStruct.pt.x,
+                    Y = hookStruct.pt.y,
+                    KeyCode = delta
+                });
+            }
+        }
+
         return CallNextHookEx(_mouseHookId, nCode, wParam, lParam);
     }
 
@@ -334,66 +473,84 @@ public class InputHookService : IDisposable
     {
         if (nCode >= 0)
         {
-            KBDLLHOOKSTRUCT hookStruct = Marshal.PtrToStructure<KBDLLHOOKSTRUCT>(lParam);
+            var hookStruct = Marshal.PtrToStructure<KBDLLHOOKSTRUCT>(lParam);
             int wP = wParam.ToInt32();
-
-            var ev = new InputEvent
-            {
-                TimeOffset = _stopwatch?.ElapsedMilliseconds ?? 0,
-                KeyCode = (int)hookStruct.vkCode
-            };
-
-            if (hookStruct.vkCode == 121) // VK_F10
-            {
-                if (wP == WM_KEYDOWN || wP == WM_SYSKEYDOWN)
-                {
-                    OnF10Pressed?.Invoke();
-                }
-            }
-
-            if (hookStruct.vkCode == 120) // VK_F9
-            {
-                if (wP == WM_KEYDOWN || wP == WM_SYSKEYDOWN)
-                {
-                    TakeScreenshotAsync();
-                }
-                // 他の操作でもF9を使用できるよう、入力をブロックせずパッシブにフックする
-            }
-
-            if (hookStruct.vkCode == 27 && IsRecording) // VK_ESCAPE
-            {
-                if (wP == WM_KEYDOWN || wP == WM_SYSKEYDOWN)
-                {
-                    OnEscapePressed?.Invoke();
-                }
-                return (IntPtr)1; // ESCキーの入力をブロック（無効化）する
-            }
 
             if (IsRecording)
             {
-                if (wP == WM_KEYDOWN || wP == WM_SYSKEYDOWN)
+                if (hookStruct.vkCode == 121) // VK_F10
                 {
-                    ev.EventType = InputEventType.KeyDown;
-                    _recordedEvents.Add(ev);
+                    if (wP is WM_KEYDOWN or WM_SYSKEYDOWN)
+                    {
+                        if (!_longScreenshotBusy)
+                        {
+                            _longScreenshotBusy = true;
+                            var pending = new InputEvent
+                            {
+                                EventType = InputEventType.LongScreenshot,
+                                TimeOffset = _stopwatch?.ElapsedMilliseconds ?? 0
+                            };
+                            _recordedEvents.Add(pending);
+                            OnLongScreenshotRecordingRequested?.Invoke(pending);
+                        }
+                    }
                 }
-                else if (wP == WM_KEYUP || wP == WM_SYSKEYUP)
+                else if (hookStruct.vkCode == 120) // VK_F9
                 {
-                    ev.EventType = InputEventType.KeyUp;
-                    _recordedEvents.Add(ev);
+                    if (wP is WM_KEYDOWN or WM_SYSKEYDOWN)
+                    {
+                        var path = GenerateScreenshotPath();
+                        EnqueueScreenshotEventAndCapture(path);
+                    }
+                }
+                else if (hookStruct.vkCode == 27) // VK_ESCAPE（KeyDown のみブロックし、KeyUp は通す）
+                {
+                    if (wP is WM_KEYDOWN or WM_SYSKEYDOWN)
+                    {
+                        OnEscapePressed?.Invoke();
+                        return (IntPtr)1;
+                    }
+                }
+                else
+                {
+                    if (wP is WM_KEYDOWN or WM_SYSKEYDOWN)
+                    {
+                        _recordedEvents.Add(new InputEvent
+                        {
+                            EventType = InputEventType.KeyDown,
+                            TimeOffset = _stopwatch?.ElapsedMilliseconds ?? 0,
+                            KeyCode = (int)hookStruct.vkCode
+                        });
+                    }
+                    else if (wP is WM_KEYUP or WM_SYSKEYUP)
+                    {
+                        _recordedEvents.Add(new InputEvent
+                        {
+                            EventType = InputEventType.KeyUp,
+                            TimeOffset = _stopwatch?.ElapsedMilliseconds ?? 0,
+                            KeyCode = (int)hookStruct.vkCode
+                        });
+                    }
                 }
             }
         }
+
         return CallNextHookEx(_keyboardHookId, nCode, wParam, lParam);
     }
 
-    public void Dispose()
+    private void RemoveMouseHook()
     {
-        StopRecording();
-        if (_keyboardHookId != IntPtr.Zero)
-        {
-            UnhookWindowsHookEx(_keyboardHookId);
-            _keyboardHookId = IntPtr.Zero;
-            _keyboardProc = null;
-        }
+        if (_mouseHookId == IntPtr.Zero) return;
+        UnhookWindowsHookEx(_mouseHookId);
+        _mouseHookId = IntPtr.Zero;
     }
+
+    private void RemoveKeyboardHook()
+    {
+        if (_keyboardHookId == IntPtr.Zero) return;
+        UnhookWindowsHookEx(_keyboardHookId);
+        _keyboardHookId = IntPtr.Zero;
+    }
+
+    public void Dispose() => StopRecording();
 }

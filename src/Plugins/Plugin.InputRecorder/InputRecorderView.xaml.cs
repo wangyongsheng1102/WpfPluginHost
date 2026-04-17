@@ -1,5 +1,5 @@
 using Plugin.Abstractions;
-using System.Windows.Controls;
+using System.Windows;
 
 namespace Plugin.InputRecorder;
 
@@ -12,5 +12,12 @@ public partial class InputRecorderView : System.Windows.Controls.UserControl
         InitializeComponent();
         _viewModel = new InputRecorderViewModel(context);
         DataContext = _viewModel;
+        Unloaded += OnUnloaded;
+    }
+
+    private void OnUnloaded(object sender, RoutedEventArgs e)
+    {
+        Unloaded -= OnUnloaded;
+        _viewModel.Dispose();
     }
 }

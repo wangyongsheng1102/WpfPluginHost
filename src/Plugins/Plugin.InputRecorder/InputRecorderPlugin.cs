@@ -7,9 +7,9 @@ public sealed class InputRecorderPlugin : IPluginModule
 {
     public string Id => "inputRecorder";
     public string Title => "マクロ録画";
-    public string Description => "マウスやキーボードの操作を記録し、自動実行（リプレイ）するプラグインです。";
+    public string Description => "マウス・キーボード・ホイールを記録し、F9 で画面キャプチャ・F10 で長図を JSON に含めて保存・リプレイできます。";
     public string IconKey => "⏺️";
-    public int Order => 30;
+    public int Order => 50;
 
     private IPluginContext? _context;
     

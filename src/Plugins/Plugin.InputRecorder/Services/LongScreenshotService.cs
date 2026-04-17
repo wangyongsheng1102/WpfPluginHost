@@ -109,70 +109,83 @@ public class LongScreenshotService
         }
     }
 
-    private unsafe int FindScrollOffset(Bitmap prev, Bitmap curr)
+    /// <summary>
+    /// 前フレームと現フレームの縦スクロール量を、中央帯の画素差分で推定する。
+    /// LockBits 後は <see cref="Marshal.Copy"/> でマネージ配列へ取り込み、unsafe なしで同じ比較を行う。
+    /// </summary>
+    private static int FindScrollOffset(Bitmap prev, Bitmap curr)
     {
         int width = prev.Width;
         int height = prev.Height;
-        
-        BitmapData prevData = prev.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
-        BitmapData currData = curr.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
+        const int bytesPerPixel = 4;
+        const int sliceHeight = 100;
 
-        int bytesPerPixel = 4;
-        int stride = prevData.Stride;
-        
-        byte* pPrev = (byte*)prevData.Scan0;
-        byte* pCurr = (byte*)currData.Scan0;
+        if (height < 400 || width < 16)
+            return 0;
 
-        int sliceHeight = 100;
-        if (height < 400) 
+        var prevData = prev.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
+        var currData = curr.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
+        try
+        {
+            int rowStride = Math.Abs(prevData.Stride);
+            if (Math.Abs(currData.Stride) != rowStride)
+                return 0;
+
+            int len = rowStride * height;
+            var prevBytes = GC.AllocateUninitializedArray<byte>(len);
+            var currBytes = GC.AllocateUninitializedArray<byte>(len);
+            Marshal.Copy(prevData.Scan0, prevBytes, 0, len);
+            Marshal.Copy(currData.Scan0, currBytes, 0, len);
+
+            int refY = height - 200 - sliceHeight;
+            int startX = width / 4;
+            int endX = width * 3 / 4;
+            int cmpWidth = endX - startX;
+            int startOffset = startX * bytesPerPixel;
+            int rowCmpBytes = cmpWidth * bytesPerPixel;
+
+            int bestOffset = 0;
+            int minDiff = int.MaxValue;
+
+            for (int searchY = 0; searchY <= refY; searchY++)
+            {
+                int diff = 0;
+                for (int y = 0; y < sliceHeight; y++)
+                {
+                    int iPrev = (refY + y) * rowStride + startOffset;
+                    int iCurr = (searchY + y) * rowStride + startOffset;
+                    for (int xb = 0; xb < rowCmpBytes; xb += 4)
+                    {
+                        diff += Math.Abs(prevBytes[iPrev + xb] - currBytes[iCurr + xb]) +
+                                Math.Abs(prevBytes[iPrev + xb + 1] - currBytes[iCurr + xb + 1]) +
+                                Math.Abs(prevBytes[iPrev + xb + 2] - currBytes[iCurr + xb + 2]);
+                        if (diff > minDiff)
+                            break;
+                    }
+
+                    if (diff > minDiff)
+                        break;
+                }
+
+                if (diff < minDiff)
+                {
+                    minDiff = diff;
+                    bestOffset = refY - searchY;
+                    if (diff == 0)
+                        break;
+                }
+            }
+
+            int totalPixels = cmpWidth * sliceHeight;
+            if (minDiff > totalPixels * 5)
+                return 0;
+
+            return bestOffset;
+        }
+        finally
         {
             prev.UnlockBits(prevData);
             curr.UnlockBits(currData);
-            return 0; 
         }
-
-        int refY = height - 200 - sliceHeight; 
-        
-        int startX = width / 4;
-        int endX = width * 3 / 4;
-        int cmpWidth = endX - startX;
-
-        int bestOffset = 0;
-        int minDiff = int.MaxValue;
-
-        for (int searchY = 0; searchY <= refY; searchY++)
-        {
-            int diff = 0;
-            for (int y = 0; y < sliceHeight; y++)
-            {
-                byte* rPrev = pPrev + (refY + y) * stride + startX * bytesPerPixel;
-                byte* rCurr = pCurr + (searchY + y) * stride + startX * bytesPerPixel;
-                
-                for (int x = 0; x < cmpWidth * bytesPerPixel; x += 4)
-                {
-                    diff += Math.Abs(rPrev[x] - rCurr[x]) + 
-                            Math.Abs(rPrev[x+1] - rCurr[x+1]) + 
-                            Math.Abs(rPrev[x+2] - rCurr[x+2]);
-                            
-                    if (diff > minDiff) break; 
-                }
-                if (diff > minDiff) break;
-            }
-            
-            if (diff < minDiff)
-            {
-                minDiff = diff;
-                bestOffset = refY - searchY; 
-                if (diff == 0) break; 
-            }
-        }
-
-        prev.UnlockBits(prevData);
-        curr.UnlockBits(currData);
-
-        int totalPixels = cmpWidth * sliceHeight;
-        if (minDiff > totalPixels * 5) return 0; 
-
-        return bestOffset;
     }
 }
