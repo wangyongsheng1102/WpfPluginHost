@@ -153,6 +153,10 @@ public class InputHookService : IDisposable
     private int _lastMoveSampleX = int.MinValue;
     private int _lastMoveSampleY = int.MinValue;
     private bool _longScreenshotBusy;
+    private string? _recordSessionFolder;
+    private string? _replaySessionFolder;
+    private int _recordImageIndex;
+    private int _replayImageIndex;
 
     public event Action? OnEscapePressed;
     public event Action? OnReplayEscapePressed;
@@ -172,6 +176,8 @@ public class InputHookService : IDisposable
         if (IsRecording || IsReplaying) return;
 
         _recordedEvents.Clear();
+        _recordSessionFolder = null;
+        _recordImageIndex = 0;
         _stopwatch = Stopwatch.StartNew();
         _lastMoveSampleMs = -1;
         _lastMoveSampleX = int.MinValue;
@@ -211,6 +217,8 @@ public class InputHookService : IDisposable
     {
         if (IsRecording || IsReplaying) return;
 
+        _replaySessionFolder = null;
+        _replayImageIndex = 0;
         _keyboardProc ??= KeyboardHookCallback;
         IntPtr moduleHandle = GetModuleHandle(Process.GetCurrentProcess().MainModule?.ModuleName);
         _keyboardHookId = SetWindowsHookEx(WH_KEYBOARD_LL, _keyboardProc, moduleHandle, 0);
@@ -253,10 +261,43 @@ public class InputHookService : IDisposable
         return folder;
     }
 
-    private static string GenerateScreenshotPath()
+    private static string CreateSessionFolder(string suffix)
     {
-        var folder = EnsureInputRecordFolder();
-        return Path.Combine(folder, $"Screenshot_{DateTime.Now:yyyyMMdd_HHmmss_fff}.png");
+        var baseFolder = EnsureInputRecordFolder();
+        var sessionFolder = Path.Combine(baseFolder, $"{DateTime.Now:yyyyMMdd_HHmmss}_{suffix}");
+        Directory.CreateDirectory(sessionFolder);
+        return sessionFolder;
+    }
+
+    private string EnsureRecordSessionFolder()
+    {
+        _recordSessionFolder ??= CreateSessionFolder("Record");
+        return _recordSessionFolder;
+    }
+
+    private string EnsureReplaySessionFolder()
+    {
+        _replaySessionFolder ??= CreateSessionFolder("Replay");
+        return _replaySessionFolder;
+    }
+
+    private string GenerateRecordImagePath()
+    {
+        var folder = EnsureRecordSessionFolder();
+        var index = Interlocked.Increment(ref _recordImageIndex);
+        return Path.Combine(folder, $"{index}.png");
+    }
+
+    private string GenerateReplayImagePath()
+    {
+        var folder = EnsureReplaySessionFolder();
+        var index = Interlocked.Increment(ref _replayImageIndex);
+        return Path.Combine(folder, $"{index}.png");
+    }
+
+    public string GenerateLongScreenshotPathForRecording()
+    {
+        return GenerateRecordImagePath();
     }
 
     private static System.Drawing.Rectangle ResolvePreferredWorkArea()
@@ -327,13 +368,13 @@ public class InputHookService : IDisposable
                 break;
             case InputEventType.Screenshot:
             {
-                var path = Path.Combine(EnsureInputRecordFolder(), $"Screenshot_replay_{DateTime.Now:yyyyMMdd_HHmmss_fff}.png");
+                var path = GenerateReplayImagePath();
                 await Task.Run(() => CaptureActiveScreenWorkAreaToFile(path), cancellationToken).ConfigureAwait(false);
                 break;
             }
             case InputEventType.LongScreenshot:
             {
-                var path = Path.Combine(EnsureInputRecordFolder(), $"FullPage_replay_{DateTime.Now:yyyyMMdd_HHmmss_fff}.png");
+                var path = GenerateReplayImagePath();
                 var stitcher = new LongScreenshotService();
                 await stitcher.CaptureLongScreenshotAsync(path, null, cancellationToken).ConfigureAwait(false);
                 break;
@@ -528,7 +569,7 @@ public class InputHookService : IDisposable
                 {
                     if (wP is WM_KEYDOWN or WM_SYSKEYDOWN)
                     {
-                        var path = GenerateScreenshotPath();
+                        var path = GenerateRecordImagePath();
                         EnqueueScreenshotEventAndCapture(path);
                     }
                 }

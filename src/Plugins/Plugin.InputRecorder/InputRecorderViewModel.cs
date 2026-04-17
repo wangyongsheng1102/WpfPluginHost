@@ -89,12 +89,7 @@ public partial class InputRecorderViewModel : ObservableObject, IDisposable
 
     private async Task HandleLongScreenshotRecordingAsync(InputEvent pending)
     {
-        var folder = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "InputRecord");
-        if (!Directory.Exists(folder))
-            Directory.CreateDirectory(folder);
-
-        var fileName = $"FullPage_{Guid.NewGuid():N}.png";
-        var path = Path.Combine(folder, fileName);
+        var path = _hookService.GenerateLongScreenshotPathForRecording();
 
         _context?.ReportProgress("アクティブ画面の長図キャプチャを開始します...", 0, true);
 
