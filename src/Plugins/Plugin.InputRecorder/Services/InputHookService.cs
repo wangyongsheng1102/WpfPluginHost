@@ -64,6 +64,9 @@ public class InputHookService : IDisposable
     [DllImport("user32.dll")]
     private static extern int GetSystemMetrics(int nIndex);
 
+    [DllImport("user32.dll")]
+    private static extern IntPtr GetForegroundWindow();
+
     [StructLayout(LayoutKind.Sequential)]
     private struct INPUT
     {
@@ -247,10 +250,23 @@ public class InputHookService : IDisposable
         return Path.Combine(folder, $"Screenshot_{DateTime.Now:yyyyMMdd_HHmmss_fff}.png");
     }
 
-    /// <summary>プライマリ画面の作業領域を PNG 保存（録画・リプレイ共通）</summary>
-    public static void CapturePrimaryWorkAreaToFile(string path)
+    private static System.Drawing.Rectangle ResolvePreferredWorkArea()
     {
-        var workArea = Screen.PrimaryScreen?.WorkingArea ?? new System.Drawing.Rectangle(0, 0, 1920, 1080);
+        var mouseScreen = Screen.FromPoint(Control.MousePosition);
+        if (mouseScreen is not null)
+            return mouseScreen.WorkingArea;
+
+        var hwnd = GetForegroundWindow();
+        if (hwnd != IntPtr.Zero)
+            return Screen.FromHandle(hwnd).WorkingArea;
+
+        return Screen.PrimaryScreen?.WorkingArea ?? new System.Drawing.Rectangle(0, 0, 1920, 1080);
+    }
+
+    /// <summary>鼠标所在屏幕优先，其次前台窗口所属屏幕，最后主屏兜底</summary>
+    public static void CaptureActiveScreenWorkAreaToFile(string path)
+    {
+        var workArea = ResolvePreferredWorkArea();
         using var bmp = new System.Drawing.Bitmap(workArea.Width, workArea.Height, PixelFormat.Format32bppArgb);
         using var gfx = System.Drawing.Graphics.FromImage(bmp);
         gfx.CopyFromScreen(workArea.X, workArea.Y, 0, 0, workArea.Size, System.Drawing.CopyPixelOperation.SourceCopy);
@@ -270,7 +286,7 @@ public class InputHookService : IDisposable
         {
             try
             {
-                CapturePrimaryWorkAreaToFile(path);
+                CaptureActiveScreenWorkAreaToFile(path);
                 OnScreenshotCaptured?.Invoke(path);
             }
             catch
@@ -303,7 +319,7 @@ public class InputHookService : IDisposable
             case InputEventType.Screenshot:
             {
                 var path = Path.Combine(EnsureInputRecordFolder(), $"Screenshot_replay_{DateTime.Now:yyyyMMdd_HHmmss_fff}.png");
-                await Task.Run(() => CapturePrimaryWorkAreaToFile(path), cancellationToken).ConfigureAwait(false);
+                await Task.Run(() => CaptureActiveScreenWorkAreaToFile(path), cancellationToken).ConfigureAwait(false);
                 break;
             }
             case InputEventType.LongScreenshot:

@@ -23,6 +23,9 @@ public class LongScreenshotService
     [DllImport("user32.dll", SetLastError = true)]
     private static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRect);
 
+    [DllImport("user32.dll")]
+    private static extern IntPtr GetDesktopWindow();
+
     [StructLayout(LayoutKind.Sequential)]
     private struct RECT
     {
@@ -38,6 +41,8 @@ public class LongScreenshotService
     private static Rectangle ResolveCaptureRectangle(Rectangle workArea)
     {
         var hwnd = GetForegroundWindow();
+        if (hwnd == IntPtr.Zero)
+            hwnd = GetDesktopWindow();
         if (hwnd == IntPtr.Zero || !GetWindowRect(hwnd, out var wr))
             return workArea;
 
@@ -47,6 +52,19 @@ public class LongScreenshotService
             return workArea;
 
         return inter;
+    }
+
+    private static Rectangle ResolvePreferredWorkArea()
+    {
+        var mouseScreen = Screen.FromPoint(System.Windows.Forms.Control.MousePosition);
+        if (mouseScreen is not null)
+            return mouseScreen.WorkingArea;
+
+        var hwnd = GetForegroundWindow();
+        if (hwnd != IntPtr.Zero)
+            return Screen.FromHandle(hwnd).WorkingArea;
+
+        return Screen.PrimaryScreen?.WorkingArea ?? new Rectangle(0, 0, 1920, 1080);
     }
 
     /// <summary>縦結合で毎フレーム重なる右端・下端のスクロールバー帯を除去する。</summary>
@@ -206,7 +224,7 @@ public class LongScreenshotService
 
     public async Task CaptureLongScreenshotAsync(string outputPath, Action<string, int, bool>? reportProgress = null, CancellationToken cancellationToken = default)
     {
-        var workArea = System.Windows.Forms.Screen.PrimaryScreen?.WorkingArea ?? new Rectangle(0, 0, 1920, 1080);
+        var workArea = ResolvePreferredWorkArea();
         // 1 周目で決めた矩形を固定する（毎フレームサイズが変わると重なり検出が不安定になる）
         Rectangle lockedCaptureRect = default;
         var haveLockedCaptureRect = false;
