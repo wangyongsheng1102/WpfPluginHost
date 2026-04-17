@@ -17,7 +17,59 @@ public class LongScreenshotService
     [DllImport("user32.dll")]
     static extern void mouse_event(uint dwFlags, int dx, int dy, int dwData, int dwExtraInfo);
 
+    [DllImport("user32.dll")]
+    private static extern IntPtr GetForegroundWindow();
+
+    [DllImport("user32.dll", SetLastError = true)]
+    private static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRect);
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct RECT
+    {
+        public int Left;
+        public int Top;
+        public int Right;
+        public int Bottom;
+    }
+
     private const uint MOUSEEVENTF_WHEEL = 0x0800;
+
+    /// <summary>前面ウィンドウと作業領域の交差。スクロールバーがビットマップ端に寄るので右下を裁ちやすい。</summary>
+    private static Rectangle ResolveCaptureRectangle(Rectangle workArea)
+    {
+        var hwnd = GetForegroundWindow();
+        if (hwnd == IntPtr.Zero || !GetWindowRect(hwnd, out var wr))
+            return workArea;
+
+        var windowRect = Rectangle.FromLTRB(wr.Left, wr.Top, wr.Right, wr.Bottom);
+        var inter = Rectangle.Intersect(windowRect, workArea);
+        if (inter.Width < 200 || inter.Height < 200)
+            return workArea;
+
+        return inter;
+    }
+
+    /// <summary>縦結合で毎フレーム重なる右端・下端のスクロールバー帯を除去する。</summary>
+    private static Bitmap CropScrollbarChrome(Bitmap src)
+    {
+        int stripRight = SystemInformation.VerticalScrollBarWidth + 3;
+        int stripBottom = SystemInformation.HorizontalScrollBarHeight + 3;
+        stripRight = Math.Min(stripRight, Math.Max(0, src.Width - 1));
+        stripBottom = Math.Min(stripBottom, Math.Max(0, src.Height - 1));
+        if (stripRight == 0 && stripBottom == 0)
+            return src;
+
+        int nw = src.Width - stripRight;
+        int nh = src.Height - stripBottom;
+        if (nw < 16 || nh < 16)
+            return src;
+
+        var dst = new Bitmap(nw, nh, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+        using (var g = Graphics.FromImage(dst))
+            g.DrawImage(src, 0, 0, new Rectangle(0, 0, nw, nh), GraphicsUnit.Pixel);
+        src.Dispose();
+        return dst;
+    }
 
     private enum ToastKind
     {
@@ -154,9 +206,10 @@ public class LongScreenshotService
 
     public async Task CaptureLongScreenshotAsync(string outputPath, Action<string, int, bool>? reportProgress = null, CancellationToken cancellationToken = default)
     {
-        // プライマリ作業領域全体を切り出す（前面ウィンドウだけにすると、マウスホイールの届き方と画像がずれて重なり判定が早く失敗しやすい）
         var workArea = System.Windows.Forms.Screen.PrimaryScreen?.WorkingArea ?? new Rectangle(0, 0, 1920, 1080);
-        var capRect = workArea;
+        // 1 周目で決めた矩形を固定する（毎フレームサイズが変わると重なり検出が不安定になる）
+        Rectangle lockedCaptureRect = default;
+        var haveLockedCaptureRect = false;
 
         List<Bitmap> capturedParts = new List<Bitmap>();
         List<int> newHeights = new List<int>();
@@ -173,7 +226,7 @@ public class LongScreenshotService
         {
             await ShowCaptureToastAndWaitAsync(
                     "長図キャプチャ",
-                    "開始します。このメッセージが閉じたあと、作業領域のキャプチャとスクロール結合を行います。",
+                    "開始します。このメッセージが閉じたあと、前面ウィンドウ付近を切り出し、スクロールバーを除いてスクロール結合します。",
                     ToastKind.Info,
                     StartToastDisplayDuration,
                     cancellationToken)
@@ -191,11 +244,20 @@ public class LongScreenshotService
 
                     reportProgress?.Invoke($"スクロール＆キャプチャ中... ({i + 1}/{maxScrolls})", (i * 100 / maxScrolls), false);
 
+                    if (!haveLockedCaptureRect)
+                    {
+                        lockedCaptureRect = ResolveCaptureRectangle(workArea);
+                        haveLockedCaptureRect = true;
+                    }
+
+                    var capRect = lockedCaptureRect;
                     var bmp = new Bitmap(capRect.Width, capRect.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
                     using (var gfx = Graphics.FromImage(bmp))
                     {
                         gfx.CopyFromScreen(capRect.X, capRect.Y, 0, 0, capRect.Size, CopyPixelOperation.SourceCopy);
                     }
+
+                    bmp = CropScrollbarChrome(bmp);
 
                     if (prevBmp == null)
                     {
