@@ -199,7 +199,7 @@
                 </Grid.ColumnDefinitions>
 
                 <Button Grid.Column="0"
-                        Content="📂 スクリプト読込..."
+                        Content="📂 スクリプト読み込み..."
                         MinWidth="120" Height="36" Padding="16,0"
                         Style="{DynamicResource ActionButtonStyle}"
                         Command="{Binding LoadCommand}" />

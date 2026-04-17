@@ -80,7 +80,7 @@ public partial class InputRecorderViewModel : ObservableObject, IDisposable
                 }
                 catch (Exception ex)
                 {
-                    _context?.ReportError($"長図キャプチャ失敗: {ex.Message}");
+                    _context?.ReportError($"長図のキャプチャに失敗しました: {ex.Message}");
                     _hookService.NotifyLongScreenshotCaptureEnded();
                 }
             });
@@ -114,13 +114,13 @@ public partial class InputRecorderViewModel : ObservableObject, IDisposable
                     System.Windows.Application.Current?.Dispatcher.Invoke(() =>
                     {
                         pending.ExtraPath = path;
-                        _context?.ReportSuccess($"長図キャプチャ完了: {path}");
+                        _context?.ReportSuccess($"長図のキャプチャが完了しました: {path}");
                     });
                 }
                 catch (Exception ex)
                 {
                     System.Windows.Application.Current?.Dispatcher.Invoke(() =>
-                        _context?.ReportError($"長図キャプチャ失敗: {ex.Message}"));
+                        _context?.ReportError($"長図のキャプチャに失敗しました: {ex.Message}"));
                 }
                 finally
                 {
@@ -185,7 +185,7 @@ public partial class InputRecorderViewModel : ObservableObject, IDisposable
         SaveCommand.NotifyCanExecuteChanged();
         ReplayCommand.NotifyCanExecuteChanged();
 
-        var msg = $"録画完了 (イベント数: {Events.Count})";
+        var msg = $"録画が完了しました（イベント数: {Events.Count}）";
         StatusMessage = msg;
         _context?.ReportSuccess(msg);
     }
@@ -196,6 +196,9 @@ public partial class InputRecorderViewModel : ObservableObject, IDisposable
         IsReplaying = true;
         StatusMessage = "▶ リプレイ中...";
         _context?.ReportProgress("リプレイ実行中...", 0, true);
+
+        if (System.Windows.Application.Current?.MainWindow != null)
+            System.Windows.Application.Current.MainWindow.WindowState = System.Windows.WindowState.Minimized;
 
         using var cts = new CancellationTokenSource();
         await Task.Delay(1000, cts.Token);
@@ -208,11 +211,17 @@ public partial class InputRecorderViewModel : ObservableObject, IDisposable
         }
         catch (Exception ex)
         {
-            StatusMessage = $"エラー: {ex.Message}";
-            _context?.ReportError($"リプレイエラー: {ex.Message}");
+            StatusMessage = $"エラーが発生しました: {ex.Message}";
+            _context?.ReportError($"リプレイ中にエラーが発生しました: {ex.Message}");
         }
         finally
         {
+            if (System.Windows.Application.Current?.MainWindow != null)
+            {
+                System.Windows.Application.Current.MainWindow.WindowState = System.Windows.WindowState.Normal;
+                System.Windows.Application.Current.MainWindow.Activate();
+            }
+
             IsReplaying = false;
         }
     }
@@ -232,13 +241,13 @@ public partial class InputRecorderViewModel : ObservableObject, IDisposable
             {
                 var json = JsonSerializer.Serialize(Events, JsonOptions);
                 await File.WriteAllTextAsync(dialog.FileName, json).ConfigureAwait(true);
-                StatusMessage = "保存完了";
+                StatusMessage = "保存が完了しました";
                 _context?.ReportSuccess("スクリプトの保存が完了しました。");
             }
             catch (Exception ex)
             {
-                StatusMessage = $"保存エラー: {ex.Message}";
-                _context?.ReportError($"保存エラー: {ex.Message}");
+                StatusMessage = $"保存に失敗しました: {ex.Message}";
+                _context?.ReportError($"スクリプトの保存に失敗しました: {ex.Message}");
             }
         }
     }
@@ -265,7 +274,7 @@ public partial class InputRecorderViewModel : ObservableObject, IDisposable
 
                     _hookService.LoadEvents(Events);
 
-                    var msg = $"読み込み完了 (イベント数: {Events.Count})";
+                    var msg = $"読み込みが完了しました（イベント数: {Events.Count}）";
                     StatusMessage = msg;
                     _context?.ReportSuccess(msg);
 
@@ -275,8 +284,8 @@ public partial class InputRecorderViewModel : ObservableObject, IDisposable
             }
             catch (Exception ex)
             {
-                StatusMessage = $"読込エラー: {ex.Message}";
-                _context?.ReportError($"読込エラー: {ex.Message}");
+                StatusMessage = $"読み込みエラー: {ex.Message}";
+                _context?.ReportError($"読み込みエラー: {ex.Message}");
             }
         }
     }
