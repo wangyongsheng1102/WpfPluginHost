@@ -71,8 +71,11 @@
 
 ### リリースビルド（Release）
 
-1. メインアプリの発行：
+1. メインアプリの発行（フレームワーク依存・配布先に .NET 8 Desktop Runtime が必要）：
    - `dotnet publish src/ShellApp/ShellApp.csproj -c Release -r win-x64 --self-contained false --output ./publish`
+   - ランタイムを同梱する（配布先にインストール不要・出力サイズ大）：
+   - `dotnet publish src/ShellApp/ShellApp.csproj -c Release -r win-x64 --self-contained true --output ./publish`
+   - または Visual Studio の発行プロファイル：`src/ShellApp/Properties/PublishProfiles/win-x64-selfcontained.pubxml`
 2. プラグインのビルド（必要な分）：
    - `dotnet build src/Plugins/Plugin.SampleA/Plugin.SampleA.csproj -c Release`
    - `dotnet build src/Plugins/Plugin.SampleB/Plugin.SampleB.csproj -c Release`
@@ -89,6 +92,12 @@
 発行ルートをすっきりさせたい場合（.NET ランタイム DLL を exe 横に大量に置きたくない）:
 - `dotnet publish ... -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true`（自己完結時は `--self-contained true` と併用可）
 - ランタイム DLL を手動で `runtime/` などに移すのは **非推奨**（ローダが解決できず起動失敗しやすい）
+
+### 発行後に exe をダブルクリックしても何も起きない場合
+
+- **フレームワーク依存**（`--self-contained false`）では、配布先 PC に **[.NET 8 Desktop Runtime（Windows x64）](https://dotnet.microsoft.com/download/dotnet/8.0)** が入っている必要があります。未インストールだとウィンドウが出ずに終了することがあります。
+- ランタイムを入れたくない場合は **`--self-contained true`** で再発行してください（上記コマンドまたは `Properties/PublishProfiles/win-x64-selfcontained.pubxml`）。
+- アプリが起動したあと .NET 側で未処理例外が出た場合、exe と同じフォルダに **`WPFPluginShell_startup_errors.log`** が追記されます（ランタイム自体が無い場合はこのログも作られません）。
 
 ### 本番デプロイの確認項目
 

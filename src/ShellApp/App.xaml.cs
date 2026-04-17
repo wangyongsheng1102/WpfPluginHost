@@ -1,5 +1,7 @@
-using System.Windows;
 using System.IO;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows;
 using ShellApp.Services;
 using ShellApp.ViewModels;
 using ShellApp.Views;
@@ -8,6 +10,9 @@ namespace ShellApp;
 
 public partial class App : Application
 {
+    private static readonly object StartupLogLock = new();
+    private const string StartupLogFileName = "WPFPluginShell_startup_errors.log";
+
     private PluginManager? _pluginManager;
     private PluginWatcherService? _watcherService;
     private ThemeService? _themeService;
@@ -15,29 +20,104 @@ public partial class App : Application
 
     protected override void OnStartup(StartupEventArgs e)
     {
-        base.OnStartup(e);
+        RegisterGlobalExceptionLogging();
 
-        _appConfigService = new AppConfigService();
-
-        var pluginRoot = ResolvePluginRoot();
-        Directory.CreateDirectory(pluginRoot);
-
-        _themeService = new ThemeService();
-        _themeService.ApplyTheme(_appConfigService.Config.IsDarkTheme);
-
-        var statusService = new GlobalStatusService(_appConfigService);
-
-        _pluginManager = new PluginManager(pluginRoot, statusService);
-        var vm = new MainWindowViewModel(_pluginManager, _themeService, statusService, _appConfigService);
-        _watcherService = new PluginWatcherService(pluginRoot, _pluginManager);
-        _watcherService.Start();
-
-        var window = new MainWindow
+        try
         {
-            DataContext = vm
+            base.OnStartup(e);
+
+            _appConfigService = new AppConfigService();
+
+            var pluginRoot = ResolvePluginRoot();
+            Directory.CreateDirectory(pluginRoot);
+
+            _themeService = new ThemeService();
+            _themeService.ApplyTheme(_appConfigService.Config.IsDarkTheme);
+
+            var statusService = new GlobalStatusService(_appConfigService);
+
+            _pluginManager = new PluginManager(pluginRoot, statusService);
+            var vm = new MainWindowViewModel(_pluginManager, _themeService, statusService, _appConfigService);
+            _watcherService = new PluginWatcherService(pluginRoot, _pluginManager);
+            _watcherService.Start();
+
+            var window = new MainWindow
+            {
+                DataContext = vm
+            };
+            MainWindow = window;
+            window.Show();
+        }
+        catch (Exception ex)
+        {
+            TryAppendStartupLog("OnStartup", ex);
+            try
+            {
+                MessageBox.Show(
+                    "起動に失敗しました。詳細は exe と同じフォルダの " + StartupLogFileName + " を確認してください。\n\n" + ex.Message,
+                    "WPFPluginShell",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+            }
+            catch
+            {
+                // MessageBox も失敗する環境ではログのみ
+            }
+
+            Shutdown(1);
+        }
+    }
+
+    private void RegisterGlobalExceptionLogging()
+    {
+        DispatcherUnhandledException += (_, args) =>
+        {
+            TryAppendStartupLog("DispatcherUnhandledException", args.Exception);
+            args.Handled = true;
+            try
+            {
+                MessageBox.Show(
+                    "未処理の UI スレッド例外が発生しました。詳細は " + StartupLogFileName + " を参照してください。\n\n" + args.Exception.Message,
+                    "WPFPluginShell",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+            }
+            catch
+            {
+            }
+
+            Shutdown(1);
         };
-        MainWindow = window;
-        window.Show();
+
+        AppDomain.CurrentDomain.UnhandledException += (_, args) =>
+        {
+            if (args.ExceptionObject is Exception ex)
+            {
+                TryAppendStartupLog("UnhandledException", ex);
+            }
+        };
+
+        TaskScheduler.UnobservedTaskException += (_, args) =>
+        {
+            TryAppendStartupLog("UnobservedTaskException", args.Exception);
+            args.SetObserved();
+        };
+    }
+
+    private static void TryAppendStartupLog(string source, Exception ex)
+    {
+        try
+        {
+            var path = Path.Combine(AppContext.BaseDirectory, StartupLogFileName);
+            var text = $"[{DateTimeOffset.Now:u}] {source}\n{ex}\n\n";
+            lock (StartupLogLock)
+            {
+                File.AppendAllText(path, text, Encoding.UTF8);
+            }
+        }
+        catch
+        {
+        }
     }
 
     protected override void OnExit(ExitEventArgs e)

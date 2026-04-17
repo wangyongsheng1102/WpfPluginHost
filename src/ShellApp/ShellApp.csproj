@@ -8,7 +8,8 @@
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
     <!-- .exe アイコンは csproj と同じフォルダ（src/ShellApp）に置く。無い場合はビルドを止めない -->
     <ApplicationIcon>toolbox_repair_box_tool_box_toolboxes_toolkit_icon_189326.ico</ApplicationIcon>
-    <AssemblyName>ツールボックス</AssemblyName>
+    <AssemblyName>WPFPluginShell</AssemblyName>
+    <!-- フレームワーク依存配布では配布先 PC に .NET 8 Desktop Runtime が必要。自己完結は README / Properties/PublishProfiles を参照。 -->
   </PropertyGroup>
 
   <ItemGroup>
@@ -24,6 +25,8 @@
     <ProjectReference Include="..\Plugins\Plugin.SampleB\Plugin.SampleB.csproj" ReferenceOutputAssembly="false" />
     <ProjectReference Include="..\Plugins\Plugin.PostgreCompare\Plugin.PostgreCompare.csproj" ReferenceOutputAssembly="false" />
     <ProjectReference Include="..\Plugins\Plugin.PixelCompare\Plugin.PixelCompare.csproj" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\Plugins\Plugin.ReviewCheck\Plugin.ReviewCheck.csproj" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\Plugins\Plugin.InputRecorder\Plugin.InputRecorder.csproj" ReferenceOutputAssembly="false" />
   </ItemGroup>
 
   <!-- 画像・フォント・SVG はすべてこのプロジェクト配下（src/ShellApp/Assets/...）に置くと Resource として埋め込まれる -->
