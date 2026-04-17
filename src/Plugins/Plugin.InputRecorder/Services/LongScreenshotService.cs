@@ -5,6 +5,8 @@ using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Forms;
 using System.Windows.Threading;
 
@@ -31,6 +33,139 @@ public class LongScreenshotService
     }
 
     private const uint MOUSEEVENTF_WHEEL = 0x0800;
+
+    private enum ToastKind
+    {
+        Info,
+        Warning,
+        Error
+    }
+
+    /// <summary>開始案内の表示時間。この間はスクロール・キャプチャを開始しない。</summary>
+    private static readonly TimeSpan StartToastDisplayDuration = TimeSpan.FromSeconds(2.5);
+
+    /// <summary>終了・エラー案内の表示時間（非同期表示のまま閉じるまで）。</summary>
+    private static readonly TimeSpan EndToastDisplayDuration = TimeSpan.FromSeconds(5);
+
+    private static Window CreateToastWindow(string title, string body, ToastKind kind)
+    {
+        System.Windows.Media.Color bg = kind switch
+        {
+            ToastKind.Error => System.Windows.Media.Color.FromArgb(245, 160, 45, 45),
+            ToastKind.Warning => System.Windows.Media.Color.FromArgb(245, 150, 95, 25),
+            _ => System.Windows.Media.Color.FromArgb(245, 38, 38, 42)
+        };
+
+        var border = new Border
+        {
+            Background = new System.Windows.Media.SolidColorBrush(bg),
+            CornerRadius = new CornerRadius(8),
+            Padding = new Thickness(14, 10, 14, 10),
+            MaxWidth = 400
+        };
+
+        var sp = new StackPanel();
+        sp.Children.Add(new TextBlock
+        {
+            Text = title,
+            Foreground = System.Windows.Media.Brushes.White,
+            FontSize = 14,
+            FontWeight = FontWeights.SemiBold,
+            TextWrapping = TextWrapping.Wrap
+        });
+        sp.Children.Add(new TextBlock
+        {
+            Text = body,
+            Foreground = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(236, 236, 236)),
+            FontSize = 12,
+            TextWrapping = TextWrapping.Wrap,
+            Margin = new Thickness(0, 8, 0, 0)
+        });
+        border.Child = sp;
+
+        var w = new Window
+        {
+            Content = border,
+            WindowStyle = WindowStyle.None,
+            AllowsTransparency = true,
+            Background = System.Windows.Media.Brushes.Transparent,
+            Topmost = true,
+            ShowInTaskbar = false,
+            ShowActivated = false,
+            ResizeMode = ResizeMode.NoResize,
+            SizeToContent = SizeToContent.WidthAndHeight
+        };
+
+        w.Loaded += (_, _) =>
+        {
+            w.UpdateLayout();
+            var wa = SystemParameters.WorkArea;
+            w.Left = wa.Right - w.ActualWidth - 16;
+            w.Top = wa.Bottom - w.ActualHeight - 16;
+        };
+
+        return w;
+    }
+
+    /// <summary>トーストを閉じるまで待ってから後続処理（スクロール開始）に進む。</summary>
+    private static async Task ShowCaptureToastAndWaitAsync(
+        string title,
+        string body,
+        ToastKind kind,
+        TimeSpan displayDuration,
+        CancellationToken cancellationToken)
+    {
+        var disp = System.Windows.Application.Current?.Dispatcher;
+        if (disp is null) return;
+
+        var closed = new TaskCompletionSource<bool>();
+
+        await disp.InvokeAsync(() =>
+        {
+            var w = CreateToastWindow(title, body, kind);
+            void SignalDone()
+            {
+                closed.TrySetResult(true);
+            }
+
+            w.Closed += (_, _) => SignalDone();
+            w.Show();
+            var timer = new DispatcherTimer { Interval = displayDuration };
+            timer.Tick += (_, _) =>
+            {
+                timer.Stop();
+                w.Close();
+            };
+            timer.Start();
+        });
+
+        await closed.Task.WaitAsync(cancellationToken).ConfigureAwait(false);
+    }
+
+    /// <summary>トーストを出してそのまま進む（終了・エラー用）。</summary>
+    private static void ShowCaptureToast(string title, string body, ToastKind kind, TimeSpan autoClose)
+    {
+        var disp = System.Windows.Application.Current?.Dispatcher;
+        if (disp is null) return;
+
+        void ShowCore()
+        {
+            var w = CreateToastWindow(title, body, kind);
+            w.Show();
+            var closeTimer = new DispatcherTimer { Interval = autoClose };
+            closeTimer.Tick += (_, _) =>
+            {
+                closeTimer.Stop();
+                w.Close();
+            };
+            closeTimer.Start();
+        }
+
+        if (disp.CheckAccess())
+            ShowCore();
+        else
+            disp.BeginInvoke(ShowCore);
+    }
 
     /// <summary>
     /// 主作業領域と前面ウィンドウの交差を取り、ブラウザ等のクライアント付近だけを切り出す（取得できない場合は作業領域全体）。
@@ -66,49 +201,11 @@ public class LongScreenshotService
         if (nw < 16 || nh < 16)
             return src;
 
-        var dst = new Bitmap(nw, nh, PixelFormat.Format32bppArgb);
+        var dst = new Bitmap(nw, nh, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
         using (var g = Graphics.FromImage(dst))
             g.DrawImage(src, 0, 0, new Rectangle(0, 0, nw, nh), GraphicsUnit.Pixel);
         src.Dispose();
         return dst;
-    }
-
-    /// <summary>
-    /// トレイのバルーン通知（<see cref="NotifyIcon.ShowBalloonTip"/>）。
-    /// キャプチャはバックグラウンドスレッドから呼ばれることが多いため、WPF の Dispatcher 上で表示する。
-    /// </summary>
-    private static void ShowTrayBalloon(string title, string text, ToolTipIcon icon)
-    {
-        var disp = System.Windows.Application.Current?.Dispatcher;
-        if (disp is null) return;
-
-        void ShowCore()
-        {
-            var ni = new NotifyIcon
-            {
-                Visible = true,
-                Icon = icon == ToolTipIcon.Error ? SystemIcons.Error : SystemIcons.Information,
-                Text = title
-            };
-            ni.ShowBalloonTip(5000, title, text, icon);
-
-            var timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(6) };
-            EventHandler? tick = null;
-            tick = (_, _) =>
-            {
-                timer.Stop();
-                timer.Tick -= tick!;
-                ni.Visible = false;
-                ni.Dispose();
-            };
-            timer.Tick += tick;
-            timer.Start();
-        }
-
-        if (disp.CheckAccess())
-            ShowCore();
-        else
-            disp.BeginInvoke(ShowCore);
     }
 
     public async Task CaptureLongScreenshotAsync(string outputPath, Action<string, int, bool>? reportProgress = null, CancellationToken cancellationToken = default)
@@ -128,10 +225,13 @@ public class LongScreenshotService
 
         try
         {
-            ShowTrayBalloon(
-                "長図キャプチャ",
-                "開始しました。前面ウィンドウ付近を切り出し、スクロールバー帯を除いて結合します。しばらくお待ちください。",
-                ToolTipIcon.Info);
+            await ShowCaptureToastAndWaitAsync(
+                    "長図キャプチャ",
+                    "開始します。このメッセージが閉じたあと、前面ウィンドウ付近を切り出してスクロール結合を行います。",
+                    ToastKind.Info,
+                    StartToastDisplayDuration,
+                    cancellationToken)
+                .ConfigureAwait(false);
 
             try
             {
@@ -145,7 +245,7 @@ public class LongScreenshotService
 
                     reportProgress?.Invoke($"スクロール＆キャプチャ中... ({i + 1}/{maxScrolls})", (i * 100 / maxScrolls), false);
 
-                    var bmp = new Bitmap(capRect.Width, capRect.Height, PixelFormat.Format32bppArgb);
+                    var bmp = new Bitmap(capRect.Width, capRect.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
                     using (var gfx = Graphics.FromImage(bmp))
                     {
                         gfx.CopyFromScreen(capRect.X, capRect.Y, 0, 0, capRect.Size, CopyPixelOperation.SourceCopy);
@@ -193,7 +293,7 @@ public class LongScreenshotService
                 if (totalHeight > 0)
                 {
                     int outW = capturedParts[0].Width;
-                    using var finalBmp = new Bitmap(outW, totalHeight, PixelFormat.Format32bppArgb);
+                    using var finalBmp = new Bitmap(outW, totalHeight, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
                     using var finalGfx = Graphics.FromImage(finalBmp);
 
                     int currentY = 0;
@@ -222,7 +322,7 @@ public class LongScreenshotService
             catch (Exception ex)
             {
                 endBalloonHandled = true;
-                ShowTrayBalloon("長図キャプチャ", $"エラーにより終了しました。{ex.Message}", ToolTipIcon.Error);
+                ShowCaptureToast("長図キャプチャ", $"エラーにより終了しました。{ex.Message}", ToastKind.Error, EndToastDisplayDuration);
                 throw;
             }
         }
@@ -234,14 +334,15 @@ public class LongScreenshotService
             if (!endBalloonHandled)
             {
                 if (saved)
-                    ShowTrayBalloon("長図キャプチャ", "終了しました。長図を保存しました。", ToolTipIcon.Info);
+                    ShowCaptureToast("長図キャプチャ", "終了しました。長図を保存しました。", ToastKind.Info, EndToastDisplayDuration);
                 else if (cancelled)
-                    ShowTrayBalloon("長図キャプチャ", "終了しました。キャンセルされました。", ToolTipIcon.Warning);
+                    ShowCaptureToast("長図キャプチャ", "終了しました。キャンセルされました。", ToastKind.Warning, EndToastDisplayDuration);
                 else
-                    ShowTrayBalloon(
+                    ShowCaptureToast(
                         "長図キャプチャ",
                         "終了しました。スクロールの重なりが十分でないため、長図は保存されませんでした。",
-                        ToolTipIcon.Warning);
+                        ToastKind.Warning,
+                        EndToastDisplayDuration);
             }
         }
     }
@@ -260,8 +361,8 @@ public class LongScreenshotService
         if (height < 400 || width < 16)
             return 0;
 
-        var prevData = prev.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
-        var currData = curr.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
+        var prevData = prev.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+        var currData = curr.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
         try
         {
             int rowStride = Math.Abs(prevData.Stride);
