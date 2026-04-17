@@ -195,19 +195,27 @@ public partial class InputRecorderViewModel : ObservableObject, IDisposable
     {
         IsReplaying = true;
         StatusMessage = "▶ リプレイ中...";
-        _context?.ReportProgress("リプレイ実行中...", 0, true);
+        _context?.ReportProgress("リプレイを開始します。Escで中断できます。3秒後に実行します...", 0, true);
 
         if (System.Windows.Application.Current?.MainWindow != null)
             System.Windows.Application.Current.MainWindow.WindowState = System.Windows.WindowState.Minimized;
 
         using var cts = new CancellationTokenSource();
-        await Task.Delay(1000, cts.Token);
+        void HandleReplayEscapePressed() => cts.Cancel();
+        _hookService.OnReplayEscapePressed += HandleReplayEscapePressed;
 
         try
         {
+            await Task.Delay(3000, cts.Token);
+            _context?.ReportProgress("リプレイ実行中...（Escで中断）", 0, true);
             await _hookService.ReplayAsync(Events, cts.Token);
             StatusMessage = "リプレイ完了";
             _context?.ReportSuccess("リプレイが完了しました。");
+        }
+        catch (OperationCanceledException)
+        {
+            StatusMessage = "リプレイを中断しました";
+            _context?.ReportProgress("Escが押されたため、リプレイを中断しました。", 100, false);
         }
         catch (Exception ex)
         {
@@ -216,6 +224,7 @@ public partial class InputRecorderViewModel : ObservableObject, IDisposable
         }
         finally
         {
+            _hookService.OnReplayEscapePressed -= HandleReplayEscapePressed;
             if (System.Windows.Application.Current?.MainWindow != null)
             {
                 System.Windows.Application.Current.MainWindow.WindowState = System.Windows.WindowState.Normal;

@@ -20,6 +20,7 @@ public class InputHookService : IDisposable
     private const int WM_KEYUP = 0x0101;
     private const int WM_SYSKEYDOWN = 0x0104;
     private const int WM_SYSKEYUP = 0x0105;
+    private const uint LLKHF_INJECTED = 0x10;
 
     private const int WM_MOUSEMOVE = 0x0200;
     private const int WM_LBUTTONDOWN = 0x0201;
@@ -29,6 +30,7 @@ public class InputHookService : IDisposable
     private const int WM_MBUTTONDOWN = 0x0207;
     private const int WM_MBUTTONUP = 0x0208;
     private const int WM_MOUSEWHEEL = 0x020A;
+    private const uint LLMHF_INJECTED = 0x00000001;
 
     private const uint INPUT_MOUSE = 0;
     private const uint INPUT_KEYBOARD = 1;
@@ -153,6 +155,7 @@ public class InputHookService : IDisposable
     private bool _longScreenshotBusy;
 
     public event Action? OnEscapePressed;
+    public event Action? OnReplayEscapePressed;
     public event Action<string>? OnScreenshotCaptured;
     /// <summary>録画中の F10。引数は既に <see cref="_recordedEvents"/> に追加済みのイベント（完了後に ExtraPath を埋める）。</summary>
     public event Action<InputEvent>? OnLongScreenshotRecordingRequested;
@@ -207,6 +210,11 @@ public class InputHookService : IDisposable
     public async Task ReplayAsync(IEnumerable<InputEvent> events, CancellationToken cancellationToken)
     {
         if (IsRecording || IsReplaying) return;
+
+        _keyboardProc ??= KeyboardHookCallback;
+        IntPtr moduleHandle = GetModuleHandle(Process.GetCurrentProcess().MainModule?.ModuleName);
+        _keyboardHookId = SetWindowsHookEx(WH_KEYBOARD_LL, _keyboardProc, moduleHandle, 0);
+
         IsReplaying = true;
 
         long lastTime = 0;
@@ -226,6 +234,7 @@ public class InputHookService : IDisposable
         }
         finally
         {
+            RemoveKeyboardHook();
             IsReplaying = false;
         }
     }
@@ -467,6 +476,10 @@ public class InputHookService : IDisposable
             }
             else if (wP == WM_MOUSEWHEEL)
             {
+                // 长图截图期间会通过 mouse_event 注入滚轮；这些内部事件不应污染录制脚本
+                if (_longScreenshotBusy && (hookStruct.flags & LLMHF_INJECTED) != 0)
+                    return CallNextHookEx(_mouseHookId, nCode, wParam, lParam);
+
                 _lastMoveSampleMs = t;
                 _lastMoveSampleX = hookStruct.pt.x;
                 _lastMoveSampleY = hookStruct.pt.y;
@@ -547,6 +560,14 @@ public class InputHookService : IDisposable
                             KeyCode = (int)hookStruct.vkCode
                         });
                     }
+                }
+            }
+            else if (IsReplaying)
+            {
+                if (hookStruct.vkCode == 27 && (wP is WM_KEYDOWN or WM_SYSKEYDOWN) && (hookStruct.flags & LLKHF_INJECTED) == 0)
+                {
+                    OnReplayEscapePressed?.Invoke();
+                    return (IntPtr)1;
                 }
             }
         }
