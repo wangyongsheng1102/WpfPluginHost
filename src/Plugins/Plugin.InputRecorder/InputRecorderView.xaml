@@ -112,13 +112,16 @@
                                 <ColumnDefinition Width="12" />
                                 <ColumnDefinition Width="Auto" SharedSizeGroup="IrY" />
                                 <ColumnDefinition Width="12" />
+                                <ColumnDefinition Width="Auto" SharedSizeGroup="IrDetail" />
+                                <ColumnDefinition Width="12" />
                                 <ColumnDefinition Width="Auto" SharedSizeGroup="IrKey" />
                             </Grid.ColumnDefinitions>
                             <TextBlock Grid.Column="0" Text="イベント" Style="{DynamicResource CaptionTextStyle}" VerticalAlignment="Center" />
                             <TextBlock Grid.Column="2" Text="時間 (ms)" Style="{DynamicResource CaptionTextStyle}" VerticalAlignment="Center" />
                             <TextBlock Grid.Column="4" Text="X座標" Style="{DynamicResource CaptionTextStyle}" VerticalAlignment="Center" />
                             <TextBlock Grid.Column="6" Text="Y座標" Style="{DynamicResource CaptionTextStyle}" VerticalAlignment="Center" />
-                            <TextBlock Grid.Column="8" Text="キーコード" Style="{DynamicResource CaptionTextStyle}" VerticalAlignment="Center" />
+                            <TextBlock Grid.Column="8" Text="キー・操作" Style="{DynamicResource CaptionTextStyle}" VerticalAlignment="Center" />
+                            <TextBlock Grid.Column="10" Text="コード (raw)" Style="{DynamicResource CaptionTextStyle}" VerticalAlignment="Center" />
                         </Grid>
 
                         <ListBox Grid.Row="1"
@@ -149,6 +152,8 @@
                                                 <ColumnDefinition Width="12" />
                                                 <ColumnDefinition Width="Auto" SharedSizeGroup="IrY" />
                                                 <ColumnDefinition Width="12" />
+                                                <ColumnDefinition Width="Auto" SharedSizeGroup="IrDetail" />
+                                                <ColumnDefinition Width="12" />
                                                 <ColumnDefinition Width="Auto" SharedSizeGroup="IrKey" />
                                             </Grid.ColumnDefinitions>
                                             <TextBlock Grid.Column="0"
@@ -171,9 +176,14 @@
                                                        Style="{DynamicResource BodyTextStyle}"
                                                        Foreground="{DynamicResource SecondaryTextBrush}" />
                                             <TextBlock Grid.Column="8"
-                                                       Text="{Binding KeyCode, StringFormat=Key: \{0\}}"
+                                                       Text="{Binding KeyOrActionDescription}"
                                                        VerticalAlignment="Center"
                                                        Style="{DynamicResource BodyTextStyle}" />
+                                            <TextBlock Grid.Column="10"
+                                                       Text="{Binding KeyCode}"
+                                                       VerticalAlignment="Center"
+                                                       Style="{DynamicResource BodyTextStyle}"
+                                                       Foreground="{DynamicResource SecondaryTextBrush}" />
                                         </Grid>
                                     </Border>
                                 </DataTemplate>

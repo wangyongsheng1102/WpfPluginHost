@@ -30,9 +30,14 @@ public class InputEvent
     /// <summary>
     /// キー: 仮想キーコード。マウスボタン: 1=左,2=右,3=中。
     /// ホイール: WM_MOUSEWHEEL の符号付きデルタ（通常 ±120 の倍数）。
+    /// リプレイ・JSON 入出力はこの整数のみを参照する（表示用の <see cref="KeyOrActionDescription"/> は使わない）。
     /// </summary>
     public int KeyCode { get; set; }
 
     /// <summary>スクリーンショット・長図の保存パス（録画完了時点で確定）</summary>
     public string? ExtraPath { get; set; }
+
+    /// <summary>一覧用の人可読ラベル（シリアライズしない）</summary>
+    [JsonIgnore]
+    public string KeyOrActionDescription => InputEventDisplay.FormatKeyOrAction(this);
 }
