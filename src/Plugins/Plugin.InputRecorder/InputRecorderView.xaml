@@ -16,7 +16,6 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
         <!-- オプション（PixelCompare 上部カードと同系） -->
@@ -185,20 +184,8 @@
             </Grid>
         </Border>
 
-        <!-- ステータス・メッセージ（録画／リプレイ／入出力の共通表示） -->
-        <Border Grid.Row="2" Margin="0,0,0,12" Padding="14,12"
-                Background="{DynamicResource NavBackgroundBrush}"
-                BorderBrush="{DynamicResource BorderSubtleBrush}"
-                BorderThickness="1"
-                CornerRadius="{StaticResource PanelRadius}">
-            <TextBlock Style="{DynamicResource BodyTextStyle}"
-                       Foreground="{DynamicResource PrimaryTextBrush}"
-                       Text="{Binding StatusMessage}"
-                       TextWrapping="Wrap" />
-        </Border>
-
         <!-- アクションバー -->
-        <Border Grid.Row="3" Padding="20,14"
+        <Border Grid.Row="2" Padding="20,14"
                 Background="{DynamicResource CardElevatedBrush}"
                 BorderBrush="{DynamicResource BorderSubtleBrush}"
                 BorderThickness="1"
