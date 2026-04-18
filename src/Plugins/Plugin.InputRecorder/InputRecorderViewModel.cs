@@ -135,9 +135,9 @@ public partial class InputRecorderViewModel : ObservableObject, IDisposable
         Events.Clear();
         IsRecording = true;
 
-        var msg = "録画中... (Escで終了・復元、F9で画面キャプチャ、F10で長図キャプチャ)";
-        StatusMessage = "● " + msg;
-        _context?.ReportProgress(msg, 0, true);
+        var detail = "録画中… Escで終了・復元、F9で画面キャプチャ、F10で長図キャプチャ";
+        StatusMessage = "録画を開始しました。" + Environment.NewLine + detail;
+        _context?.ReportProgress("録画を開始しました。" + detail, 0, true);
 
         if (System.Windows.Application.Current?.MainWindow != null)
         {
@@ -150,11 +150,20 @@ public partial class InputRecorderViewModel : ObservableObject, IDisposable
             IsRecording = false;
             StatusMessage = "フックの開始に失敗しました（管理者権限やセキュリティソフトを確認してください）";
             _context?.ReportError(StatusMessage);
+            DesktopCornerToast.Show("マクロ録画", StatusMessage, DesktopCornerToastKind.Error, DesktopCornerToast.EndDisplayDuration);
             if (System.Windows.Application.Current?.MainWindow != null)
             {
                 System.Windows.Application.Current.MainWindow.WindowState = System.Windows.WindowState.Normal;
                 System.Windows.Application.Current.MainWindow.Activate();
             }
+        }
+        else
+        {
+            DesktopCornerToast.Show(
+                "マクロ録画",
+                "開始しました。Escで終了・復元、F9で画面キャプチャ、F10で長図キャプチャ。",
+                DesktopCornerToastKind.Info,
+                DesktopCornerToast.StartDisplayDuration);
         }
     }
 
@@ -180,17 +189,23 @@ public partial class InputRecorderViewModel : ObservableObject, IDisposable
         SaveCommand.NotifyCanExecuteChanged();
         ReplayCommand.NotifyCanExecuteChanged();
 
-        var msg = $"録画が完了しました（イベント数: {Events.Count}）";
+        var msg = $"録画を終了しました。イベント数: {Events.Count}";
         StatusMessage = msg;
         _context?.ReportSuccess(msg);
+        DesktopCornerToast.Show("マクロ録画", $"終了しました。イベント数: {Events.Count}", DesktopCornerToastKind.Info, DesktopCornerToast.EndDisplayDuration);
     }
 
     [RelayCommand(CanExecute = nameof(CanReplay))]
     private async Task ReplayAsync()
     {
         IsReplaying = true;
-        StatusMessage = "▶ リプレイ中...";
-        _context?.ReportProgress("リプレイを開始します。Escで中断できます。3秒後に実行します...", 0, true);
+        StatusMessage = "リプレイを開始しました。Escで中断できます。3秒後に実行します…";
+        _context?.ReportProgress(StatusMessage, 0, true);
+        DesktopCornerToast.Show(
+            "マクロリプレイ",
+            "開始しました。Escで中断できます。3秒後に実行します。",
+            DesktopCornerToastKind.Info,
+            DesktopCornerToast.StartDisplayDuration);
 
         if (System.Windows.Application.Current?.MainWindow != null)
             System.Windows.Application.Current.MainWindow.WindowState = System.Windows.WindowState.Minimized;
@@ -202,20 +217,24 @@ public partial class InputRecorderViewModel : ObservableObject, IDisposable
         try
         {
             await Task.Delay(3000, cts.Token);
-            _context?.ReportProgress("リプレイ実行中...（Escで中断）", 0, true);
+            StatusMessage = "リプレイ実行中…（Escで中断）";
+            _context?.ReportProgress(StatusMessage, 0, true);
             await _hookService.ReplayAsync(Events, cts.Token);
-            StatusMessage = "リプレイ完了";
-            _context?.ReportSuccess("リプレイが完了しました。");
+            StatusMessage = "リプレイを終了しました。正常に完了しました。";
+            _context?.ReportSuccess(StatusMessage);
+            DesktopCornerToast.Show("マクロリプレイ", "終了しました。正常に完了しました。", DesktopCornerToastKind.Info, DesktopCornerToast.EndDisplayDuration);
         }
         catch (OperationCanceledException)
         {
-            StatusMessage = "リプレイを中断しました";
-            _context?.ReportProgress("Escが押されたため、リプレイを中断しました。", 100, false);
+            StatusMessage = "リプレイを終了しました。Escにより中断されました。";
+            _context?.ReportProgress(StatusMessage, 100, false);
+            DesktopCornerToast.Show("マクロリプレイ", "終了しました。Escにより中断されました。", DesktopCornerToastKind.Warning, DesktopCornerToast.EndDisplayDuration);
         }
         catch (Exception ex)
         {
-            StatusMessage = $"エラーが発生しました: {ex.Message}";
+            StatusMessage = $"リプレイを終了しました。エラー: {ex.Message}";
             _context?.ReportError($"リプレイ中にエラーが発生しました: {ex.Message}");
+            DesktopCornerToast.Show("マクロリプレイ", $"終了しました。エラー: {ex.Message}", DesktopCornerToastKind.Error, DesktopCornerToast.EndDisplayDuration);
         }
         finally
         {

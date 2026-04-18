@@ -5,10 +5,7 @@ using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Forms;
-using System.Windows.Threading;
 
 namespace Plugin.InputRecorder.Services;
 
@@ -89,139 +86,6 @@ public class LongScreenshotService
         return dst;
     }
 
-    private enum ToastKind
-    {
-        Info,
-        Warning,
-        Error
-    }
-
-    /// <summary>開始案内の表示時間。この間はスクロール・キャプチャを開始しない。</summary>
-    private static readonly TimeSpan StartToastDisplayDuration = TimeSpan.FromSeconds(2.5);
-
-    /// <summary>終了・エラー案内の表示時間（非同期表示のまま閉じるまで）。</summary>
-    private static readonly TimeSpan EndToastDisplayDuration = TimeSpan.FromSeconds(5);
-
-    private static Window CreateToastWindow(string title, string body, ToastKind kind)
-    {
-        System.Windows.Media.Color bg = kind switch
-        {
-            ToastKind.Error => System.Windows.Media.Color.FromArgb(245, 160, 45, 45),
-            ToastKind.Warning => System.Windows.Media.Color.FromArgb(245, 150, 95, 25),
-            _ => System.Windows.Media.Color.FromArgb(245, 38, 38, 42)
-        };
-
-        var border = new Border
-        {
-            Background = new System.Windows.Media.SolidColorBrush(bg),
-            CornerRadius = new CornerRadius(8),
-            Padding = new Thickness(14, 10, 14, 10),
-            MaxWidth = 400
-        };
-
-        var sp = new StackPanel();
-        sp.Children.Add(new TextBlock
-        {
-            Text = title,
-            Foreground = System.Windows.Media.Brushes.White,
-            FontSize = 14,
-            FontWeight = FontWeights.SemiBold,
-            TextWrapping = TextWrapping.Wrap
-        });
-        sp.Children.Add(new TextBlock
-        {
-            Text = body,
-            Foreground = new System.Windows.Media.SolidColorBrush(System.Windows.Media.Color.FromRgb(236, 236, 236)),
-            FontSize = 12,
-            TextWrapping = TextWrapping.Wrap,
-            Margin = new Thickness(0, 8, 0, 0)
-        });
-        border.Child = sp;
-
-        var w = new Window
-        {
-            Content = border,
-            WindowStyle = WindowStyle.None,
-            AllowsTransparency = true,
-            Background = System.Windows.Media.Brushes.Transparent,
-            Topmost = true,
-            ShowInTaskbar = false,
-            ShowActivated = false,
-            ResizeMode = ResizeMode.NoResize,
-            SizeToContent = SizeToContent.WidthAndHeight
-        };
-
-        w.Loaded += (_, _) =>
-        {
-            w.UpdateLayout();
-            var wa = SystemParameters.WorkArea;
-            w.Left = wa.Right - w.ActualWidth - 16;
-            w.Top = wa.Bottom - w.ActualHeight - 16;
-        };
-
-        return w;
-    }
-
-    /// <summary>トーストを閉じるまで待ってから後続処理（スクロール開始）に進む。</summary>
-    private static async Task ShowCaptureToastAndWaitAsync(
-        string title,
-        string body,
-        ToastKind kind,
-        TimeSpan displayDuration,
-        CancellationToken cancellationToken)
-    {
-        var disp = System.Windows.Application.Current?.Dispatcher;
-        if (disp is null) return;
-
-        var closed = new TaskCompletionSource<bool>();
-
-        await disp.InvokeAsync(() =>
-        {
-            var w = CreateToastWindow(title, body, kind);
-            void SignalDone()
-            {
-                closed.TrySetResult(true);
-            }
-
-            w.Closed += (_, _) => SignalDone();
-            w.Show();
-            var timer = new DispatcherTimer { Interval = displayDuration };
-            timer.Tick += (_, _) =>
-            {
-                timer.Stop();
-                w.Close();
-            };
-            timer.Start();
-        });
-
-        await closed.Task.WaitAsync(cancellationToken).ConfigureAwait(false);
-    }
-
-    /// <summary>トーストを出してそのまま進む（終了・エラー用）。</summary>
-    private static void ShowCaptureToast(string title, string body, ToastKind kind, TimeSpan autoClose)
-    {
-        var disp = System.Windows.Application.Current?.Dispatcher;
-        if (disp is null) return;
-
-        void ShowCore()
-        {
-            var w = CreateToastWindow(title, body, kind);
-            w.Show();
-            var closeTimer = new DispatcherTimer { Interval = autoClose };
-            closeTimer.Tick += (_, _) =>
-            {
-                closeTimer.Stop();
-                w.Close();
-            };
-            closeTimer.Start();
-        }
-
-        if (disp.CheckAccess())
-            ShowCore();
-        else
-            disp.BeginInvoke(ShowCore);
-    }
-
     public async Task CaptureLongScreenshotAsync(string outputPath, Action<string, int, bool>? reportProgress = null, CancellationToken cancellationToken = default)
     {
         var workArea = ResolvePreferredWorkArea();
@@ -242,11 +106,11 @@ public class LongScreenshotService
 
         try
         {
-            await ShowCaptureToastAndWaitAsync(
+            await DesktopCornerToast.ShowAndWaitAsync(
                     "長図キャプチャ",
                     "開始します。このメッセージが閉じたあと、前面ウィンドウ付近を切り出し、スクロールバーを除いてスクロール結合します。",
-                    ToastKind.Info,
-                    StartToastDisplayDuration,
+                    DesktopCornerToastKind.Info,
+                    DesktopCornerToast.StartDisplayDuration,
                     cancellationToken)
                 .ConfigureAwait(false);
 
@@ -344,7 +208,7 @@ public class LongScreenshotService
             catch (Exception ex)
             {
                 endBalloonHandled = true;
-                ShowCaptureToast("長図キャプチャ", $"エラーにより終了しました。{ex.Message}", ToastKind.Error, EndToastDisplayDuration);
+                DesktopCornerToast.Show("長図キャプチャ", $"エラーにより終了しました。{ex.Message}", DesktopCornerToastKind.Error, DesktopCornerToast.EndDisplayDuration);
                 throw;
             }
         }
@@ -356,15 +220,15 @@ public class LongScreenshotService
             if (!endBalloonHandled)
             {
                 if (saved)
-                    ShowCaptureToast("長図キャプチャ", "終了しました。長図を保存しました。", ToastKind.Info, EndToastDisplayDuration);
+                    DesktopCornerToast.Show("長図キャプチャ", "終了しました。長図を保存しました。", DesktopCornerToastKind.Info, DesktopCornerToast.EndDisplayDuration);
                 else if (cancelled)
-                    ShowCaptureToast("長図キャプチャ", "終了しました。キャンセルされました。", ToastKind.Warning, EndToastDisplayDuration);
+                    DesktopCornerToast.Show("長図キャプチャ", "終了しました。キャンセルされました。", DesktopCornerToastKind.Warning, DesktopCornerToast.EndDisplayDuration);
                 else
-                    ShowCaptureToast(
+                    DesktopCornerToast.Show(
                         "長図キャプチャ",
                         "終了しました。スクロールの重なりが十分でないため、長図は保存されませんでした。",
-                        ToastKind.Warning,
-                        EndToastDisplayDuration);
+                        DesktopCornerToastKind.Warning,
+                        DesktopCornerToast.EndDisplayDuration);
             }
         }
     }
