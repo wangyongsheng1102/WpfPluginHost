@@ -16,6 +16,9 @@
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2">
       <ExcludeAssets>runtime</ExcludeAssets>
     </PackageReference>
+    <PackageReference Include="SharpVectors.Wpf" Version="1.8.5">
+      <ExcludeAssets>runtime</ExcludeAssets>
+    </PackageReference>
     <PackageReference Include="Microsoft.Office.Interop.Excel" Version="16.0.18925.20022">
     </PackageReference>
     <Reference Include="Microsoft.Office.Interop.Excel">
