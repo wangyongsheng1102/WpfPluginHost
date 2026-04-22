@@ -44,6 +44,8 @@ public partial class InputRecorderViewModel : ObservableObject, IDisposable
     private string _statusText = string.Empty;
 
     [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(ReplayCommand))]
+    [NotifyCanExecuteChangedFor(nameof(SaveCommand))]
     private int _eventCount;
 
     public ObservableCollection<InputEventDisplay> DisplayEvents { get; } = new();
