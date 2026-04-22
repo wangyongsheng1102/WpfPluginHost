@@ -1,4 +1,4 @@
-<UserControl x:Class="Plugin.SampleA.SampleAView"
+<UserControl x:Class="Plugin.ExcelFormatter.ExcelFormatterView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:abstractions="clr-namespace:Plugin.Abstractions;assembly=Plugin.Abstractions"

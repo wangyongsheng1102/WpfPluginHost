@@ -11,7 +11,7 @@ using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Excel = Microsoft.Office.Interop.Excel;
 
-namespace Plugin.SampleA;
+namespace Plugin.ExcelFormatter;
 
 public partial class ExcelFileItem : ObservableObject
 {
@@ -27,12 +27,12 @@ public partial class ExcelFileItem : ObservableObject
     private string? _statusDetail;
 }
 
-public partial class SampleAViewModel : ObservableObject
+public partial class ExcelFormatterViewModel : ObservableObject
 {
     private readonly IPluginContext? _context;
     private bool _suppressSelectAllSync;
 
-    public SampleAViewModel(IPluginContext? context = null)
+    public ExcelFormatterViewModel(IPluginContext? context = null)
     {
         _context = context;
     }

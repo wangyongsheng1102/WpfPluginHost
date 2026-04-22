@@ -9,7 +9,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ShellApp", "src\ShellApp\Sh
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plugin.Abstractions", "src\Plugin.Abstractions\Plugin.Abstractions.csproj", "{1BD1C9BF-6A60-40B1-9630-3BCDB92D98C5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plugin.SampleA", "src\Plugins\Plugin.SampleA\Plugin.SampleA.csproj", "{437B694F-5EC9-4267-A2BB-3D8C02F541F5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plugin.ExcelFormatter", "src\Plugins\Plugin.ExcelFormatter\Plugin.ExcelFormatter.csproj", "{437B694F-5EC9-4267-A2BB-3D8C02F541F5}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plugin.SampleB", "src\Plugins\Plugin.SampleB\Plugin.SampleB.csproj", "{9E6A653F-58DC-41C6-A2C2-0629D15A7307}"
 EndProject
