@@ -235,7 +235,7 @@ public class LongScreenshotService
 
     /// <summary>
     /// 前フレームと現フレームの縦スクロール量を、中央帯の画素差分で推定する。
-    /// LockBits 後は <see cref="Marshal.Copy"/> でマネージ配列へ取り込み、unsafe なしで同じ比較を行う。
+    /// Parallel.For で検索範囲を並列化し、共有の最小差分で早期打ち切りを行う。
     /// </summary>
     private static int FindScrollOffset(Bitmap prev, Bitmap curr)
     {
@@ -269,39 +269,50 @@ public class LongScreenshotService
             int rowCmpBytes = cmpWidth * bytesPerPixel;
 
             int bestOffset = 0;
-            int minDiff = int.MaxValue;
+            int globalMinDiff = int.MaxValue;
+            var lockObj = new object();
 
-            for (int searchY = 0; searchY <= refY; searchY++)
+            // Pre-compute reference slice row offsets
+            var refRowOffsets = new int[sliceHeight];
+            for (int y = 0; y < sliceHeight; y++)
+                refRowOffsets[y] = (refY + y) * rowStride + startOffset;
+
+            Parallel.For(0, refY + 1, (searchY, loopState) =>
             {
+                var currentMin = Volatile.Read(ref globalMinDiff);
                 int diff = 0;
                 for (int y = 0; y < sliceHeight; y++)
                 {
-                    int iPrev = (refY + y) * rowStride + startOffset;
+                    int iPrev = refRowOffsets[y];
                     int iCurr = (searchY + y) * rowStride + startOffset;
                     for (int xb = 0; xb < rowCmpBytes; xb += 4)
                     {
                         diff += Math.Abs(prevBytes[iPrev + xb] - currBytes[iCurr + xb]) +
                                 Math.Abs(prevBytes[iPrev + xb + 1] - currBytes[iCurr + xb + 1]) +
                                 Math.Abs(prevBytes[iPrev + xb + 2] - currBytes[iCurr + xb + 2]);
-                        if (diff > minDiff)
-                            break;
+                        if (diff > currentMin)
+                            goto nextSearch;
                     }
 
-                    if (diff > minDiff)
-                        break;
+                    if (diff > currentMin)
+                        goto nextSearch;
                 }
 
-                if (diff < minDiff)
+                lock (lockObj)
                 {
-                    minDiff = diff;
-                    bestOffset = refY - searchY;
-                    if (diff == 0)
-                        break;
+                    if (diff < globalMinDiff)
+                    {
+                        globalMinDiff = diff;
+                        bestOffset = refY - searchY;
+                        if (diff == 0)
+                            loopState.Stop();
+                    }
                 }
-            }
+                nextSearch:;
+            });
 
             int totalPixels = cmpWidth * sliceHeight;
-            if (minDiff > totalPixels * 5)
+            if (globalMinDiff > totalPixels * 5)
                 return 0;
 
             return bestOffset;

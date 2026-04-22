@@ -11,6 +11,9 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Threading;
+using WpfApplication = System.Windows.Application;
+using WindowState = System.Windows.WindowState;
 
 namespace Plugin.InputRecorder;
 
@@ -18,27 +21,32 @@ public partial class InputRecorderViewModel : ObservableObject, IDisposable
 {
     private readonly IPluginContext? _context;
     private readonly InputHookService _hookService;
+    private readonly Dispatcher? _dispatcher;
     private bool _disposed;
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(CanRecord))]
-    [NotifyPropertyChangedFor(nameof(CanReplay))]
-    [NotifyPropertyChangedFor(nameof(CanLoad))]
-    [NotifyPropertyChangedFor(nameof(CanSave))]
+    [NotifyCanExecuteChangedFor(nameof(StartRecordingCommand))]
+    [NotifyCanExecuteChangedFor(nameof(StopRecordingCommand))]
+    [NotifyCanExecuteChangedFor(nameof(ReplayCommand))]
+    [NotifyCanExecuteChangedFor(nameof(LoadCommand))]
+    [NotifyCanExecuteChangedFor(nameof(SaveCommand))]
     private bool _isRecording;
 
     [ObservableProperty]
-    [NotifyPropertyChangedFor(nameof(CanRecord))]
-    [NotifyPropertyChangedFor(nameof(CanReplay))]
-    [NotifyPropertyChangedFor(nameof(CanLoad))]
+    [NotifyCanExecuteChangedFor(nameof(StartRecordingCommand))]
+    [NotifyCanExecuteChangedFor(nameof(StopRecordingCommand))]
+    [NotifyCanExecuteChangedFor(nameof(ReplayCommand))]
+    [NotifyCanExecuteChangedFor(nameof(LoadCommand))]
+    [NotifyCanExecuteChangedFor(nameof(SaveCommand))]
     private bool _isReplaying;
 
-    public ObservableCollection<InputEvent> Events { get; } = new();
+    [ObservableProperty]
+    private string _statusText = string.Empty;
 
-    public bool CanRecord => !IsRecording && !IsReplaying;
-    public bool CanReplay => !IsRecording && !IsReplaying && Events.Count > 0;
-    public bool CanLoad => !IsRecording && !IsReplaying;
-    public bool CanSave => !IsRecording && !IsReplaying && Events.Count > 0;
+    [ObservableProperty]
+    private int _eventCount;
+
+    public ObservableCollection<InputEventDisplay> DisplayEvents { get; } = new();
 
     private static JsonSerializerOptions JsonOptions { get; } = new()
     {
@@ -52,42 +60,67 @@ public partial class InputRecorderViewModel : ObservableObject, IDisposable
     public InputRecorderViewModel(IPluginContext? context)
     {
         _context = context;
+        _dispatcher = WpfApplication.Current?.Dispatcher;
 
         _hookService = new InputHookService();
-        _hookService.OnEscapePressed += () =>
-        {
-            if (IsRecording && System.Windows.Application.Current != null)
-                System.Windows.Application.Current.Dispatcher.Invoke(StopRecording);
-        };
+        _hookService.OnEscapePressed += OnEscapePressed;
+        _hookService.OnScreenshotCaptured += OnScreenshotCaptured;
+        _hookService.OnLongScreenshotRecordingRequested += OnLongScreenshotRequested;
+    }
 
-        _hookService.OnScreenshotCaptured += path =>
+    private void RunOnUi(Action action)
+    {
+        if (_dispatcher is null || _dispatcher.CheckAccess())
         {
-            System.Windows.Application.Current?.Dispatcher.Invoke(() =>
-                _context?.ReportSuccess($"スクリーンショットを保存しました: {path}"));
-        };
+            action();
+            return;
+        }
 
-        _hookService.OnLongScreenshotRecordingRequested += pending =>
+        _dispatcher.Invoke(action);
+    }
+
+    private void BeginOnUi(Action action)
+    {
+        if (_dispatcher is null || _dispatcher.CheckAccess())
         {
-            if (System.Windows.Application.Current?.Dispatcher is null) return;
-            _ = System.Windows.Application.Current.Dispatcher.InvokeAsync(async () =>
+            action();
+            return;
+        }
+
+        _dispatcher.BeginInvoke(action);
+    }
+
+    private void OnEscapePressed()
+    {
+        if (IsRecording)
+            RunOnUi(StopRecording);
+    }
+
+    private void OnScreenshotCaptured(string path)
+    {
+        BeginOnUi(() => _context?.ReportSuccess($"スクリーンショットを保存しました: {path}"));
+    }
+
+    private void OnLongScreenshotRequested(InputEvent pending)
+    {
+        if (_dispatcher is null) return;
+        _ = _dispatcher.InvokeAsync(async () =>
+        {
+            try
             {
-                try
-                {
-                    await HandleLongScreenshotRecordingAsync(pending).ConfigureAwait(false);
-                }
-                catch (Exception ex)
-                {
-                    _context?.ReportError($"長図のキャプチャに失敗しました: {ex.Message}");
-                    _hookService.NotifyLongScreenshotCaptureEnded();
-                }
-            });
-        };
+                await HandleLongScreenshotRecordingAsync(pending).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                _context?.ReportError($"長図のキャプチャに失敗しました: {ex.Message}");
+                _hookService.NotifyLongScreenshotCaptureEnded();
+            }
+        });
     }
 
     private async Task HandleLongScreenshotRecordingAsync(InputEvent pending)
     {
         var path = _hookService.GenerateLongScreenshotPathForRecording();
-
         _context?.ReportProgress("アクティブ画面の長図キャプチャを開始します...", 0, true);
 
         try
@@ -99,11 +132,10 @@ public partial class InputRecorderViewModel : ObservableObject, IDisposable
                     var stitcher = new LongScreenshotService();
                     await stitcher.CaptureLongScreenshotAsync(path, (msg, progress, ind) =>
                     {
-                        System.Windows.Application.Current?.Dispatcher.Invoke(() =>
-                            _context?.ReportProgress(msg, progress, ind));
+                        BeginOnUi(() => _context?.ReportProgress(msg, progress, ind));
                     }).ConfigureAwait(false);
 
-                    System.Windows.Application.Current?.Dispatcher.Invoke(() =>
+                    BeginOnUi(() =>
                     {
                         pending.ExtraPath = path;
                         _context?.ReportSuccess($"長図のキャプチャが完了しました: {path}");
@@ -111,8 +143,7 @@ public partial class InputRecorderViewModel : ObservableObject, IDisposable
                 }
                 catch (Exception ex)
                 {
-                    System.Windows.Application.Current?.Dispatcher.Invoke(() =>
-                        _context?.ReportError($"長図のキャプチャに失敗しました: {ex.Message}"));
+                    BeginOnUi(() => _context?.ReportError($"長図のキャプチャに失敗しました: {ex.Message}"));
                 }
                 finally
                 {
@@ -126,19 +157,24 @@ public partial class InputRecorderViewModel : ObservableObject, IDisposable
         }
     }
 
-    [RelayCommand(CanExecute = nameof(CanRecord))]
+    private bool CanStartRecording() => !IsRecording && !IsReplaying;
+    private bool CanStopRecording() => IsRecording;
+    private bool CanReplay() => !IsRecording && !IsReplaying && EventCount > 0;
+    private bool CanSave() => !IsRecording && !IsReplaying && EventCount > 0;
+    private bool CanLoad() => !IsRecording && !IsReplaying;
+
+    [RelayCommand(CanExecute = nameof(CanStartRecording))]
     private void StartRecording()
     {
-        Events.Clear();
+        DisplayEvents.Clear();
+        EventCount = 0;
         IsRecording = true;
 
-        var detail = "録画中… Escで終了・復元、F9で画面キャプチャ、F10で長図キャプチャ";
-        _context?.ReportProgress("録画を開始しました。" + detail, 0, true);
+        _context?.ReportProgress("録画を開始しました。Escで終了・復元、F9で画面キャプチャ、F10で長図キャプチャ", 0, true);
 
-        if (System.Windows.Application.Current?.MainWindow != null)
-        {
-            System.Windows.Application.Current.MainWindow.WindowState = System.Windows.WindowState.Minimized;
-        }
+        var mainWindow = WpfApplication.Current?.MainWindow;
+        if (mainWindow != null)
+            mainWindow.WindowState = WindowState.Minimized;
 
         _hookService.StartRecording();
         if (!_hookService.IsRecording)
@@ -147,10 +183,10 @@ public partial class InputRecorderViewModel : ObservableObject, IDisposable
             const string hookErr = "フックの開始に失敗しました（管理者権限やセキュリティソフトを確認してください）";
             _context?.ReportError(hookErr);
             DesktopCornerToast.Show("マクロ録画", hookErr, DesktopCornerToastKind.Error, DesktopCornerToast.EndDisplayDuration);
-            if (System.Windows.Application.Current?.MainWindow != null)
+            if (mainWindow != null)
             {
-                System.Windows.Application.Current.MainWindow.WindowState = System.Windows.WindowState.Normal;
-                System.Windows.Application.Current.MainWindow.Activate();
+                mainWindow.WindowState = WindowState.Normal;
+                mainWindow.Activate();
             }
         }
         else
@@ -163,7 +199,7 @@ public partial class InputRecorderViewModel : ObservableObject, IDisposable
         }
     }
 
-    [RelayCommand]
+    [RelayCommand(CanExecute = nameof(CanStopRecording))]
     private void StopRecording()
     {
         if (!IsRecording) return;
@@ -171,39 +207,31 @@ public partial class InputRecorderViewModel : ObservableObject, IDisposable
         _hookService.StopRecording();
         IsRecording = false;
 
-        if (System.Windows.Application.Current?.MainWindow != null)
+        var mainWindow = WpfApplication.Current?.MainWindow;
+        if (mainWindow != null)
         {
-            System.Windows.Application.Current.MainWindow.WindowState = System.Windows.WindowState.Normal;
-            System.Windows.Application.Current.MainWindow.Activate();
+            mainWindow.WindowState = WindowState.Normal;
+            mainWindow.Activate();
         }
 
-        var recorded = _hookService.GetRecordedEvents();
-        Events.Clear();
-        foreach (var ev in recorded)
-            Events.Add(ev);
+        PopulateDisplayEvents(_hookService.GetRecordedEvents());
 
-        SaveCommand.NotifyCanExecuteChanged();
-        ReplayCommand.NotifyCanExecuteChanged();
-
-        var msg = $"録画を終了しました。イベント数: {Events.Count}";
-        _context?.ReportSuccess(msg);
-        DesktopCornerToast.Show("マクロ録画", $"終了しました。イベント数: {Events.Count}", DesktopCornerToastKind.Info, DesktopCornerToast.EndDisplayDuration);
+        StatusText = $"録画を終了しました。イベント数: {EventCount}";
+        _context?.ReportSuccess(StatusText);
+        DesktopCornerToast.Show("マクロ録画", $"終了しました。イベント数: {EventCount}", DesktopCornerToastKind.Info, DesktopCornerToast.EndDisplayDuration);
     }
 
     [RelayCommand(CanExecute = nameof(CanReplay))]
     private async Task ReplayAsync()
     {
         IsReplaying = true;
-        const string replayStartMsg = "リプレイを開始しました。Escで中断できます。3秒後に実行します…";
-        _context?.ReportProgress(replayStartMsg, 0, true);
-        DesktopCornerToast.Show(
-            "マクロリプレイ",
-            "開始しました。Escで中断できます。3秒後に実行します。",
-            DesktopCornerToastKind.Info,
-            DesktopCornerToast.StartDisplayDuration);
+        StatusText = "リプレイを開始しました。3秒後に実行します…";
+        _context?.ReportProgress(StatusText, 0, true);
+        DesktopCornerToast.Show("マクロリプレイ", "開始しました。Escで中断できます。3秒後に実行します。", DesktopCornerToastKind.Info, DesktopCornerToast.StartDisplayDuration);
 
-        if (System.Windows.Application.Current?.MainWindow != null)
-            System.Windows.Application.Current.MainWindow.WindowState = System.Windows.WindowState.Minimized;
+        var mainWindow = WpfApplication.Current?.MainWindow;
+        if (mainWindow != null)
+            mainWindow.WindowState = WindowState.Minimized;
 
         using var cts = new CancellationTokenSource();
         void HandleReplayEscapePressed() => cts.Cancel();
@@ -212,31 +240,32 @@ public partial class InputRecorderViewModel : ObservableObject, IDisposable
         try
         {
             await Task.Delay(3000, cts.Token);
-            const string replayRunningMsg = "リプレイ実行中…（Escで中断）";
-            _context?.ReportProgress(replayRunningMsg, 0, true);
-            await _hookService.ReplayAsync(Events, cts.Token);
-            const string replayDoneMsg = "リプレイを終了しました。正常に完了しました。";
-            _context?.ReportSuccess(replayDoneMsg);
+            StatusText = "リプレイ実行中…（Escで中断）";
+            _context?.ReportProgress(StatusText, 0, true);
+            await _hookService.ReplayAsync(_hookService.GetRecordedEvents(), cts.Token);
+            StatusText = "リプレイを終了しました。正常に完了しました。";
+            _context?.ReportSuccess(StatusText);
             DesktopCornerToast.Show("マクロリプレイ", "終了しました。正常に完了しました。", DesktopCornerToastKind.Info, DesktopCornerToast.EndDisplayDuration);
         }
         catch (OperationCanceledException)
         {
-            const string replayCancelMsg = "リプレイを終了しました。Escにより中断されました。";
-            _context?.ReportProgress(replayCancelMsg, 100, false);
+            StatusText = "リプレイを終了しました。Escにより中断されました。";
+            _context?.ReportProgress(StatusText, 100, false);
             DesktopCornerToast.Show("マクロリプレイ", "終了しました。Escにより中断されました。", DesktopCornerToastKind.Warning, DesktopCornerToast.EndDisplayDuration);
         }
         catch (Exception ex)
         {
-            _context?.ReportError($"リプレイ中にエラーが発生しました: {ex.Message}");
+            StatusText = $"リプレイ中にエラーが発生しました: {ex.Message}";
+            _context?.ReportError(StatusText);
             DesktopCornerToast.Show("マクロリプレイ", $"終了しました。エラー: {ex.Message}", DesktopCornerToastKind.Error, DesktopCornerToast.EndDisplayDuration);
         }
         finally
         {
             _hookService.OnReplayEscapePressed -= HandleReplayEscapePressed;
-            if (System.Windows.Application.Current?.MainWindow != null)
+            if (mainWindow != null)
             {
-                System.Windows.Application.Current.MainWindow.WindowState = System.Windows.WindowState.Normal;
-                System.Windows.Application.Current.MainWindow.Activate();
+                mainWindow.WindowState = WindowState.Normal;
+                mainWindow.Activate();
             }
 
             IsReplaying = false;
@@ -252,18 +281,18 @@ public partial class InputRecorderViewModel : ObservableObject, IDisposable
             DefaultExt = ".json"
         };
 
-        if (dialog.ShowDialog() == true)
+        if (dialog.ShowDialog() != true) return;
+
+        try
         {
-            try
-            {
-                var json = JsonSerializer.Serialize(Events, JsonOptions);
-                await File.WriteAllTextAsync(dialog.FileName, json).ConfigureAwait(true);
-                _context?.ReportSuccess("スクリプトの保存が完了しました。");
-            }
-            catch (Exception ex)
-            {
-                _context?.ReportError($"スクリプトの保存に失敗しました: {ex.Message}");
-            }
+            var events = _hookService.GetRecordedEvents();
+            var json = JsonSerializer.Serialize(events, JsonOptions);
+            await File.WriteAllTextAsync(dialog.FileName, json).ConfigureAwait(true);
+            _context?.ReportSuccess("スクリプトの保存が完了しました。");
+        }
+        catch (Exception ex)
+        {
+            _context?.ReportError($"スクリプトの保存に失敗しました: {ex.Message}");
         }
     }
 
@@ -275,38 +304,41 @@ public partial class InputRecorderViewModel : ObservableObject, IDisposable
             Filter = "JSON Files (*.json)|*.json|All Files (*.*)|*.*"
         };
 
-        if (dialog.ShowDialog() == true)
+        if (dialog.ShowDialog() != true) return;
+
+        try
         {
-            try
+            var json = await File.ReadAllTextAsync(dialog.FileName).ConfigureAwait(true);
+            var loaded = JsonSerializer.Deserialize<List<InputEvent>>(json, JsonOptions);
+            if (loaded != null)
             {
-                var json = await File.ReadAllTextAsync(dialog.FileName).ConfigureAwait(true);
-                var loaded = JsonSerializer.Deserialize<List<InputEvent>>(json, JsonOptions);
-                if (loaded != null)
-                {
-                    Events.Clear();
-                    foreach (var ev in loaded)
-                        Events.Add(ev);
-
-                    _hookService.LoadEvents(Events);
-
-                    var msg = $"読み込みが完了しました（イベント数: {Events.Count}）";
-                    _context?.ReportSuccess(msg);
-
-                    ReplayCommand.NotifyCanExecuteChanged();
-                    SaveCommand.NotifyCanExecuteChanged();
-                }
-            }
-            catch (Exception ex)
-            {
-                _context?.ReportError($"読み込みエラー: {ex.Message}");
+                _hookService.LoadEvents(loaded);
+                PopulateDisplayEvents(loaded);
+                _context?.ReportSuccess($"読み込みが完了しました（イベント数: {EventCount}）");
             }
         }
+        catch (Exception ex)
+        {
+            _context?.ReportError($"読み込みエラー: {ex.Message}");
+        }
+    }
+
+    private void PopulateDisplayEvents(IReadOnlyList<InputEvent> events)
+    {
+        DisplayEvents.Clear();
+        foreach (var ev in events)
+            DisplayEvents.Add(new InputEventDisplay(ev));
+        EventCount = events.Count;
     }
 
     public void Dispose()
     {
         if (_disposed) return;
         _disposed = true;
+
+        _hookService.OnEscapePressed -= OnEscapePressed;
+        _hookService.OnScreenshotCaptured -= OnScreenshotCaptured;
+        _hookService.OnLongScreenshotRecordingRequested -= OnLongScreenshotRequested;
         _hookService.Dispose();
     }
 }
