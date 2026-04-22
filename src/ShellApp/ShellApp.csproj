@@ -9,7 +9,11 @@
     <!-- .exe アイコンは csproj と同じフォルダ（src/ShellApp）に置く。無い場合はビルドを止めない -->
     <ApplicationIcon>toolbox_repair_box_tool_box_toolboxes_toolkit_icon_189326.ico</ApplicationIcon>
     <AssemblyName>WPFPluginShell</AssemblyName>
-    <!-- フレームワーク依存配布では配布先 PC に .NET 8 Desktop Runtime が必要。自己完結は README の dotnet publish 例を参照。 -->
+    <!-- Publish: 単一ファイル＋圧縮＋ネイティブ同梱＋PDB 除外 -->
+    <PublishSingleFile>true</PublishSingleFile>
+    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <CopyOutputSymbolsToPublishDirectory>false</CopyOutputSymbolsToPublishDirectory>
   </PropertyGroup>
 
   <ItemGroup>
