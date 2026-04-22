@@ -155,11 +155,7 @@ public partial class GlobalStatusService : ObservableObject, IPluginContext
     {
         Application.Current.Dispatcher.Invoke(() =>
         {
-            _currentLevel = StatusLevel.Warning;
-            Message = $"[{GetLevelPrefix(StatusLevel.Warning)}] {message}";
-            TextColor = ResolveLevelBrush(_currentLevel);
-            IsSuccessState = false;
-            IsErrorState = false;
+            ApplyLevelStyle(StatusLevel.Warning, message, includePrefix: true);
         });
     }
 
