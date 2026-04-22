@@ -1,0 +1,40 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Plugin.Abstractions\Plugin.Abstractions.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2">
+      <ExcludeAssets>runtime</ExcludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Office.Interop.Excel" Version="16.0.18925.20022">
+    </PackageReference>
+    <Reference Include="Microsoft.Office.Interop.Excel">
+      <EmbedInteropTypes>true</EmbedInteropTypes>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <Target Name="CopyPluginToRuntimeFolder" AfterTargets="Build">
+    <PropertyGroup>
+      <PluginDropFolder>$(MSBuildThisFileDirectory)..\..\..\plugins\$(AssemblyName)\</PluginDropFolder>
+    </PropertyGroup>
+    <MakeDir Directories="$(PluginDropFolder)" />
+    <ItemGroup>
+      <PluginRuntimeFiles Include="$(TargetDir)*.dll" />
+      <PluginRuntimeFiles Include="$(TargetDir)*.deps.json" />
+    </ItemGroup>
+    <Copy SourceFiles="@(PluginRuntimeFiles)"
+          DestinationFolder="$(PluginDropFolder)"
+          SkipUnchangedFiles="true" />
+  </Target>
+</Project>
