@@ -127,7 +127,7 @@
                             </Style.Triggers>
                         </Style>
                     </StackPanel.Style>
-                    <svgc:SvgViewbox Source="/ShellApp;component/Assets/SVG/excel-svgrepo-com.svg"
+                    <svgc:SvgViewbox Source="/Assets/SVG/excel-svgrepo-com.svg"
                                      Width="80" Height="80"
                                      Stretch="Uniform"
                                      HorizontalAlignment="Center"

@@ -27,6 +27,10 @@
     </Reference>
   </ItemGroup>
 
+  <ItemGroup>
+    <Resource Include="Assets\SVG\**\*.svg" />
+  </ItemGroup>
+
   <Target Name="CopyPluginToRuntimeFolder" AfterTargets="Build">
     <PropertyGroup>
       <PluginDropFolder>$(MSBuildThisFileDirectory)..\..\..\plugins\$(AssemblyName)\</PluginDropFolder>
