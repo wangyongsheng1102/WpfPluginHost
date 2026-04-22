@@ -18,7 +18,7 @@ public partial class ExcelFileItem : ObservableObject
     [ObservableProperty]
     private string _filePath = string.Empty;
 
-    public string FileName => System.IO.Path.GetFileName(FilePath);
+    public string FileName => Path.GetFileName(FilePath);
 
     [ObservableProperty]
     private string _status = "待機中";
@@ -30,28 +30,113 @@ public partial class ExcelFileItem : ObservableObject
 public partial class SampleAViewModel : ObservableObject
 {
     private readonly IPluginContext? _context;
+    private bool _suppressSelectAllSync;
 
     public SampleAViewModel(IPluginContext? context = null)
     {
         _context = context;
     }
 
-    [ObservableProperty]
-    private bool _enableZoomFormat = true;
+    // ── 表示設定 ────────────────────────────────────
+    [ObservableProperty] private bool _optZoomReset = true;
+    [ObservableProperty] private int _zoomLevel = 100;
+    [ObservableProperty] private bool _optCursorA1 = true;
+    [ObservableProperty] private bool _optActiveFirstSheet = true;
+    [ObservableProperty] private bool _optScrollTopLeft = true;
 
-    [ObservableProperty]
-    private int _zoomLevel = 100;
+    // ── データ整理 ──────────────────────────────────
+    [ObservableProperty] private bool _optClearFilters = true;
+    [ObservableProperty] private bool _optFormulaToValue = true;
+    [ObservableProperty] private bool _optBreakExternalLinks = true;
+    [ObservableProperty] private bool _optRemoveComments = false;
+    [ObservableProperty] private bool _optClearConditionalFormats = false;
 
-    [ObservableProperty]
-    private bool _formatFocusA1 = true;
+    // ── レイアウト調整 ──────────────────────────────
+    [ObservableProperty] private bool _optAutoFitColumns = true;
+    [ObservableProperty] private bool _optAutoFitRows = true;
+    [ObservableProperty] private bool _optUnfreezePanes = false;
+    [ObservableProperty] private bool _optUnhideSheets = false;
+    [ObservableProperty] private bool _optUnhideRowsCols = false;
 
-    [ObservableProperty]
-    private bool _formatActiveFirstSheet = true;
+    // ── 印刷設定 ────────────────────────────────────
+    [ObservableProperty] private bool _optResetPrintArea = false;
+    [ObservableProperty] private bool _optSetLandscape = false;
+    [ObservableProperty] private bool _optFitToOnePage = false;
+    [ObservableProperty] private bool _optResetMargins = false;
+    [ObservableProperty] private bool _optSetHeaderFooter = false;
 
-    [ObservableProperty]
-    private bool _isProcessing = false;
+    // ── 全選択 ──────────────────────────────────────
+    [ObservableProperty] private bool _selectAll = false;
 
-    /// <summary>ドラッグがドロップ領域上にあるとき true（視覚フィードバック用）</summary>
+    partial void OnSelectAllChanged(bool value)
+    {
+        if (_suppressSelectAllSync) return;
+        _suppressSelectAllSync = true;
+
+        OptZoomReset = value;
+        OptCursorA1 = value;
+        OptActiveFirstSheet = value;
+        OptScrollTopLeft = value;
+
+        OptClearFilters = value;
+        OptFormulaToValue = value;
+        OptBreakExternalLinks = value;
+        OptRemoveComments = value;
+        OptClearConditionalFormats = value;
+
+        OptAutoFitColumns = value;
+        OptAutoFitRows = value;
+        OptUnfreezePanes = value;
+        OptUnhideSheets = value;
+        OptUnhideRowsCols = value;
+
+        OptResetPrintArea = value;
+        OptSetLandscape = value;
+        OptFitToOnePage = value;
+        OptResetMargins = value;
+        OptSetHeaderFooter = value;
+
+        _suppressSelectAllSync = false;
+    }
+
+    private void SyncSelectAllState()
+    {
+        if (_suppressSelectAllSync) return;
+        _suppressSelectAllSync = true;
+
+        var all = OptZoomReset && OptCursorA1 && OptActiveFirstSheet && OptScrollTopLeft
+               && OptClearFilters && OptFormulaToValue && OptBreakExternalLinks && OptRemoveComments && OptClearConditionalFormats
+               && OptAutoFitColumns && OptAutoFitRows && OptUnfreezePanes && OptUnhideSheets && OptUnhideRowsCols
+               && OptResetPrintArea && OptSetLandscape && OptFitToOnePage && OptResetMargins && OptSetHeaderFooter;
+        SelectAll = all;
+
+        _suppressSelectAllSync = false;
+    }
+
+    partial void OnOptZoomResetChanged(bool value) => SyncSelectAllState();
+    partial void OnOptCursorA1Changed(bool value) => SyncSelectAllState();
+    partial void OnOptActiveFirstSheetChanged(bool value) => SyncSelectAllState();
+    partial void OnOptScrollTopLeftChanged(bool value) => SyncSelectAllState();
+    partial void OnOptClearFiltersChanged(bool value) => SyncSelectAllState();
+    partial void OnOptFormulaToValueChanged(bool value) => SyncSelectAllState();
+    partial void OnOptBreakExternalLinksChanged(bool value) => SyncSelectAllState();
+    partial void OnOptRemoveCommentsChanged(bool value) => SyncSelectAllState();
+    partial void OnOptClearConditionalFormatsChanged(bool value) => SyncSelectAllState();
+    partial void OnOptAutoFitColumnsChanged(bool value) => SyncSelectAllState();
+    partial void OnOptAutoFitRowsChanged(bool value) => SyncSelectAllState();
+    partial void OnOptUnfreezePanesChanged(bool value) => SyncSelectAllState();
+    partial void OnOptUnhideSheetsChanged(bool value) => SyncSelectAllState();
+    partial void OnOptUnhideRowsColsChanged(bool value) => SyncSelectAllState();
+    partial void OnOptResetPrintAreaChanged(bool value) => SyncSelectAllState();
+    partial void OnOptSetLandscapeChanged(bool value) => SyncSelectAllState();
+    partial void OnOptFitToOnePageChanged(bool value) => SyncSelectAllState();
+    partial void OnOptResetMarginsChanged(bool value) => SyncSelectAllState();
+    partial void OnOptSetHeaderFooterChanged(bool value) => SyncSelectAllState();
+
+    // ── ファイルキュー ──────────────────────────────
+    [ObservableProperty]
+    private bool _isProcessing;
+
     [ObservableProperty]
     private bool _isDragOverDropZone;
 
@@ -61,13 +146,18 @@ public partial class SampleAViewModel : ObservableObject
 
     public bool HasPendingFiles => PendingFiles.Count > 0;
 
+    [ObservableProperty]
+    private string _statusMessage = string.Empty;
+
+    // ── コマンド ────────────────────────────────────
+
     [RelayCommand]
     private void SelectExcelFallback()
     {
         if (IsProcessing) return;
         var dlg = new OpenFileDialog
         {
-            Filter = "Excel ファイル (*.xlsx;*.xls)|*.xlsx;*.xls|すべてのファイル (*.*)|*.*",
+            Filter = "Excel ファイル (*.xlsx;*.xls;*.xlsm)|*.xlsx;*.xls;*.xlsm|すべてのファイル (*.*)|*.*",
             Title = "Excel ファイルを手動で選択",
             Multiselect = true
         };
@@ -93,7 +183,7 @@ public partial class SampleAViewModel : ObservableObject
 
         IsProcessing = true;
         _context?.ReportProgress("一括フォーマットを開始します...", 0, true);
-        
+
         await Task.Run(() => ProcessFiles(PendingFiles.ToList()));
         IsProcessing = false;
     }
@@ -116,13 +206,14 @@ public partial class SampleAViewModel : ObservableObject
                         excelFiles.AddRange(Directory.GetFiles(path, "*.xls*", SearchOption.AllDirectories)
                             .Where(f => !Path.GetFileName(f).StartsWith("~")));
                     }
-                    catch { } // アクセス例外は無視
+                    catch { }
                 }
                 else if (File.Exists(path))
                 {
-                    if (path.EndsWith(".xls", StringComparison.OrdinalIgnoreCase) ||
-                        path.EndsWith(".xlsx", StringComparison.OrdinalIgnoreCase) ||
-                        path.EndsWith(".xlsm", StringComparison.OrdinalIgnoreCase))
+                    var ext = Path.GetExtension(path);
+                    if (ext.Equals(".xls", StringComparison.OrdinalIgnoreCase) ||
+                        ext.Equals(".xlsx", StringComparison.OrdinalIgnoreCase) ||
+                        ext.Equals(".xlsm", StringComparison.OrdinalIgnoreCase))
                     {
                         excelFiles.Add(path);
                     }
@@ -139,18 +230,26 @@ public partial class SampleAViewModel : ObservableObject
                 newCount++;
             }
         }
-        
+
         OnPropertyChanged(nameof(HasPendingFiles));
 
         if (newCount == 0)
-        {
             _context?.ReportWarning("有効な新しい Excel ファイルは追加されませんでした。");
-        }
         else
-        {
             _context?.ReportInfo($"{newCount} 個の新しいファイルをスキャンし、キューに追加しました。");
-        }
+
         IsProcessing = false;
+    }
+
+    // ── Excel 処理 ──────────────────────────────────
+
+    private void ReportOnUi(Action action)
+    {
+        var dispatcher = System.Windows.Application.Current?.Dispatcher;
+        if (dispatcher is null || dispatcher.CheckAccess())
+            action();
+        else
+            dispatcher.Invoke(action);
     }
 
     private void ProcessFiles(List<ExcelFileItem> files)
@@ -167,8 +266,7 @@ public partial class SampleAViewModel : ObservableObject
             foreach (var item in files)
             {
                 count++;
-                
-                System.Windows.Application.Current.Dispatcher.Invoke(() => 
+                ReportOnUi(() =>
                 {
                     item.Status = "処理中...";
                     item.StatusDetail = null;
@@ -177,24 +275,18 @@ public partial class SampleAViewModel : ObservableObject
 
                 bool success = FormatSingleExcel(app, item.FilePath, out var failureReason);
 
-                System.Windows.Application.Current.Dispatcher.Invoke(() => 
+                ReportOnUi(() =>
                 {
                     item.Status = success ? "✅ 完了" : "❌ 失敗";
                     item.StatusDetail = success ? null : failureReason;
                 });
             }
 
-            System.Windows.Application.Current.Dispatcher.Invoke(() => 
-            {
-                _context?.ReportSuccess($"すべてのキューの実行が完了しました！合計 {files.Count} 個のファイルを処理しました。");
-            });
+            ReportOnUi(() => _context?.ReportSuccess($"すべてのキューの実行が完了しました！合計 {files.Count} 個のファイルを処理しました。"));
         }
         catch (Exception ex)
         {
-            System.Windows.Application.Current.Dispatcher.Invoke(() => 
-            {
-                _context?.ReportError($"自動化の重大なエラー：{ex.Message}");
-            });
+            ReportOnUi(() => _context?.ReportError($"自動化の重大なエラー：{ex.Message}"));
         }
         finally
         {
@@ -214,79 +306,155 @@ public partial class SampleAViewModel : ObservableObject
         Excel.Workbook? wb = null;
         try
         {
-            wb = app.Workbooks.Open(
-                Filename: path,
-                UpdateLinks: Type.Missing,
-                ReadOnly: false);
+            wb = app.Workbooks.Open(Filename: path, UpdateLinks: Type.Missing, ReadOnly: false);
 
+            // ── シートごとの処理 ────────────────────
             for (int i = 1; i <= wb.Worksheets.Count; i++)
             {
-                var currentSheet = (Excel.Worksheet)wb.Worksheets[i];
+                var ws = (Excel.Worksheet)wb.Worksheets[i];
                 Excel.Range? usedRange = null;
-                
-                if (EnableZoomFormat || FormatFocusA1)
+                try
                 {
-                    currentSheet.Activate();
-                    
-                    if (EnableZoomFormat && app.ActiveWindow != null)
+                    bool needActivate = OptZoomReset || OptCursorA1 || OptScrollTopLeft || OptUnfreezePanes;
+                    if (needActivate)
+                        ws.Activate();
+
+                    if (OptZoomReset && app.ActiveWindow != null)
                     {
-                        int safeZoom = Math.Max(10, Math.Min(400, ZoomLevel));
-                        app.ActiveWindow.Zoom = safeZoom;
+                        app.ActiveWindow.Zoom = Math.Max(10, Math.Min(400, ZoomLevel));
                     }
 
-                    if (FormatFocusA1)
+                    if (OptScrollTopLeft && app.ActiveWindow != null)
                     {
-                        var a1 = currentSheet.Range["A1"];
+                        app.ActiveWindow.ScrollRow = 1;
+                        app.ActiveWindow.ScrollColumn = 1;
+                    }
+
+                    if (OptCursorA1)
+                    {
+                        var a1 = ws.Range["A1"];
                         a1.Select();
                         Marshal.ReleaseComObject(a1);
                     }
-                }
 
-                // フィルター解除 + 数式を値に固定 + 行列の自動調整
-                try
-                {
-                    if (currentSheet.FilterMode)
+                    if (OptUnfreezePanes && app.ActiveWindow != null)
                     {
-                        try { currentSheet.ShowAllData(); } catch { }
-                    }
-                    if (currentSheet.AutoFilterMode)
-                    {
-                        currentSheet.AutoFilterMode = false;
+                        app.ActiveWindow.FreezePanes = false;
                     }
 
-                    usedRange = currentSheet.UsedRange;
+                    if (OptClearFilters)
+                    {
+                        try { if (ws.FilterMode) ws.ShowAllData(); } catch { }
+                        if (ws.AutoFilterMode) ws.AutoFilterMode = false;
+                    }
+
+                    usedRange = ws.UsedRange;
                     if (usedRange != null)
                     {
-                        // Value2 を自身に代入して、数式を値へ固定
-                        usedRange.Value2 = usedRange.Value2;
-                        usedRange.Columns.AutoFit();
-                        usedRange.Rows.AutoFit();
+                        if (OptFormulaToValue)
+                            usedRange.Value2 = usedRange.Value2;
+
+                        if (OptAutoFitColumns)
+                            usedRange.Columns.AutoFit();
+
+                        if (OptAutoFitRows)
+                            usedRange.Rows.AutoFit();
+                    }
+
+                    if (OptRemoveComments)
+                    {
+                        try { ws.Cells.ClearComments(); } catch { }
+                    }
+
+                    if (OptClearConditionalFormats)
+                    {
+                        try { ws.Cells.FormatConditions.Delete(); } catch { }
+                    }
+
+                    if (OptUnhideRowsCols)
+                    {
+                        try
+                        {
+                            ws.Cells.EntireRow.Hidden = false;
+                            ws.Cells.EntireColumn.Hidden = false;
+                        }
+                        catch { }
+                    }
+
+                    // ── 印刷設定 ──
+                    if (OptResetPrintArea || OptSetLandscape || OptFitToOnePage || OptResetMargins || OptSetHeaderFooter)
+                    {
+                        var ps = ws.PageSetup;
+                        if (OptResetPrintArea)
+                            ps.PrintArea = string.Empty;
+
+                        if (OptSetLandscape)
+                            ps.Orientation = Excel.XlPageOrientation.xlLandscape;
+
+                        if (OptFitToOnePage)
+                        {
+                            ps.FitToPagesWide = 1;
+                            ps.FitToPagesTall = 1;
+                            ws.PageSetup.Zoom = false;
+                        }
+
+                        if (OptResetMargins)
+                        {
+                            ps.LeftMargin = app.InchesToPoints(0.7);
+                            ps.RightMargin = app.InchesToPoints(0.7);
+                            ps.TopMargin = app.InchesToPoints(0.75);
+                            ps.BottomMargin = app.InchesToPoints(0.75);
+                            ps.HeaderMargin = app.InchesToPoints(0.3);
+                            ps.FooterMargin = app.InchesToPoints(0.3);
+                        }
+
+                        if (OptSetHeaderFooter)
+                        {
+                            ps.LeftHeader = string.Empty;
+                            ps.CenterHeader = "&A";
+                            ps.RightHeader = string.Empty;
+                            ps.LeftFooter = string.Empty;
+                            ps.CenterFooter = "&P / &N";
+                            ps.RightFooter = string.Empty;
+                        }
                     }
                 }
                 finally
                 {
-                    if (usedRange != null)
-                    {
-                        Marshal.ReleaseComObject(usedRange);
-                    }
+                    if (usedRange != null) Marshal.ReleaseComObject(usedRange);
+                    Marshal.ReleaseComObject(ws);
                 }
-                Marshal.ReleaseComObject(currentSheet);
             }
 
-            // 外部リンクは常に切断
-            var links = wb.LinkSources(Excel.XlLink.xlExcelLinks) as Array;
-            if (links != null)
+            // ── シート表示 ──────────────────────────
+            if (OptUnhideSheets)
             {
-                for (int i = 1; i <= links.Length; i++)
+                for (int i = 1; i <= wb.Worksheets.Count; i++)
                 {
-                    if (links.GetValue(i) is string linkName)
+                    var ws = (Excel.Worksheet)wb.Worksheets[i];
+                    try { ws.Visible = Excel.XlSheetVisibility.xlSheetVisible; } catch { }
+                    Marshal.ReleaseComObject(ws);
+                }
+            }
+
+            // ── 外部リンク切断 ──────────────────────
+            if (OptBreakExternalLinks)
+            {
+                var links = wb.LinkSources(Excel.XlLink.xlExcelLinks) as Array;
+                if (links != null)
+                {
+                    for (int i = 1; i <= links.Length; i++)
                     {
-                        try { wb.BreakLink(linkName, Excel.XlLinkType.xlLinkTypeExcelLinks); } catch { }
+                        if (links.GetValue(i) is string linkName)
+                        {
+                            try { wb.BreakLink(linkName, Excel.XlLinkType.xlLinkTypeExcelLinks); } catch { }
+                        }
                     }
                 }
             }
 
-            if (FormatActiveFirstSheet && wb.Sheets.Count > 0)
+            // ── 最初のシートをアクティブ ────────────
+            if (OptActiveFirstSheet && wb.Sheets.Count > 0)
             {
                 var firstSheet = (Excel.Worksheet)wb.Sheets[1];
                 firstSheet.Activate();
