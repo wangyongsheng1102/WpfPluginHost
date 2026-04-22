@@ -5,14 +5,14 @@ namespace Plugin.SampleA;
 
 public sealed class SampleAPlugin : IPluginModule
 {
-    public string Id => "sampleA";
-    public string Title => "Excel 書式設定";
-    public string Description => "既存ブックに表示倍率・アクティブセル・表示シートなどの表示設定を一括適用します。";
+    public string Id => "excelFormatter";
+    public string Title => "ExcelFormatter";
+    public string Description => "既存ブックに表示倍率・カーソル位置・印刷設定など各種書式を一括適用します。機能ごとにチェックボックスで個別選択できます。";
     public string IconKey => "📄";
     public int Order => 10;
 
     private IPluginContext? _context;
-    
+
     public void Initialize(IPluginContext context)
     {
         _context = context;
