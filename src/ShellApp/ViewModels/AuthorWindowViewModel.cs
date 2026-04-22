@@ -23,7 +23,7 @@ public partial class AuthorWindowViewModel : ObservableObject
 
     public string ProductName => "WPF Plugin Shell";
 
-    public string VersionDisplay => "Version 1.3.0";
+    public string VersionDisplay => "Version 1.5.0";
 
     public string ProfileGlyph => "👤";
 
@@ -47,9 +47,31 @@ public partial class AuthorWindowViewModel : ObservableObject
     {
         yield return new ReleaseNoteItem
         {
-            VersionTitle = "v1.3.0 - UI 統一管理 & テーマ基盤強化",
+            VersionTitle = "v1.5.0 - 単一ファイル配布 & InputRecorder MVVM 化",
             DateLabel = "2026/04",
             IsHighlight = true,
+            Notes =
+                "• dotnet publish で単一ファイル＋圧縮＋ネイティブ同梱＋PDB 除外の配布構成を追加\n" +
+                "• InputRecorder プラグインを MVVM パターンに全面リファクタリング\n" +
+                "• データモデル（InputEvent）と表示モデル（InputEventDisplay）を分離\n" +
+                "• 長図スクロール検索を Parallel.For で並列化\n" +
+                "• 閉じるボタンを switch-on/off SVG トグルアニメーションに刷新"
+        };
+        yield return new ReleaseNoteItem
+        {
+            VersionTitle = "v1.4.0 - About ボタン演出 & バグ修正",
+            DateLabel = "2026/04",
+            IsHighlight = false,
+            Notes =
+                "• About ボタン：ホバー時に回転＋パルス＋グラデーション発光リング＋弾性プレスの新アニメーション\n" +
+                "• PostgreCompare エクスポート/インポートの COPY 形式不一致エラーを修正\n" +
+                "• XAML の GridLength / CornerRadius 型不一致による起動時クラッシュを修正"
+        };
+        yield return new ReleaseNoteItem
+        {
+            VersionTitle = "v1.3.0 - UI 統一管理 & テーマ基盤強化",
+            DateLabel = "2026/04",
+            IsHighlight = false,
             Notes =
                 "• ThemeDimensions を 100+ 定数に拡張し、UI 数値の一元管理を実現\n" +
                 "• フォント・ウィンドウサイズ・ナビ幅・アイコンサイズ・余白・角丸・影・透過度・アニメーション時間をすべて定数化\n" +
