@@ -167,7 +167,7 @@ public class InputHookService : IDisposable
     public bool IsRecording { get; private set; }
     public bool IsReplaying { get; private set; }
 
-    public IReadOnlyList<InputEvent> GetRecordedEvents() => new List<InputEvent>(_recordedEvents);
+    public IReadOnlyList<InputEvent> GetRecordedEvents() => _recordedEvents;
 
     public void NotifyLongScreenshotCaptureEnded() => _longScreenshotBusy = false;
 

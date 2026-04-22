@@ -74,7 +74,7 @@
                             <Style TargetType="StackPanel">
                                 <Setter Property="Visibility" Value="Collapsed" />
                                 <Style.Triggers>
-                                    <DataTrigger Binding="{Binding Events.Count}" Value="0">
+                                    <DataTrigger Binding="{Binding EventCount}" Value="0">
                                         <Setter Property="Visibility" Value="Visible" />
                                     </DataTrigger>
                                 </Style.Triggers>
@@ -91,7 +91,7 @@
                             <Style TargetType="Grid">
                                 <Setter Property="Visibility" Value="Visible" />
                                 <Style.Triggers>
-                                    <DataTrigger Binding="{Binding Events.Count}" Value="0">
+                                    <DataTrigger Binding="{Binding EventCount}" Value="0">
                                         <Setter Property="Visibility" Value="Collapsed" />
                                     </DataTrigger>
                                 </Style.Triggers>
@@ -125,7 +125,7 @@
                         </Grid>
 
                         <ListBox Grid.Row="1"
-                                 ItemsSource="{Binding Events}"
+                                 ItemsSource="{Binding DisplayEvents}"
                                  Background="Transparent"
                                  BorderThickness="0"
                                  Foreground="{DynamicResource PrimaryTextBrush}"
